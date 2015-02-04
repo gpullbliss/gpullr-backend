@@ -26,15 +26,15 @@ public class Application {
   }
 
   @Bean
-  @Profile("test")
+  @Profile({"dev", "test"})
   public DataSource createTestDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:mem:task_test").driverClassName("org.h2.Driver").build();
+    return DataSourceBuilder.create().url("jdbc:h2:mem:gpullr").driverClassName("org.h2.Driver").build();
   }
 
   @Bean
   @Profile("prod")
   public DataSource createDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:./task").driverClassName("org.h2.Driver").build();
+    return DataSourceBuilder.create().url("jdbc:h2:./gpuller").driverClassName("org.h2.Driver").build();
   }
 
   @Bean
