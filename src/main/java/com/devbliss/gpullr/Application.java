@@ -42,7 +42,7 @@ public class Application {
     JpaVendorAdapter jpaVendorAdapter) {
     LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
     emfb.setDataSource(dataSource);
-    emfb.setPackagesToScan("gtd.domain");
+    emfb.setPackagesToScan("com.devbliss.gpullr");
     emfb.setJpaVendorAdapter(jpaVendorAdapter);
     return emfb;
   }

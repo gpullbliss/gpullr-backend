@@ -1,12 +1,19 @@
 buildscript {
   repositories {
-    mavenCentral()
     jcenter()
+    maven { url "http://repo.spring.io/snapshot" }
+    maven { url "http://repo.spring.io/milestone" }
+    maven { url "http://nexus.devbliss.com/content/repositories/snapshots" }
+    maven { url "http://nexus.devbliss.com/content/repositories/releases" }
   }
   dependencies {
     classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.1.RELEASE")
     classpath("org.springframework:springloaded:1.2.1.RELEASE")
   }
+}
+
+plugins {
+  id "com.devbliss.changelog" version "1.2.1"
 }
 
 apply plugin: 'java'
@@ -27,14 +34,11 @@ jar {
 }
 
 dependencies {
-  compile("org.springframework.boot:spring-boot-starter-web") {
-    exclude module: "spring-boot-starter-tomcat"
-  }
+  compile "org.springframework.boot:spring-boot-starter-web"
   compile "org.springframework.boot:spring-boot-starter-jetty"
   compile "org.springframework.boot:spring-boot-starter-actuator"
   compile "org.springframework.boot:spring-boot-starter-data-jpa"
 
-  compile "com.google.code.gson:gson"
   compile "com.h2database:h2"
 
   testCompile "org.mockito:mockito-core:1.+"
