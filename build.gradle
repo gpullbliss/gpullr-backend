@@ -1,0 +1,47 @@
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.1.RELEASE")
+    classpath("org.springframework:springloaded:1.2.1.RELEASE")
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'spring-boot'
+
+sourceCompatibility = 1.8
+
+repositories {
+  jcenter()
+  mavenCentral()
+}
+
+jar {
+  baseName = rootProject.name
+  version = "0.0.1"
+}
+
+dependencies {
+  compile("org.springframework.boot:spring-boot-starter-web") {
+    exclude module: "spring-boot-starter-tomcat"
+  }
+  compile "org.springframework.boot:spring-boot-starter-jetty"
+  compile "org.springframework.boot:spring-boot-starter-actuator"
+  compile "org.springframework.boot:spring-boot-starter-data-jpa"
+
+  compile "com.google.code.gson:gson"
+  compile "com.h2database:h2"
+
+  testCompile "org.mockito:mockito-core:1.+"
+  testCompile "org.springframework:spring-test:4.1.4.RELEASE"
+  testCompile "junit:junit"
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.2.1'
+}
