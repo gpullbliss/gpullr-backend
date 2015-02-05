@@ -17,7 +17,7 @@ public class LoggerInjector implements BeanPostProcessor {
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     ReflectionUtils.doWithFields(bean.getClass(), field -> {
       ReflectionUtils.makeAccessible(field);
-      
+
       if (field.isAnnotationPresent(Log.class)) {
         org.slf4j.Logger logger = LoggerFactory.getLogger(bean.getClass().getName());
         field.set(bean, logger);

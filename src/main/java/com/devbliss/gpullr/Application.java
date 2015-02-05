@@ -3,11 +3,9 @@ package com.devbliss.gpullr;
 import javax.sql.DataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
@@ -26,20 +24,8 @@ public class Application {
   }
 
   @Bean
-  @Profile({"dev", "test"})
-  public DataSource createTestDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:mem:gpullr").driverClassName("org.h2.Driver").build();
-  }
-
-  @Bean
-  @Profile("prod")
-  public DataSource createDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:./gpullr").driverClassName("org.h2.Driver").build();
-  }
-
-  @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource,
-    JpaVendorAdapter jpaVendorAdapter) {
+      JpaVendorAdapter jpaVendorAdapter) {
     LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
     emfb.setDataSource(dataSource);
     emfb.setPackagesToScan("com.devbliss.gpullr");
