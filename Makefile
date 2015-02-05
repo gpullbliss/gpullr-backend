@@ -3,10 +3,10 @@ all:
 clean:
 
 finish:
-    @./gradlew changelogSnapshot
+	@./gradlew changelogSnapshot
 
 release:
-    @./gradlew changelogRelease
+	@./gradlew changelogRelease
 
 changelog:
 
