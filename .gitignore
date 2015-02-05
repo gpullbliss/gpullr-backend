@@ -21,3 +21,6 @@ build/
 .classpath
 .settings/
 .project
+/bin/
+
+/gpullr.log
