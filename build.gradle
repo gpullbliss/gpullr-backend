@@ -30,7 +30,7 @@ repositories {
 
 jar {
   baseName = rootProject.name
-  version = "0.0.1"
+  version = version
 }
 
 dependencies {
