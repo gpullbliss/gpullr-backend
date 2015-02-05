@@ -14,7 +14,7 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 /**
- * @author Daniel Walldorf <daniel.walldorf@devbliss.com>
+ * Application entry point
  */
 @Configuration
 @ComponentScan
