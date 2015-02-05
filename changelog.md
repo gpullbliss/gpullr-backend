@@ -1,6 +1,7 @@
 
 ### Version 0.1.0-SNAPSHOT
+ - [feature] server port and log configuration
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Thu Feb 05 09:17:54 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Feb 05 11:07:52 CET 2015
