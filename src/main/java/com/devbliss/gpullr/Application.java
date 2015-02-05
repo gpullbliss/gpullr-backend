@@ -34,7 +34,7 @@ public class Application {
   @Bean
   @Profile("prod")
   public DataSource createDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:./gpuller").driverClassName("org.h2.Driver").build();
+    return DataSourceBuilder.create().url("jdbc:h2:./gpullr").driverClassName("org.h2.Driver").build();
   }
 
   @Bean
