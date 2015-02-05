@@ -22,3 +22,5 @@ build/
 .settings/
 .project
 /bin/
+
+/gpullr.log
