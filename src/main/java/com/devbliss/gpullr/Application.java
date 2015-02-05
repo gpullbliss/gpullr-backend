@@ -21,6 +21,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 @EnableAutoConfiguration
 public class Application {
 
+  public static final String DRIVER_CLASS_NAME = "org.h2.Driver";
+
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
@@ -28,18 +30,18 @@ public class Application {
   @Bean
   @Profile({"dev", "test"})
   public DataSource createTestDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:mem:gpullr").driverClassName("org.h2.Driver").build();
+    return DataSourceBuilder.create().url("jdbc:h2:mem:gpullr").driverClassName(DRIVER_CLASS_NAME).build();
   }
 
   @Bean
   @Profile("prod")
   public DataSource createDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:./gpullr").driverClassName("org.h2.Driver").build();
+    return DataSourceBuilder.create().url("jdbc:h2:./gpullr").driverClassName(DRIVER_CLASS_NAME).build();
   }
 
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource,
-    JpaVendorAdapter jpaVendorAdapter) {
+      JpaVendorAdapter jpaVendorAdapter) {
     LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
     emfb.setDataSource(dataSource);
     emfb.setPackagesToScan("com.devbliss.gpullr");

@@ -20,6 +20,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'spring-boot'
+apply plugin: 'checkstyle'
 
 sourceCompatibility = 1.8
 
@@ -44,6 +45,11 @@ dependencies {
   testCompile "org.mockito:mockito-core:1.+"
   testCompile "org.springframework:spring-test:4.1.4.RELEASE"
   testCompile "junit:junit"
+}
+
+checkstyle {
+  toolVersion = "6.3"
+  configFile = new File(rootDir, 'checkstyle.xml')
 }
 
 task wrapper(type: Wrapper) {
