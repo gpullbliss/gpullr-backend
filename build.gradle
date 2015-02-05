@@ -53,6 +53,7 @@ checkstyle {
 }
 
 test {
+  // test output on commandline - tell which tests are running:
   testLogging {
     events "passed", "skipped", "failed"
     info {
