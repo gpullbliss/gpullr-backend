@@ -52,6 +52,17 @@ checkstyle {
   configFile = new File(rootDir, 'checkstyle.xml')
 }
 
+test {
+  // test output on commandline - tell which tests are running:
+  testLogging {
+    events "passed", "skipped", "failed"
+    info {
+      events "started", "passed", "skipped", "failed"
+      exceptionFormat "full"
+    }
+  }
+}
+
 task wrapper(type: Wrapper) {
   gradleVersion = gradleVersion
   distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"

@@ -24,3 +24,5 @@ build/
 /bin/
 
 /gpullr.log
+
+/gpullr.mv.db
