@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.controller;
 
 
-import com.devbliss.gpullr.service.github.GithubService;
-import java.io.IOException;
+import com.devbliss.gpullr.domain.GithubRepo;
+import com.devbliss.gpullr.service.GithubRepoService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,20 +10,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/sample")
 public class SampleController {
   
   @Autowired
-  private GithubService githubService;
+  private GithubRepoService githubRepoService;
   
-  @RequestMapping(method=RequestMethod.GET)
-  public List<String> getShasOfDementity() {
-    try {
-      githubService.loadEvents();
-      return githubService.proofThatItWorks();
-    } catch (IOException e) {
-      e.printStackTrace();
-      return null;
-    }
+  @RequestMapping(value="/repos", produces="application/json", method = RequestMethod.GET)
+  public List<GithubRepo> getAllRepos() {
+    return githubRepoService.findAll();
   }
 }

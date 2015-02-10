@@ -1,4 +1,4 @@
-package com.devbliss.gpullr.service.github;
+package com.devbliss.gpullr.util;
 
 import com.jcabi.github.mock.MkGithub;
 import java.io.IOException;

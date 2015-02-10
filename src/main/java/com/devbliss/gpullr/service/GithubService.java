@@ -1,5 +1,7 @@
-package com.devbliss.gpullr.service.github;
+package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.domain.GithubRepo;
+import com.devbliss.gpullr.exception.UnexpectedException;
 import com.jcabi.github.Github;
 import com.jcabi.http.response.JsonResponse;
 import java.io.IOException;
@@ -24,18 +26,27 @@ public class GithubService {
   private Github client;
 
   /**
-   * Reads all repositories owned bei devbliss and returns a list of strings in the format name:url
-   * @return
-   * @throws IOException
+   * Retrieves all repositories (public, private, forked, etc.) belonging to our organization, from GitHub.
+   * 
+   * @return possibly empty list of repositories
    */
-  public List<String> proofThatItWorks() throws IOException {
-    return loadAllPages("/orgs/devbliss/repos", jo -> jo.getString("name") + " _ " + jo.getString("html_url"));
+  public List<GithubRepo> fetchAllGithubRepos() throws UnexpectedException {
+    try {
+      return loadAllPages("/orgs/devbliss/repos",
+          jo -> new GithubRepo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    }
   }
 
   public void loadEvents() throws IOException {
-    JsonResponse resp = client.entry().uri().path("repos/devbliss/ecosystem-grunt-plugin/events").back().fetch().as(JsonResponse.class);
+    // JsonResponse resp = client.entry().uri().path().back().fetch().as(JsonResponse.class);
     System.err.println("*** :: events :: ***");
-    System.err.println(resp);
+    loadAllPages("repos/devbliss/ecosystem-grunt-plugin/events",
+        jo -> jo.getString("id") + ": " + jo.getString("type") + ": " + jo.getString("created_at")).forEach(
+        s -> System.out.println(s));
+
+    // System.err.println(resp);
     // /repos/:owner/:repo/events
   }
 
