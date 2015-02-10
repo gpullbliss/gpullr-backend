@@ -23,8 +23,6 @@ public class GithubService {
   @Autowired
   private Github client;
 
-  // private GithubFactory githubFactory;
-
   /**
    * Reads all repositories owned bei devbliss and returns a list of strings in the format name:url
    * @return
@@ -35,6 +33,9 @@ public class GithubService {
   }
 
   public void loadEvents() throws IOException {
+    JsonResponse resp = client.entry().uri().path("repos/devbliss/ecosystem-grunt-plugin/events").back().fetch().as(JsonResponse.class);
+    System.err.println("*** :: events :: ***");
+    System.err.println(resp);
     // /repos/:owner/:repo/events
   }
 
@@ -45,7 +46,6 @@ public class GithubService {
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
       throws IOException {
-    System.err.println("handle response page: " + page);
     List<T> result = resp
       .json()
       .readArray()

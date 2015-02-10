@@ -19,6 +19,7 @@ public class SampleController {
   @RequestMapping(method=RequestMethod.GET)
   public List<String> getShasOfDementity() {
     try {
+      githubService.loadEvents();
       return githubService.proofThatItWorks();
     } catch (IOException e) {
       e.printStackTrace();
