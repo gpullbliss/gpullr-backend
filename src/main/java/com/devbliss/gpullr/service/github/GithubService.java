@@ -1,4 +1,4 @@
-package com.devbliss.gpullr.service;
+package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.GithubRepo;
 import com.devbliss.gpullr.exception.UnexpectedException;

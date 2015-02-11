@@ -1,8 +1,9 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.service.github.GithubService;
+
 import com.devbliss.gpullr.service.CacheAgeService;
 import com.devbliss.gpullr.service.GithubRepoService;
-import com.devbliss.gpullr.service.GithubService;
 import com.devbliss.gpullr.util.Log;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;

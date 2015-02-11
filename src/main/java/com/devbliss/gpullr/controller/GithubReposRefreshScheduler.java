@@ -1,9 +1,9 @@
 package com.devbliss.gpullr.controller;
 
-import org.springframework.stereotype.Component;
+import com.devbliss.gpullr.service.github.GithubService;
 
+import org.springframework.stereotype.Component;
 import com.devbliss.gpullr.service.GithubRepoService;
-import com.devbliss.gpullr.service.GithubService;
 import com.devbliss.gpullr.util.Log;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.devbliss.gpullr.controller;
 
 
-import com.devbliss.gpullr.service.GithubService;
+import com.devbliss.gpullr.service.github.GithubService;
 
 import com.devbliss.gpullr.domain.GithubRepo;
 import com.devbliss.gpullr.service.GithubRepoService;
