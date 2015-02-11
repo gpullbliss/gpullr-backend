@@ -40,15 +40,12 @@ public class InitialDataRefresher {
     
     if (cacheAgeService.isRefreshRequired()) {
       logger.info("Data need refreshment...");
-      refreshGithubRepos();
       cacheAgeService.setRefreshedToday();
       logger.info("Data refreshed.");
+    } else {
+      logger.info("Everything up to date!");
     }
     
     logger.info("Finished checking data age.");
-  }
-
-  private void refreshGithubRepos() {
-    githubService.fetchAllGithubRepos().forEach(r -> githubRepoService.insertOrUpdate(r));
   }
 }
