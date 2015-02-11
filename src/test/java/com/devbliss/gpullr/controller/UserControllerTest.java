@@ -8,7 +8,6 @@ import com.devbliss.gpullr.controller.dto.UserConverter;
 import com.devbliss.gpullr.controller.dto.UserDto;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.UserService;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,11 +28,6 @@ public class UserControllerTest extends BaseTest {
 
   @Mock
   private UserDto userDto;
-
-  @Before
-  public void setUp() {
-    super.setUp();
-  }
 
   @Test
   public void saveCallsUserService() {
