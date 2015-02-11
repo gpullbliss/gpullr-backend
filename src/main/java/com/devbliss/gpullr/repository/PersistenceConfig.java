@@ -1,29 +1,30 @@
 package com.devbliss.gpullr.repository;
 
+import javax.sql.DataSource;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-import javax.sql.DataSource;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Configuration;
-
 @Configuration
 public class PersistenceConfig {
+  
+  private static final String DRIVER_CLASS_NAME = "org.h2.Driver";
   
   @Profile("test")
   @Bean
   public DataSource createTestDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:mem:gpullrDb_test").driverClassName("org.h2.Driver").build();
+    return DataSourceBuilder.create().url("jdbc:h2:mem:gpullrDb_test").driverClassName(DRIVER_CLASS_NAME).build();
   }
   
   @Profile({"prod", "dev"})
   @Bean
   public DataSource createDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:./gpullrDb").driverClassName("org.h2.Driver").build();
+    return DataSourceBuilder.create().url("jdbc:h2:./gpullrDb").driverClassName(DRIVER_CLASS_NAME).build();
   }
   
   @Bean
