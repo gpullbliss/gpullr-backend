@@ -1,17 +1,15 @@
-package com.devbliss.gpullr.controller;
+package com.devbliss.gpullr.controller.dto;
 
 import static org.junit.Assert.*;
 
 import com.devbliss.gpullr.BaseTest;
-import com.devbliss.gpullr.controller.dto.UserConverter;
-import com.devbliss.gpullr.controller.dto.UserDto;
 import com.devbliss.gpullr.domain.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 
 /**
- * Unit tests for {@link com.devbliss.gpullr.controller.UserConverterTest}.
+ * Unit tests for {@link UserConverterTest}.
  */
 public class UserConverterTest extends BaseTest {
 
