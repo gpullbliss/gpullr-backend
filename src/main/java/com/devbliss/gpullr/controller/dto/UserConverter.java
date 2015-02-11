@@ -16,12 +16,12 @@ public class UserConverter {
 
   public User toEntity(UserDto dto) {
     User user = new User();
-    user.setId(dto.getId());
-    user.setUsername(dto.getUsername());
-    user.setFullname(dto.getFullname());
-    user.setExternalUserId(dto.getExternalUserId());
-    user.setAvatarUrl(dto.getAvatarUrl());
-    user.setToken(dto.getToken());
+    user.id = dto.id;
+    user.username = dto.username;
+    user.fullname = dto.fullname;
+    user.externalUserId = dto.externalUserId;
+    user.avatarUrl = dto.avatarUrl;
+    user.token = dto.token;
 
     return user;
   }

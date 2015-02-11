@@ -14,69 +14,22 @@ public class User {
 
   @Id
   @GeneratedValue
-  private Long id;
+  public  Long id;
 
   @NotBlank
   @Column(unique = true)
-  private String username;
+  public String username;
 
   @NotBlank
-  private String fullname;
+  public String fullname;
 
   // user id at GitHub
   @NotBlank
-  private String externalUserId;
+  public String externalUserId;
 
-  private String avatarUrl;
+  public String avatarUrl;
 
   @NotBlank
   public String token;
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getFullname() {
-    return fullname;
-  }
-
-  public void setFullname(String fullname) {
-    this.fullname = fullname;
-  }
-
-  public String getExternalUserId() {
-    return externalUserId;
-  }
-
-  public void setExternalUserId(String externalUserId) {
-    this.externalUserId = externalUserId;
-  }
-
-  public String getAvatarUrl() {
-    return avatarUrl;
-  }
-
-  public void setAvatarUrl(String avatarUrl) {
-    this.avatarUrl = avatarUrl;
-  }
-
-  public String getToken() {
-    return token;
-  }
-
-  public void setToken(String token) {
-    this.token = token;
-  }
 }
