@@ -24,7 +24,7 @@ public class UserController {
   private UserConverter userConverter;
 
   @RequestMapping(method = RequestMethod.POST)
-  public void persistUserToken(@RequestBody UserDto userDto) {
+  public void create(@RequestBody UserDto userDto) {
     User userEntity = userConverter.toEntity(userDto);
     userService.save(userEntity);
   }
