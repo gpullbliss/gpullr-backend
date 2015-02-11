@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Business layer for all operations against the GitHub API, facading the library used for the API calls.
+ * Wrapper for GitHub API, facading the library used for the API calls.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
