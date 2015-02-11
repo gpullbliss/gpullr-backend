@@ -26,3 +26,5 @@ build/
 /gpullr.log
 
 /gpullr.mv.db
+
+/gpullrDb.mv.db
