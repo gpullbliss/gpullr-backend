@@ -1,13 +1,12 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.service.github.GithubApi;
-
-import org.springframework.stereotype.Component;
 import com.devbliss.gpullr.service.GithubRepoService;
+import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.util.Log;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 /**
  * Since the events endpoint of GitHub does *not* deliver the event that a new repository has been created
@@ -20,8 +19,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Component
 public class GithubReposRefreshScheduler {
   
-//  private static final long DELAY_IN_MILLIS = 1000 * 60 * 60; // every hour
-  private static final long DELAY_IN_MILLIS = 1000 * 60 * 5; // every 5 minutes
+  private static final long DELAY_IN_MILLIS = 1000 * 60 * 60; // every hour
+//  private static final long DELAY_IN_MILLIS = 1000 * 60 * 5; // every 5 minutes
   
   @Log
   private Logger logger;
