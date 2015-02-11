@@ -1,6 +1,6 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.service.github.GithubService;
+import com.devbliss.gpullr.service.github.GithubApi;
 
 import org.springframework.stereotype.Component;
 import com.devbliss.gpullr.service.GithubRepoService;
@@ -27,7 +27,7 @@ public class GithubReposRefreshScheduler {
   private Logger logger;
 
   @Autowired
-  private GithubService githubService;
+  private GithubApi githubService;
 
   @Autowired
   private GithubRepoService githubRepoService;

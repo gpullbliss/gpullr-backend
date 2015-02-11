@@ -1,6 +1,6 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.service.github.GithubService;
+import com.devbliss.gpullr.service.github.GithubApi;
 
 import com.devbliss.gpullr.service.CacheAgeService;
 import com.devbliss.gpullr.service.GithubRepoService;
@@ -26,7 +26,7 @@ public class InitialDataRefresher {
   private CacheAgeService cacheAgeService;
 
   @Autowired
-  private GithubService githubService;
+  private GithubApi githubService;
 
   @Autowired
   private GithubRepoService githubRepoService;

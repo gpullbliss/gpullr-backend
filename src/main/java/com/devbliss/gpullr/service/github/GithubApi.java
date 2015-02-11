@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class GithubService {
+public class GithubApi {
 
   private static final String EVENT_TYPE_CREATE = "CreateEvent";
   private static final String EVENT_SUBTYPE_REPO = "repository";

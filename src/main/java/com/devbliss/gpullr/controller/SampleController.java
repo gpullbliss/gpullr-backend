@@ -1,7 +1,7 @@
 package com.devbliss.gpullr.controller;
 
 
-import com.devbliss.gpullr.service.github.GithubService;
+import com.devbliss.gpullr.service.github.GithubApi;
 
 import com.devbliss.gpullr.domain.GithubRepo;
 import com.devbliss.gpullr.service.GithubRepoService;
@@ -18,7 +18,7 @@ public class SampleController {
   private GithubRepoService githubRepoService;
   
   @Autowired
-  private GithubService githubService;
+  private GithubApi githubService;
   
   @RequestMapping(value="/repos", produces="application/json", method = RequestMethod.GET)
   public List<GithubRepo> getAllRepos() {
