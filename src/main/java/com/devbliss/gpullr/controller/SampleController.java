@@ -24,9 +24,4 @@ public class SampleController {
   public List<GithubRepo> getAllRepos() {
     return githubRepoService.findAll();
   }
-  
-  @RequestMapping(value="/events", method = RequestMethod.GET)
-  public void events() throws Exception {
-    githubService.loadEvents();
-  }
 }
