@@ -75,7 +75,7 @@ public class GithubApi {
 
   public List<User> fetchAllOrgaMembers() throws IOException {
     return loadAllPages("/orgs/devbliss/members",
-      jo -> new User(jo.getString("login"), String.valueOf(jo.getJsonNumber("id")), jo.getString("avatar_url"))
+      jo -> new User(jo.getInt("id"), jo.getString("login"), jo.getString("avatar_url"))
     );
   }
 

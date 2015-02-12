@@ -2,7 +2,6 @@ package com.devbliss.gpullr.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -13,8 +12,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class User {
 
   @Id
-  @GeneratedValue
-  public  Long id;
+  public Integer id;
 
   @NotBlank
   @Column(unique = true)
@@ -22,10 +20,6 @@ public class User {
 
   @NotBlank
   public String fullname;
-
-  // user id at GitHub
-  @NotBlank
-  public String externalUserId;
 
   public String avatarUrl;
 
@@ -35,9 +29,9 @@ public class User {
   public User() {
   }
 
-  public User(String username, String externalUserId, String avatarUrl) {
+  public User(Integer id, String username, String avatarUrl) {
+    this.id = id;
     this.username = username;
-    this.externalUserId = externalUserId;
     this.avatarUrl = avatarUrl;
   }
 }
