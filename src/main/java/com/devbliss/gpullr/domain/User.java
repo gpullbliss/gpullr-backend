@@ -32,4 +32,12 @@ public class User {
   @NotBlank
   public String token;
 
+  public User() {
+  }
+
+  public User(String username, String externalUserId, String avatarUrl) {
+    this.username = username;
+    this.externalUserId = externalUserId;
+    this.avatarUrl = avatarUrl;
+  }
 }
