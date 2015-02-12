@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/pulls")
-public class PullrequestsController {
+public class PullrequestController {
 
   @RequestMapping(method = RequestMethod.GET)
   public List<Pullrequest> getPullrequests() {
