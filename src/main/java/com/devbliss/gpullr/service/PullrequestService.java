@@ -20,6 +20,6 @@ public class PullrequestService {
   }
 
   public void assignPullrequest(String sessionId, Integer pullrequestId) {
-
+    Pullrequest pullrequest = pullrequestRepository.findOne(pullrequestId);
   }
 }
