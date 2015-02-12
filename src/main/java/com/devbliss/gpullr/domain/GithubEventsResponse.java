@@ -1,16 +1,18 @@
 package com.devbliss.gpullr.domain;
 
-import java.util.Date;
 import java.util.List;
 
 public class GithubEventsResponse {
   
-  public final List<GithubEvent<?>> events;
+  public final List<? extends GithubEvent<?>> events;
   
-  public final Date nextRequest;
+  public final int nextRequestAfterSeconds;
   
-  public GithubEventsResponse(List<GithubEvent<?>> events, Date nextRequest) {
+  public final String etagHeader;
+  
+  public GithubEventsResponse(List<? extends GithubEvent<?>> events, int nextRequestAfterSeconds, String etagHeader) {
     this.events = events;
-    this.nextRequest = nextRequest;
+    this.nextRequestAfterSeconds = nextRequestAfterSeconds;
+    this.etagHeader = etagHeader;
   }
 }

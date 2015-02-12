@@ -30,8 +30,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class GithubApi {
 
-  private static final String EVENT_TYPE_CREATE = "CreateEvent";
-  private static final String EVENT_SUBTYPE_REPO = "repository";
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
   private static final String PULLREQUEST_ACTION_CREATED = "opened";
 
@@ -56,28 +54,13 @@ public class GithubApi {
   // {"ref":"feature/add_global_jshint_rules","ref_type":"branch","master_branch":"master","description":"global ruleset for the ecosystem","pusher_type":"user"}
   public GithubEventsResponse fetchAllEvents(String repoName) throws IOException {
 
-    loadAllPages("repos/devbliss/" + repoName + "/events", jo -> parseEvent(jo)).forEach(s ->
-        System.out.println(s));
-
-    // WORKS:
-    /*
-
-     */
-    loadAllPages(
-        "orgs/devbliss/events",
-        jo -> {
-          handleEvent(jo);
-          return "";
-        });
-    // jo -> jo.getString("id") + ": " + jo.getString("type") + ": " + jo.getString("created_at") +
-    // ": "
-    // + (jo.containsKey("payload") ? jo.get("payload") : "-")).forEach(
-    // s -> {
-    // System.out.println("\r\n\r\n\r\n***\r\n\r\n");
-    // System.out.println(s);
-    // System.out.println("\r\n\r\n\r\n***\r\n\r\n");
-
-    // });
+    List<? extends GithubEvent<?>> allEvents = loadAllPages("repos/devbliss/" + repoName + "/events",
+        jo -> parseEvent(jo))
+      .stream()
+      .filter(optEv -> optEv.isPresent())
+      .map(optEv -> optEv.get())
+      .collect(Collectors.toList());
+    new GithubEventsResponse(allEvents, 60, "bla"); 
     return null;
   }
 
@@ -105,40 +88,11 @@ public class GithubApi {
     pullRequest.url = pullrequestPayload.getString("html_url");
     pullRequest.createdAt = ZonedDateTime.parse(pullrequestPayload.getString("created_at"));
     pullRequest.state = State.OPEN;
-    pullRequest.repositoryId = pullrequestPayload.getJsonObject("repo").getInt("id");
     return pullRequest;
-  }
-
-  private void handleEvent(JsonObject event) {
-    JsonObject eventPayload = (JsonObject) event.get("payload");
-
-    // System.err.println("\r\n\r\n\r\n***\r\n\r\n");
-    System.err.println("******** ANY EVENT: ");
-    System.err.println(event.getString("created_at"));
-    // System.err.println(eventPayload);
-    System.err.println("\r\n\r\n\r\n***\r\n\r\n");
-
-    if (isCreatedEvent(event)) {
-      if (isRepoCreatedEvent(eventPayload)) {
-        System.err.println("\r\n\r\n\r\n***\r\n\r\n");
-        System.err.println("################ ******** NEW REPO: ");
-        // System.err.println(eventPayload);
-        // System.err.println("\r\n\r\n\r\n***\r\n\r\n");
-      }
-    }
   }
 
   private boolean isPullRequestCreatedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type"));
-  }
-
-  private boolean isCreatedEvent(JsonObject event) {
-    return EVENT_TYPE_CREATE.equals(event.getString("type"));
-  }
-
-  private boolean isRepoCreatedEvent(JsonObject eventPayload) {
-    System.err.println(eventPayload.getString("ref_type"));
-    return EVENT_SUBTYPE_REPO.equals(eventPayload.getString("ref_type"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
