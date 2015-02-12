@@ -24,4 +24,10 @@ public class SampleController {
   public List<Repo> getAllRepos() {
     return repoService.findAll();
   }
+
+  @RequestMapping(value = "test")
+  public void test() {
+    githubApi.fetchAllOrgaMembers();
+  }
+
 }
