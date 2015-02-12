@@ -1,5 +1,9 @@
 package com.devbliss.gpullr.controller;
 
+import java.util.Optional;
+
+import com.devbliss.gpullr.service.github.GithubEventsResponse;
+import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import javax.annotation.PostConstruct;
@@ -22,7 +26,13 @@ public class GithubEventFetcher {
   private RepoService repoService;
 
   @PostConstruct
-  public void refreshGithubRepos() {
-
+  public void fetchEvents() {
+    for(Repo repo: repoService.findAll()) {
+      fetchEvents(repo);
+    }
+  }
+  
+  private void fetchEvents(Repo repo) {
+    GithubEventsResponse response = githubApi.fetchAllEvents(repo, Optional.empty());
   }
 }
