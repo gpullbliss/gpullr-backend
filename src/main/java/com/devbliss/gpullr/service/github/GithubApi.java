@@ -1,23 +1,24 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.GithubEvent;
-import com.devbliss.gpullr.domain.GithubEvent.Type;
-import com.devbliss.gpullr.domain.GithubEventsResponse;
-import com.devbliss.gpullr.domain.GithubPullrequestEvent;
-import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
+import com.devbliss.gpullr.domain.PullrequestEvent;
+import com.devbliss.gpullr.domain.PullrequestEvent.Type;
+import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.exception.UnexpectedException;
+import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
 import com.jcabi.http.response.JsonResponse;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.json.JsonObject;
 import javax.json.JsonValue.ValueType;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,9 @@ public class GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
   private static final String PULLREQUEST_ACTION_CREATED = "opened";
+
+  @Log
+  private Logger logger;
 
   @Autowired
   private Github client;
@@ -50,31 +54,34 @@ public class GithubApi {
     }
   }
 
-  public GithubEventsResponse fetchAllEvents(String repoName) throws IOException {
-
-    List<? extends GithubEvent<?>> allEvents = loadAllPages("repos/devbliss/" + repoName + "/events",
-        jo -> parseEvent(jo))
-      .stream()
-      .filter(optEv -> optEv.isPresent())
-      .map(optEv -> optEv.get())
-      .collect(Collectors.toList());
-    new GithubEventsResponse(allEvents, 60, "bla"); 
-    return null;
+  public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
+    try {
+      List<PullrequestEvent> pullrequestEvents = loadAllPages("repos/devbliss/" + repo.name + "/events",
+          jo -> parseEvent(jo, repo))
+        .stream()
+        .filter(optEv -> optEv.isPresent())
+        .map(optEv -> optEv.get())
+        .collect(Collectors.toList());
+      return new GithubEventsResponse(pullrequestEvents, 60, "bla");
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    }
   }
 
-  private Optional<? extends GithubEvent<?>> parseEvent(JsonObject jsonObject) {
+  private Optional<PullrequestEvent> parseEvent(JsonObject jsonObject, Repo repo) {
     if (isPullRequestCreatedEvent(jsonObject)) {
-      return parsePullrequestEvent(jsonObject);
+      return parsePullrequestEvent(jsonObject, repo);
     }
     return Optional.empty();
   }
 
-  private Optional<GithubPullrequestEvent> parsePullrequestEvent(JsonObject jsonObject) {
+  private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject jsonObject, Repo repo) {
 
     if (PULLREQUEST_ACTION_CREATED.equals(jsonObject.getString("action"))) {
       Type type = Type.PULLREQUEST_CREATED;
       Pullrequest pullrequest = parsePullrequestPayload(jsonObject.getJsonObject("pull_request"));
-      return Optional.of(new GithubPullrequestEvent(type, pullrequest));
+      pullrequest.repo = repo;
+      return Optional.of(new PullrequestEvent(type, pullrequest));
     }
 
     return Optional.empty();
@@ -95,6 +102,14 @@ public class GithubApi {
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
     final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
+
+    if (path.contains("events")) {
+      System.err.println("########## EVENTS RESPONSE: ");
+      for (Entry<String, List<String>> entry : resp.headers().entrySet()) {
+        System.err.println(entry.getKey() + ":: " + entry.getValue());
+      }
+    }
+
     return handleResponse(resp, mapper, path, 1);
   }
 
