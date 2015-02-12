@@ -3,7 +3,7 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.service.github.GithubApi;
 
 import com.devbliss.gpullr.service.CacheAgeService;
-import com.devbliss.gpullr.service.GithubRepoService;
+import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.util.Log;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -26,10 +26,10 @@ public class InitialDataRefresher {
   private CacheAgeService cacheAgeService;
 
   @Autowired
-  private GithubApi githubService;
+  private GithubApi githubApi;
 
   @Autowired
-  private GithubRepoService githubRepoService;
+  private RepoService repoService;
 
   public InitialDataRefresher() {
 

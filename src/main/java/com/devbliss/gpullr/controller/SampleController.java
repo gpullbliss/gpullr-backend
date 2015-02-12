@@ -3,8 +3,8 @@ package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.service.github.GithubApi;
 
-import com.devbliss.gpullr.domain.GithubRepo;
-import com.devbliss.gpullr.service.GithubRepoService;
+import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.service.RepoService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class SampleController {
   
   @Autowired
-  private GithubRepoService githubRepoService;
+  private RepoService repoService;
   
   @Autowired
-  private GithubApi githubService;
+  private GithubApi githubApi;
   
   @RequestMapping(value="/repos", produces="application/json", method = RequestMethod.GET)
-  public List<GithubRepo> getAllRepos() {
-    return githubRepoService.findAll();
+  public List<Repo> getAllRepos() {
+    return repoService.findAll();
   }
 }

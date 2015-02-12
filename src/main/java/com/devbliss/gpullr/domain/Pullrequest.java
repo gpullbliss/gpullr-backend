@@ -21,7 +21,7 @@ public class Pullrequest {
   public Integer id;
 
   @ManyToOne(optional = false)
-  public GithubRepo repo;
+  public Repo repo;
 
   public String url;
 

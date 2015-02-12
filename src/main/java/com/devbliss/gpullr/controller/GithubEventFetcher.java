@@ -1,0 +1,28 @@
+package com.devbliss.gpullr.controller;
+
+import com.devbliss.gpullr.service.RepoService;
+import com.devbliss.gpullr.service.github.GithubApi;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * Periodically fetches 
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
+@Component
+public class GithubEventFetcher {
+
+  @Autowired
+  private GithubApi githubApi;
+
+  @Autowired
+  private RepoService repoService;
+
+  @PostConstruct
+  public void refreshGithubRepos() {
+
+  }
+}

@@ -17,23 +17,23 @@ import org.hibernate.validator.constraints.NotBlank;
  *
  */
 @Entity
-public class GithubRepo {
-  
+public class Repo {
+
   @Id
   @NotNull
   @Min(1)
   public Integer id;
-  
+
   @NotBlank
-  @Column(unique=true)
+  @Column(unique = true)
   public String name;
-  
+
   @Column(nullable = true, length = 1000)
   public String description;
-  
-  public GithubRepo() { }
-  
-  public GithubRepo(int id, String name, String description) {
+
+  public Repo() {}
+
+  public Repo(int id, String name, String description) {
     this.id = id;
     this.name = name;
     this.description = description;

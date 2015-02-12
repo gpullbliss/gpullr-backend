@@ -8,5 +8,4 @@ public class GithubPullrequestEvent extends GithubEvent<Pullrequest> {
     super(type);
     this.pullrequest = pullrequest;
   }
-
 }

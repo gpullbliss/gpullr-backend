@@ -4,7 +4,7 @@ import com.devbliss.gpullr.domain.GithubEvent;
 import com.devbliss.gpullr.domain.GithubEvent.Type;
 import com.devbliss.gpullr.domain.GithubEventsResponse;
 import com.devbliss.gpullr.domain.GithubPullrequestEvent;
-import com.devbliss.gpullr.domain.GithubRepo;
+import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.exception.UnexpectedException;
@@ -41,17 +41,15 @@ public class GithubApi {
    * 
    * @return possibly empty list of repositories
    */
-  public List<GithubRepo> fetchAllGithubRepos() throws UnexpectedException {
+  public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-          jo -> new GithubRepo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
+          jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
   }
 
-  // 2571083784: CreateEvent: 2015-02-10T14:32:56Z:
-  // {"ref":"feature/add_global_jshint_rules","ref_type":"branch","master_branch":"master","description":"global ruleset for the ecosystem","pusher_type":"user"}
   public GithubEventsResponse fetchAllEvents(String repoName) throws IOException {
 
     List<? extends GithubEvent<?>> allEvents = loadAllPages("repos/devbliss/" + repoName + "/events",
