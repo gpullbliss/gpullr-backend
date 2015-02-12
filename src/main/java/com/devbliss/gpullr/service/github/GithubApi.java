@@ -5,6 +5,7 @@ import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.PullrequestEvent;
 import com.devbliss.gpullr.domain.PullrequestEvent.Type;
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
@@ -15,15 +16,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.JsonValue.ValueType;
+import javax.xml.ws.Holder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * Wrapper for GitHub API, facading the library used for the API calls.
- * 
+ *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
@@ -43,7 +47,7 @@ public class GithubApi {
 
   /**
    * Retrieves all repositories (public, private, forked, etc.) belonging to our organization, from GitHub.
-   * 
+   *
    * @return possibly empty list of repositories
    */
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
@@ -66,6 +70,20 @@ public class GithubApi {
       return new GithubEventsResponse(pullrequestEvents, 60, "bla");
     } catch (IOException e) {
       throw new UnexpectedException(e);
+    }
+  }
+
+  public void fetchAllOrgaMembers() {
+    JsonResponse response = null;
+    try {
+      List<User> users = loadAllPages("/orgs/devbliss/members",
+        jo -> new User(jo.getString("login"), String.valueOf(jo.getJsonNumber("id")), jo.getString("avatar_url"))
+      );
+
+      // TODO: persist users
+
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
