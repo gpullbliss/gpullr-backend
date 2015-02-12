@@ -1,11 +1,10 @@
 package com.devbliss.gpullr.controller;
 
-import java.util.Optional;
-
-import com.devbliss.gpullr.service.github.GithubEventsResponse;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
+import com.devbliss.gpullr.service.github.GithubEventsResponse;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,11 +26,15 @@ public class GithubEventFetcher {
 
   @PostConstruct
   public void fetchEvents() {
-    for(Repo repo: repoService.findAll()) {
+
+    System.err.println("### *********** fetch events");
+
+    for (Repo repo : repoService.findAll()) {
+      System.err.println("### *********** fetch events for repo: " + repo.name);
       fetchEvents(repo);
     }
   }
-  
+
   private void fetchEvents(Repo repo) {
     GithubEventsResponse response = githubApi.fetchAllEvents(repo, Optional.empty());
   }

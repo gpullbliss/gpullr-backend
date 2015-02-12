@@ -12,7 +12,6 @@ import com.jcabi.http.response.JsonResponse;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,6 +32,8 @@ public class GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
   private static final String PULLREQUEST_ACTION_CREATED = "opened";
+  private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
+  private static final String HEADER_ETAG = "ETag";
 
   @Log
   private Logger logger;
@@ -76,15 +77,21 @@ public class GithubApi {
   }
 
   private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject jsonObject, Repo repo) {
-
-    if (PULLREQUEST_ACTION_CREATED.equals(jsonObject.getString("action"))) {
-      Type type = Type.PULLREQUEST_CREATED;
-      Pullrequest pullrequest = parsePullrequestPayload(jsonObject.getJsonObject("pull_request"));
-      pullrequest.repo = repo;
-      return Optional.of(new PullrequestEvent(type, pullrequest));
-    }
-
-    return Optional.empty();
+    Type type = Type.PULLREQUEST_CREATED;
+    Pullrequest pullrequest = parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
+    pullrequest.repo = repo;
+    return Optional.of(new PullrequestEvent(type, pullrequest));
+//    if (jsonObject.getJsonObject("pull_request") == null) {
+//      System.err.println();
+//      System.err.println("*************** PULLREQUEST PAYLOAD NULL: ");
+//      System.err.println(jsonObject);
+//      System.err.println();
+//      return Optional.empty();
+//    } else {
+//      Pullrequest pullrequest = parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
+//      pullrequest.repo = repo;
+//      return Optional.of(new PullrequestEvent(type, pullrequest));
+//    }
   }
 
   private Pullrequest parsePullrequestPayload(JsonObject pullrequestPayload) {
@@ -97,18 +104,19 @@ public class GithubApi {
   }
 
   private boolean isPullRequestCreatedEvent(JsonObject event) {
-    return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type"));
+    return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
+        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
     final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
 
-    if (path.contains("events")) {
-      System.err.println("########## EVENTS RESPONSE: ");
-      for (Entry<String, List<String>> entry : resp.headers().entrySet()) {
-        System.err.println(entry.getKey() + ":: " + entry.getValue());
-      }
-    }
+    // if (path.contains("events")) {
+    // System.err.println("########## EVENTS RESPONSE: ");
+    // for (Entry<String, List<String>> entry : resp.headers().entrySet()) {
+    // System.err.println(entry.getKey() + ":: " + entry.getValue());
+    // }
+    // }
 
     return handleResponse(resp, mapper, path, 1);
   }
