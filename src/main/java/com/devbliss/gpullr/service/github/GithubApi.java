@@ -60,6 +60,8 @@ public class GithubApi {
   }
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
+    logger.info("fetch all events for repo: " + repo);
+    
     try {
       List<PullrequestEvent> pullrequestEvents = loadAllPages("repos/devbliss/" + repo.name + "/events",
           jo -> parseEvent(jo, repo))

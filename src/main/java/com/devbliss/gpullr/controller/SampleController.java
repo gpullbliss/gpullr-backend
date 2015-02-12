@@ -1,6 +1,8 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.util.List;
@@ -18,6 +20,9 @@ public class SampleController {
   @Autowired
   private GithubApi githubApi;
 
+  @Autowired
+  private PullrequestService pullrequestService;
+
   @RequestMapping(value = "/repos", produces = "application/json", method = RequestMethod.GET)
   public List<Repo> getAllRepos() {
     return repoService.findAll();
@@ -28,4 +33,8 @@ public class SampleController {
     githubApi.fetchAllOrgaMembers();
   }
 
+  @RequestMapping("/testpulls")
+  public List<Pullrequest> getAllPullRequests() {
+    return pullrequestService.findAll();
+  }
 }

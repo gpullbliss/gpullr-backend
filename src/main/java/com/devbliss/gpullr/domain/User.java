@@ -18,13 +18,8 @@ public class User {
   @Column(unique = true)
   public String username;
 
-  @NotBlank
-  public String fullname;
-
   public String avatarUrl;
 
-  @NotBlank
-  public String token;
 
   public User() {
   }

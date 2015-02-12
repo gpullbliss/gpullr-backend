@@ -25,7 +25,7 @@ public class GithubUserFetcher {
   public void fetchUsers() throws IOException {
     List<User> users = githubApi.fetchAllOrgaMembers();
     users.forEach(user-> System.out.println(user.username));
-    users.forEach(userService::save);
+    users.forEach(userService::insertOrUpdate);
   }
 
 }

@@ -2,6 +2,7 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.UserRepository;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +15,11 @@ public class UserService {
   @Autowired
   private UserRepository userRepository;
 
-  public void save(User user) {
+  public void insertOrUpdate(User user) {
     userRepository.save(user);
   }
 
+  public List<User> findAll() {
+    return userRepository.findAll();
+  }
 }

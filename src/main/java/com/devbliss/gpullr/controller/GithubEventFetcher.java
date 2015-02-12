@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
@@ -24,6 +25,9 @@ public class GithubEventFetcher {
   @Autowired
   private RepoService repoService;
 
+  @Autowired
+  private PullrequestService pullrequestService;
+
   @PostConstruct
   public void fetchEvents() {
 
@@ -37,5 +41,6 @@ public class GithubEventFetcher {
 
   private void fetchEvents(Repo repo) {
     GithubEventsResponse response = githubApi.fetchAllEvents(repo, Optional.empty());
+    response.pullrequestEvents.forEach(ev -> pullrequestService.insertOrUpdate(ev.pullrequest));
   }
 }
