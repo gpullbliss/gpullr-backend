@@ -9,14 +9,19 @@ import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
 import com.jcabi.http.response.JsonResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonReaderFactory;
 import javax.json.JsonValue.ValueType;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -81,17 +86,18 @@ public class GithubApi {
     Pullrequest pullrequest = parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
     pullrequest.repo = repo;
     return Optional.of(new PullrequestEvent(type, pullrequest));
-//    if (jsonObject.getJsonObject("pull_request") == null) {
-//      System.err.println();
-//      System.err.println("*************** PULLREQUEST PAYLOAD NULL: ");
-//      System.err.println(jsonObject);
-//      System.err.println();
-//      return Optional.empty();
-//    } else {
-//      Pullrequest pullrequest = parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
-//      pullrequest.repo = repo;
-//      return Optional.of(new PullrequestEvent(type, pullrequest));
-//    }
+    // if (jsonObject.getJsonObject("pull_request") == null) {
+    // System.err.println();
+    // System.err.println("*************** PULLREQUEST PAYLOAD NULL: ");
+    // System.err.println(jsonObject);
+    // System.err.println();
+    // return Optional.empty();
+    // } else {
+    // Pullrequest pullrequest =
+    // parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
+    // pullrequest.repo = repo;
+    // return Optional.of(new PullrequestEvent(type, pullrequest));
+    // }
   }
 
   private Pullrequest parsePullrequestPayload(JsonObject pullrequestPayload) {
@@ -123,21 +129,33 @@ public class GithubApi {
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
       throws IOException {
-    List<T> result = resp
-      .json()
-      .readArray()
-      .stream()
-      .filter(v -> v.getValueType() == ValueType.OBJECT)
-      .map(v -> (JsonObject) v)
-      .map(mapper)
-      .collect(Collectors.toList());
+    try {
+      JsonReaderFactory jrf = Json.createReaderFactory(null);
+      jrf.createReader(IOUtils.toInputStream(resp.toString()));
 
-    if (resp.headers().keySet().contains("Link")
-        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"))) {
-      resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
-      result.addAll(handleResponse(resp, mapper, path, page + 1));
+      List<T> result =
+          // resp
+          // .json()//
+          jrf.createReader(new ByteArrayInputStream(resp.binary()))
+            .readArray()
+            .stream()
+            .filter(v -> v.getValueType() == ValueType.OBJECT)
+            .map(v -> (JsonObject) v)
+            .map(mapper)
+            .collect(Collectors.toList());
+
+      if (resp.headers().keySet().contains("Link")
+          && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"))) {
+        resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
+        result.addAll(handleResponse(resp, mapper, path, page + 1));
+      }
+      return result;
+    } catch (IllegalStateException e) {
+      System.err.println();
+      System.err.println("****** ILLEGAL STATE: " + e.getMessage());
+      System.err.println(resp);
+      System.err.println();
+      return new ArrayList<>();
     }
-
-    return result;
   }
 }
