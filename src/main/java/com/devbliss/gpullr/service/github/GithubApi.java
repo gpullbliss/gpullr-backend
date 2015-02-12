@@ -73,18 +73,10 @@ public class GithubApi {
     }
   }
 
-  public void fetchAllOrgaMembers() {
-    JsonResponse response = null;
-    try {
-      List<User> users = loadAllPages("/orgs/devbliss/members",
-        jo -> new User(jo.getString("login"), String.valueOf(jo.getJsonNumber("id")), jo.getString("avatar_url"))
-      );
-
-      // TODO: persist users
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public List<User> fetchAllOrgaMembers() throws IOException {
+    return loadAllPages("/orgs/devbliss/members",
+      jo -> new User(jo.getString("login"), String.valueOf(jo.getJsonNumber("id")), jo.getString("avatar_url"))
+    );
   }
 
   private Optional<PullrequestEvent> parseEvent(JsonObject jsonObject, Repo repo) {
