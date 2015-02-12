@@ -1,10 +1,9 @@
 package com.devbliss.gpullr.domain;
 
-import javax.persistence.ManyToOne;
-
 import java.time.ZonedDateTime;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
@@ -22,6 +21,9 @@ public class Pullrequest {
 
   @ManyToOne(optional = false)
   public Repo repo;
+  
+  @ManyToOne(optional = false)
+  public User owner;
 
   public String url;
 

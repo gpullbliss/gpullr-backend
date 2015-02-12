@@ -53,7 +53,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-        jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
+          jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -62,7 +62,7 @@ public class GithubApi {
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
     try {
       List<PullrequestEvent> pullrequestEvents = loadAllPages("repos/devbliss/" + repo.name + "/events",
-        jo -> parseEvent(jo, repo))
+          jo -> parseEvent(jo, repo))
         .stream()
         .filter(optEv -> optEv.isPresent())
         .map(optEv -> optEv.get())
@@ -74,49 +74,40 @@ public class GithubApi {
   }
 
   public List<User> fetchAllOrgaMembers() throws IOException {
-    return loadAllPages("/orgs/devbliss/members",
-      jo -> new User(jo.getInt("id"), jo.getString("login"), jo.getString("avatar_url"))
-    );
+    return loadAllPages("/orgs/devbliss/members", this::parseUser);
+  }
+  
+  private User parseUser(JsonObject userJson) {
+    return new User(userJson.getInt("id"), userJson.getString("login"), userJson.getString("avatar_url"));
   }
 
-  private Optional<PullrequestEvent> parseEvent(JsonObject jsonObject, Repo repo) {
-    if (isPullRequestCreatedEvent(jsonObject)) {
-      return parsePullrequestEvent(jsonObject, repo);
+  private Optional<PullrequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
+    if (isPullRequestCreatedEvent(eventJson)) {
+      return parsePullrequestEvent(eventJson, repo);
     }
     return Optional.empty();
   }
 
-  private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject jsonObject, Repo repo) {
+  private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
     Type type = Type.PULLREQUEST_CREATED;
-    Pullrequest pullrequest = parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
+    Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject("payload").getJsonObject("pull_request"));
     pullrequest.repo = repo;
     return Optional.of(new PullrequestEvent(type, pullrequest));
-    // if (jsonObject.getJsonObject("pull_request") == null) {
-    // System.err.println();
-    // System.err.println("*************** PULLREQUEST PAYLOAD NULL: ");
-    // System.err.println(jsonObject);
-    // System.err.println();
-    // return Optional.empty();
-    // } else {
-    // Pullrequest pullrequest =
-    // parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
-    // pullrequest.repo = repo;
-    // return Optional.of(new PullrequestEvent(type, pullrequest));
-    // }
   }
 
-  private Pullrequest parsePullrequestPayload(JsonObject pullrequestPayload) {
+  private Pullrequest parsePullrequestPayload(JsonObject pullrequestJson) {
     Pullrequest pullRequest = new Pullrequest();
-    pullRequest.id = pullrequestPayload.getInt("id");
-    pullRequest.url = pullrequestPayload.getString("html_url");
-    pullRequest.createdAt = ZonedDateTime.parse(pullrequestPayload.getString("created_at"));
+    pullRequest.id = pullrequestJson.getInt("id");
+    pullRequest.url = pullrequestJson.getString("html_url");
+    pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
     pullRequest.state = State.OPEN;
+    pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
     return pullRequest;
   }
 
   private boolean isPullRequestCreatedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
-      PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
+        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
@@ -133,23 +124,23 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-    throws IOException {
+      throws IOException {
     try {
       JsonReaderFactory jrf = Json.createReaderFactory(null);
 
       List<T> result =
-        // resp
-        // .json()//
-        jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+          // resp
+          // .json()//
+          jrf.createReader(new ByteArrayInputStream(resp.binary()))
+            .readArray()
+            .stream()
+            .filter(v -> v.getValueType() == ValueType.OBJECT)
+            .map(v -> (JsonObject) v)
+            .map(mapper)
+            .collect(Collectors.toList());
 
       if (resp.headers().keySet().contains("Link")
-        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"))) {
+          && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"))) {
         resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
         result.addAll(handleResponse(resp, mapper, path, page + 1));
       }
