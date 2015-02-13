@@ -33,8 +33,6 @@ public class Pullrequest {
 
   public State state;
 
-  public User author;
-
   public Integer additions;
 
   public Integer deletions;

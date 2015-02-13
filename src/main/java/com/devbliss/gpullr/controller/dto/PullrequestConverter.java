@@ -16,7 +16,7 @@ public class PullrequestConverter {
     dto.title = entity.title;
     dto.url = entity.url;
     dto.repository = entity.repo.name;
-    dto.author = entity.author;
+    dto.author = entity.owner;
     dto.creationDate = entity.createdAt.toString();
     dto.filesChanged = entity.changedFiles;
     dto.linesAdded = entity.additions;
