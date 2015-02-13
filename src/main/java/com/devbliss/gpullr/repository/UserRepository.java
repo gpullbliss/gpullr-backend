@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.repository;
 
+import java.util.List;
+
 import com.devbliss.gpullr.domain.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
@@ -9,4 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public interface UserRepository extends CrudRepository<User, Long> {
+
+  List<User> findAll();
+
 }

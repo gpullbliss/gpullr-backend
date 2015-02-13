@@ -5,6 +5,7 @@ import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.PullrequestEvent;
 import com.devbliss.gpullr.domain.PullrequestEvent.Type;
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
@@ -21,16 +22,14 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonValue.ValueType;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * Wrapper for GitHub API, facading the library used for the API calls.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Service
 public class GithubApi {
@@ -48,7 +47,7 @@ public class GithubApi {
 
   /**
    * Retrieves all repositories (public, private, forked, etc.) belonging to our organization, from GitHub.
-   * 
+   *
    * @return possibly empty list of repositories
    */
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
@@ -61,6 +60,8 @@ public class GithubApi {
   }
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
+    logger.info("fetch all events for repo: " + repo);
+    
     try {
       List<PullrequestEvent> pullrequestEvents = loadAllPages("repos/devbliss/" + repo.name + "/events",
           jo -> parseEvent(jo, repo))
@@ -74,38 +75,35 @@ public class GithubApi {
     }
   }
 
-  private Optional<PullrequestEvent> parseEvent(JsonObject jsonObject, Repo repo) {
-    if (isPullRequestCreatedEvent(jsonObject)) {
-      return parsePullrequestEvent(jsonObject, repo);
+  public List<User> fetchAllOrgaMembers() throws IOException {
+    return loadAllPages("/orgs/devbliss/members", this::parseUser);
+  }
+  
+  private User parseUser(JsonObject userJson) {
+    return new User(userJson.getInt("id"), userJson.getString("login"), userJson.getString("avatar_url"));
+  }
+
+  private Optional<PullrequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
+    if (isPullRequestCreatedEvent(eventJson)) {
+      return parsePullrequestEvent(eventJson, repo);
     }
     return Optional.empty();
   }
 
-  private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject jsonObject, Repo repo) {
+  private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
     Type type = Type.PULLREQUEST_CREATED;
-    Pullrequest pullrequest = parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
+    Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject("payload").getJsonObject("pull_request"));
     pullrequest.repo = repo;
     return Optional.of(new PullrequestEvent(type, pullrequest));
-    // if (jsonObject.getJsonObject("pull_request") == null) {
-    // System.err.println();
-    // System.err.println("*************** PULLREQUEST PAYLOAD NULL: ");
-    // System.err.println(jsonObject);
-    // System.err.println();
-    // return Optional.empty();
-    // } else {
-    // Pullrequest pullrequest =
-    // parsePullrequestPayload(jsonObject.getJsonObject("payload").getJsonObject("pull_request"));
-    // pullrequest.repo = repo;
-    // return Optional.of(new PullrequestEvent(type, pullrequest));
-    // }
   }
 
-  private Pullrequest parsePullrequestPayload(JsonObject pullrequestPayload) {
+  private Pullrequest parsePullrequestPayload(JsonObject pullrequestJson) {
     Pullrequest pullRequest = new Pullrequest();
-    pullRequest.id = pullrequestPayload.getInt("id");
-    pullRequest.url = pullrequestPayload.getString("html_url");
-    pullRequest.createdAt = ZonedDateTime.parse(pullrequestPayload.getString("created_at"));
+    pullRequest.id = pullrequestJson.getInt("id");
+    pullRequest.url = pullrequestJson.getString("html_url");
+    pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
     pullRequest.state = State.OPEN;
+    pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
     return pullRequest;
   }
 
@@ -131,7 +129,6 @@ public class GithubApi {
       throws IOException {
     try {
       JsonReaderFactory jrf = Json.createReaderFactory(null);
-      jrf.createReader(IOUtils.toInputStream(resp.toString()));
 
       List<T> result =
           // resp
