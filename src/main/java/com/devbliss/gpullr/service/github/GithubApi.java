@@ -13,7 +13,6 @@ import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -61,7 +60,7 @@ public class GithubApi {
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
     logger.info("fetch all events for repo: " + repo);
-    
+
     try {
       List<PullrequestEvent> pullrequestEvents = loadAllPages("repos/devbliss/" + repo.name + "/events",
           jo -> parseEvent(jo, repo))
@@ -69,6 +68,7 @@ public class GithubApi {
         .filter(optEv -> optEv.isPresent())
         .map(optEv -> optEv.get())
         .collect(Collectors.toList());
+      logger.debug("Received " + pullrequestEvents.size() + " events from GitHub.");
       return new GithubEventsResponse(pullrequestEvents, 60, "bla");
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -83,7 +83,7 @@ public class GithubApi {
     // TODO: implement
 
   }
-  
+
   private User parseUser(JsonObject userJson) {
     return new User(userJson.getInt("id"), userJson.getString("login"), userJson.getString("avatar_url"));
   }
@@ -122,45 +122,35 @@ public class GithubApi {
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
     final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
-
-    // if (path.contains("events")) {
-    // System.err.println("########## EVENTS RESPONSE: ");
-    // for (Entry<String, List<String>> entry : resp.headers().entrySet()) {
-    // System.err.println(entry.getKey() + ":: " + entry.getValue());
-    // }
-    // }
-
     return handleResponse(resp, mapper, path, 1);
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
       throws IOException {
-    try {
-      JsonReaderFactory jrf = Json.createReaderFactory(null);
 
-      List<T> result =
-          // resp
-          // .json()//
-          jrf.createReader(new ByteArrayInputStream(resp.binary()))
-            .readArray()
-            .stream()
-            .filter(v -> v.getValueType() == ValueType.OBJECT)
-            .map(v -> (JsonObject) v)
-            .map(mapper)
-            .collect(Collectors.toList());
+    List<T> result = responseToList(resp, mapper);
 
-      if (resp.headers().keySet().contains("Link")
-          && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"))) {
-        resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
-        result.addAll(handleResponse(resp, mapper, path, page + 1));
-      }
-      return result;
-    } catch (IllegalStateException e) {
-      System.err.println();
-      System.err.println("****** ILLEGAL STATE: " + e.getMessage());
-      System.err.println(resp);
-      System.err.println();
-      return new ArrayList<>();
+    if (hasMorePage(resp)) {
+      resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
+      result.addAll(handleResponse(resp, mapper, path, page + 1));
     }
+    return result;
+  }
+
+  private boolean hasMorePage(JsonResponse resp) {
+    return resp.headers().keySet().contains("Link")
+        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"));
+  }
+
+  private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
+    // JsonResponse#json() fails on non-UTF-8 characters, so we have to do the binary workaround:
+    JsonReaderFactory jrf = Json.createReaderFactory(null);
+    return jrf.createReader(new ByteArrayInputStream(resp.binary()))
+      .readArray()
+      .stream()
+      .filter(v -> v.getValueType() == ValueType.OBJECT)
+      .map(v -> (JsonObject) v)
+      .map(mapper)
+      .collect(Collectors.toList());
   }
 }
