@@ -1,10 +1,9 @@
 package com.devbliss.gpullr.domain;
 
-import javax.persistence.ManyToOne;
-
 import java.time.ZonedDateTime;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
@@ -12,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public class Pullrequest {
 
   public enum State {
-    OPEN
+    OPEN, MERGED
   }
 
   @Id
@@ -28,6 +27,8 @@ public class Pullrequest {
   public ZonedDateTime createdAt;
 
   public State state;
+
+  public User author;
 
   public Integer additions;
 
