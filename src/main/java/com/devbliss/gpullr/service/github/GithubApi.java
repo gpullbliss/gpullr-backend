@@ -78,6 +78,11 @@ public class GithubApi {
   public List<User> fetchAllOrgaMembers() throws IOException {
     return loadAllPages("/orgs/devbliss/members", this::parseUser);
   }
+
+  public void assingUserToPullRequest(User user, Pullrequest pull) {
+    // TODO: implement
+
+  }
   
   private User parseUser(JsonObject userJson) {
     return new User(userJson.getInt("id"), userJson.getString("login"), userJson.getString("avatar_url"));
