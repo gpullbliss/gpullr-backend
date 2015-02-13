@@ -3,9 +3,10 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.service.github.GithubApi;
+import com.devbliss.gpullr.util.Log;
 import java.io.IOException;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,17 +16,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class GithubUserFetcher {
 
+  @Log
+  private Logger logger;
+
   @Autowired
   private GithubApi githubApi;
 
   @Autowired
   private UserService userService;
 
-  @PostConstruct
-  public void fetchUsers() throws IOException {
-    List<User> users = githubApi.fetchAllOrgaMembers();
-    users.forEach(user-> System.out.println(user.username));
-    users.forEach(userService::insertOrUpdate);
+  public void fetchUsers() {
+    try {
+      logger.info("Start fetching users from GitHub...");
+      List<User> users = githubApi.fetchAllOrgaMembers();
+      users.forEach(u -> logger.debug("fetched user: " + u.username));
+      users.forEach(userService::insertOrUpdate);
+      logger.info("Finished fetching users from GitHub,");
+    } catch (IOException e) {
+      logger.error("Error fetchint users from GitHub: " + e.getMessage(), e);
+    }
   }
 
 }

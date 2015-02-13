@@ -5,8 +5,9 @@ import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
+import com.devbliss.gpullr.util.Log;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class GithubEventFetcher {
 
+  @Log
+  private Logger logger;
+
   @Autowired
   private GithubApi githubApi;
 
@@ -28,15 +32,16 @@ public class GithubEventFetcher {
   @Autowired
   private PullrequestService pullrequestService;
 
-  @PostConstruct
   public void fetchEvents() {
 
-    System.err.println("### *********** fetch events");
+    logger.info("Start fetching events from GitHub...");
 
     for (Repo repo : repoService.findAll()) {
-      System.err.println("### *********** fetch events for repo: " + repo.name);
+      logger.debug("Fetch events for repo: " + repo.name);
       fetchEvents(repo);
     }
+
+    logger.info("Finished fetching events from GitHub.");
   }
 
   private void fetchEvents(Repo repo) {

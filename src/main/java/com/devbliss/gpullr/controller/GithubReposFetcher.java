@@ -5,7 +5,6 @@ import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.util.Log;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,10 +16,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class GithubReposRefresher {
-  
-  private static final long DELAY_IN_MILLIS = 1000 * 60 * 60; // every hour
-//  private static final long DELAY_IN_MILLIS = 1000 * 60 * 5; // every 5 minutes
+public class GithubReposFetcher {
   
   @Log
   private Logger logger;
@@ -31,10 +27,9 @@ public class GithubReposRefresher {
   @Autowired
   private RepoService repoService;
   
-  @Scheduled(fixedDelay=DELAY_IN_MILLIS)
-  public void refreshGithubRepos() {
-    logger.info("Refreshing github repos...");
+  public void fetchRepos() {
+    logger.info("Fetching repos from GitHub...");
     githubApi.fetchAllGithubRepos().forEach(r -> repoService.insertOrUpdate(r));
-    logger.info("Github repos refreshed.");
+    logger.info("Finished fetching repos from GitHub.");
   }
 }

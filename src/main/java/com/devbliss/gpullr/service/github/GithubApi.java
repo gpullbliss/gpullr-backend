@@ -109,6 +109,9 @@ public class GithubApi {
     pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
     pullRequest.state = State.OPEN;
     pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
+    pullRequest.additions = pullrequestJson.getInt("additions");
+    pullRequest.deletions = pullrequestJson.getInt("deletions");
+    pullRequest.changedFiles = pullrequestJson.getInt("changed_files");
     return pullRequest;
   }
 
