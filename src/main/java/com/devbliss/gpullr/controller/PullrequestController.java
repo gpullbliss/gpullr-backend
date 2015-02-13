@@ -36,7 +36,6 @@ public class PullrequestController {
       allDtos.add(pullrequestConverter.toDto(pullrequest));
     }
 
-
     return allDtos;
   }
 
