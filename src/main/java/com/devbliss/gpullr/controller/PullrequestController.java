@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.controller.dto.PullrequestConverter;
+import com.devbliss.gpullr.controller.dto.PullrequestDto;
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.service.PullrequestService;
 import java.util.ArrayList;
@@ -21,12 +23,21 @@ public class PullrequestController {
   @Autowired
   PullrequestService pullrequestService;
 
-  @RequestMapping(method = RequestMethod.GET)
-  public List<Pullrequest> getPullrequests() {
-    List<Pullrequest> pullrequests = new ArrayList<Pullrequest>();
-    pullrequests = pullrequestService.findAll();
+  @Autowired
+  PullrequestConverter pullrequestConverter;
 
-    return pullrequests;
+  @RequestMapping(method = RequestMethod.GET)
+  public List<PullrequestDto> getPullrequests() {
+    List<Pullrequest> allPullrequests = pullrequestService.findAll();
+
+    List<PullrequestDto> allDtos = new ArrayList<PullrequestDto>();
+
+    for (Pullrequest pullrequest : allPullrequests  ) {
+      allDtos.add(pullrequestConverter.toDto(pullrequest));
+    }
+
+
+    return allDtos;
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/{pullrequestId}")

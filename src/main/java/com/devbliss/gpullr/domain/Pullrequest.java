@@ -21,11 +21,13 @@ public class Pullrequest {
 
   @ManyToOne(optional = false)
   public Repo repo;
-  
+
   @ManyToOne(optional = false)
   public User owner;
 
   public String url;
+
+  public String title;
 
   public ZonedDateTime createdAt;
 
