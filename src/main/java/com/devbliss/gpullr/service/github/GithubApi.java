@@ -60,7 +60,6 @@ public class GithubApi {
   }
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
-    logger.info("fetch all events for repo: " + repo.name);
 
     try {
       String path = "repos/devbliss/" + repo.name + "/events";
