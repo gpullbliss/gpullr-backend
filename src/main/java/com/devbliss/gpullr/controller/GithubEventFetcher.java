@@ -15,7 +15,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 /**
- * Periodically fetches 
+ * Fetches pull requests for all our repositories.
+ * Must be started once using {@link #startFetchEventsLoop()}. Afterwards, it independently polls periodically again
+ * according to the poll interval returned by GitHub. 
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
