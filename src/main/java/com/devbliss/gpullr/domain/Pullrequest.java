@@ -25,6 +25,8 @@ public class Pullrequest {
   @ManyToOne(optional = false)
   public User owner;
 
+  public String title;
+  
   public String url;
 
   public String title;

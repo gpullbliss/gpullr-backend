@@ -9,7 +9,6 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
-import com.jcabi.http.Request;
 import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -54,23 +53,19 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-        jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
+          jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
   }
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
-    logger.info("fetch all events for repo: " + repo);
+    logger.info("fetch all events for repo: " + repo.name);
 
     try {
-      List<PullrequestEvent> pullrequestEvents = loadAllPages("repos/devbliss/" + repo.name + "/events",
-        jo -> parseEvent(jo, repo))
-        .stream()
-        .filter(optEv -> optEv.isPresent())
-        .map(optEv -> optEv.get())
-        .collect(Collectors.toList());
-      return new GithubEventsResponse(pullrequestEvents, 60, "bla");
+      String path = "repos/devbliss/" + repo.name + "/events";
+      final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
+      return handleGithubEventsResponse(resp, jo -> parseEvent(jo, repo), path, 1);
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -101,7 +96,7 @@ public class GithubApi {
       e.printStackTrace();
     }
   }
-
+  
   private User parseUser(JsonObject userJson) {
     return new User(userJson.getInt("id"), userJson.getString("login"), userJson.getString("avatar_url"));
   }
@@ -124,6 +119,7 @@ public class GithubApi {
     Pullrequest pullRequest = new Pullrequest();
     pullRequest.id = pullrequestJson.getInt("id");
     pullRequest.url = pullrequestJson.getString("html_url");
+    pullRequest.title = pullrequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
     pullRequest.state = State.OPEN;
     pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
@@ -135,50 +131,60 @@ public class GithubApi {
 
   private boolean isPullRequestCreatedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
-      PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
+        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
     final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
-
-    // if (path.contains("events")) {
-    // System.err.println("########## EVENTS RESPONSE: ");
-    // for (Entry<String, List<String>> entry : resp.headers().entrySet()) {
-    // System.err.println(entry.getKey() + ":: " + entry.getValue());
-    // }
-    // }
-
     return handleResponse(resp, mapper, path, 1);
   }
 
+  private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
+      Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
+      throws IOException {
+
+    List<PullrequestEvent> events = new ArrayList<>();
+    String etag = getEtag(resp);
+    int nextRequestAfterSeconds = getPollInterval(resp);
+    GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullrequestEvents::add));
+    return result;
+  }
+
+  private String getEtag(JsonResponse resp) {
+    return resp.headers().get(HEADER_ETAG).get(0);
+  }
+
+  private int getPollInterval(JsonResponse resp) {
+    return Integer.parseInt(resp.headers().get(HEADER_POLL_INTERVAL).get(0));
+  }
+
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-    throws IOException {
-    try {
-      JsonReaderFactory jrf = Json.createReaderFactory(null);
+      throws IOException {
 
-      List<T> result =
-        // resp
-        // .json()//
-        jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+    List<T> result = responseToList(resp, mapper);
 
-      if (resp.headers().keySet().contains("Link")
-        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"))) {
-        resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
-        result.addAll(handleResponse(resp, mapper, path, page + 1));
-      }
-      return result;
-    } catch (IllegalStateException e) {
-      System.err.println();
-      System.err.println("****** ILLEGAL STATE: " + e.getMessage());
-      System.err.println(resp);
-      System.err.println();
-      return new ArrayList<>();
+    if (hasMorePage(resp)) {
+      resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
+      result.addAll(handleResponse(resp, mapper, path, page + 1));
     }
+    return result;
+  }
+
+  private boolean hasMorePage(JsonResponse resp) {
+    return resp.headers().keySet().contains("Link")
+        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"));
+  }
+
+  private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
+    // JsonResponse#json() fails on non-UTF-8 characters, so we have to do the binary workaround:
+    JsonReaderFactory jrf = Json.createReaderFactory(null);
+    return jrf.createReader(new ByteArrayInputStream(resp.binary()))
+      .readArray()
+      .stream()
+      .filter(v -> v.getValueType() == ValueType.OBJECT)
+      .map(v -> (JsonObject) v)
+      .map(mapper)
+      .collect(Collectors.toList());
   }
 }
