@@ -11,6 +11,7 @@ import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +67,13 @@ public class PullrequestServiceTest {
     testPr.repo = initRepo();
     testPr.state = Pullrequest.State.OPEN;
     testPr.createdAt = ZonedDateTime.now();
+  }
+
+  @After
+  public void teardown() {
+    prRepository.deleteAll();
+    repoRepository.deleteAll();
+    userRepository.deleteAll();
   }
 
   @Test
