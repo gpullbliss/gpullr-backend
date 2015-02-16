@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.Pullrequest;
-import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.PullrequestEvent;
 import com.devbliss.gpullr.domain.PullrequestEvent.Type;
 import com.devbliss.gpullr.domain.Repo;
@@ -9,7 +8,6 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
-import com.jcabi.http.Request;
 import com.jcabi.http.Request;
 import com.jcabi.http.Response;
 import com.jcabi.http.response.JsonResponse;
@@ -72,7 +70,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-          jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
+        jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -108,10 +106,10 @@ public class GithubApi {
 
     StringBuilder sb = new StringBuilder();
     sb.append("/repos")
-      .append("/").append(pull.owner.name)
+      .append("/devbliss")
       .append("/").append(pull.repo.name)
-      .append("/issues")
-      .append("/").append(pull.id);
+      .append("/pulls")
+      .append("/").append(pull.number);
 
     final String uri = sb.toString();
 
@@ -149,7 +147,7 @@ public class GithubApi {
     }
 
     Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(
-        "pull_request"));
+      "pull_request"));
     pullrequest.repo = repo;
     return Optional.of(new PullrequestEvent(type, pullrequest));
   }
@@ -178,7 +176,7 @@ public class GithubApi {
 
   private boolean isPullRequestClosedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
-        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
+      PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
@@ -187,8 +185,8 @@ public class GithubApi {
   }
 
   private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-      Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
-      throws IOException {
+    Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
+    throws IOException {
 
     List<PullrequestEvent> events = new ArrayList<>();
     Optional<String> etag = getEtag(resp);
@@ -211,7 +209,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-      throws IOException {
+    throws IOException {
 
     List<T> result = responseToList(resp, mapper);
 
@@ -224,7 +222,7 @@ public class GithubApi {
 
   private boolean hasMorePage(JsonResponse resp) {
     return resp.headers().keySet().contains("Link")
-        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"));
+      && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"));
   }
 
   private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
