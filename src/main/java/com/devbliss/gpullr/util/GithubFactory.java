@@ -1,10 +1,9 @@
 package com.devbliss.gpullr.util;
 
-import com.jcabi.github.mock.MkGithub;
-import java.io.IOException;
-
 import com.jcabi.github.Github;
 import com.jcabi.github.RtGithub;
+import com.jcabi.github.mock.MkGithub;
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
