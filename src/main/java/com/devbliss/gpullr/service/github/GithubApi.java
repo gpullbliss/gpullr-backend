@@ -13,6 +13,7 @@ import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -59,17 +60,12 @@ public class GithubApi {
   }
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
-    logger.info("fetch all events for repo: " + repo);
+    logger.info("fetch all events for repo: " + repo.name);
 
     try {
-      List<PullrequestEvent> pullrequestEvents = loadAllPages("repos/devbliss/" + repo.name + "/events",
-          jo -> parseEvent(jo, repo))
-        .stream()
-        .filter(optEv -> optEv.isPresent())
-        .map(optEv -> optEv.get())
-        .collect(Collectors.toList());
-      logger.debug("Received " + pullrequestEvents.size() + " events from GitHub.");
-      return new GithubEventsResponse(pullrequestEvents, 60, "bla");
+      String path = "repos/devbliss/" + repo.name + "/events";
+      final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
+      return handleGithubEventsResponse(resp, jo -> parseEvent(jo, repo), path, 1);
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -106,6 +102,7 @@ public class GithubApi {
     Pullrequest pullRequest = new Pullrequest();
     pullRequest.id = pullrequestJson.getInt("id");
     pullRequest.url = pullrequestJson.getString("html_url");
+    pullRequest.title = pullrequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
     pullRequest.state = State.OPEN;
     pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
@@ -123,6 +120,26 @@ public class GithubApi {
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
     final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
     return handleResponse(resp, mapper, path, 1);
+  }
+
+  private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
+      Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
+      throws IOException {
+
+    List<PullrequestEvent> events = new ArrayList<>();
+    String etag = getEtag(resp);
+    int nextRequestAfterSeconds = getPollInterval(resp);
+    GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullrequestEvents::add));
+    return result;
+  }
+
+  private String getEtag(JsonResponse resp) {
+    return resp.headers().get(HEADER_ETAG).get(0);
+  }
+
+  private int getPollInterval(JsonResponse resp) {
+    return Integer.parseInt(resp.headers().get(HEADER_POLL_INTERVAL).get(0));
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
