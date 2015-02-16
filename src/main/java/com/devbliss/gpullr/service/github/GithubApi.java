@@ -9,6 +9,7 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
+import com.jcabi.http.Request;
 import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-          jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
+        jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -61,10 +62,10 @@ public class GithubApi {
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
     logger.info("fetch all events for repo: " + repo);
-    
+
     try {
       List<PullrequestEvent> pullrequestEvents = loadAllPages("repos/devbliss/" + repo.name + "/events",
-          jo -> parseEvent(jo, repo))
+        jo -> parseEvent(jo, repo))
         .stream()
         .filter(optEv -> optEv.isPresent())
         .map(optEv -> optEv.get())
@@ -80,10 +81,27 @@ public class GithubApi {
   }
 
   public void assingUserToPullRequest(User user, Pullrequest pull) {
-    // TODO: implement
+    JsonObject json = Json.createObjectBuilder().add("assignee", user.name).build();
 
+    StringBuilder sb = new StringBuilder();
+    sb.append("/repos")
+      .append("/").append(pull.owner.name)
+      .append("/").append(pull.repo.name)
+      .append("/issues")
+      .append("/").append(pull.id);
+
+    final String uri = sb.toString();
+
+    try {
+      client.entry().uri().path(uri).back()
+        .method(Request.PATCH).body().set(json)
+        .back().fetch();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
-  
+
   private User parseUser(JsonObject userJson) {
     return new User(userJson.getInt("id"), userJson.getString("login"), userJson.getString("avatar_url"));
   }
@@ -117,7 +135,7 @@ public class GithubApi {
 
   private boolean isPullRequestCreatedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
-        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
+      PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
@@ -134,23 +152,23 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-      throws IOException {
+    throws IOException {
     try {
       JsonReaderFactory jrf = Json.createReaderFactory(null);
 
       List<T> result =
-          // resp
-          // .json()//
-          jrf.createReader(new ByteArrayInputStream(resp.binary()))
-            .readArray()
-            .stream()
-            .filter(v -> v.getValueType() == ValueType.OBJECT)
-            .map(v -> (JsonObject) v)
-            .map(mapper)
-            .collect(Collectors.toList());
+        // resp
+        // .json()//
+        jrf.createReader(new ByteArrayInputStream(resp.binary()))
+          .readArray()
+          .stream()
+          .filter(v -> v.getValueType() == ValueType.OBJECT)
+          .map(v -> (JsonObject) v)
+          .map(mapper)
+          .collect(Collectors.toList());
 
       if (resp.headers().keySet().contains("Link")
-          && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"))) {
+        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"))) {
         resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
         result.addAll(handleResponse(resp, mapper, path, page + 1));
       }
