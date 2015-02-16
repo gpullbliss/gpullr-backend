@@ -2,6 +2,7 @@ package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
@@ -29,8 +30,20 @@ public class SampleController {
   }
 
   @RequestMapping(value = "test")
-  public void test() throws Exception {
-    githubApi.fetchAllOrgaMembers();
+  public String  test() throws Exception {
+    User user = new User(123, "username", "avatar_url");
+
+    Repo repo = new Repo();
+    repo.name = "repo_name";
+
+    Pullrequest pr = new Pullrequest();
+    pr.id = 5;
+    pr.title = "PR title";
+    pr.repo = repo;
+
+    githubApi.assingUserToPullRequest(user, pr);
+
+    return "ok";
   }
 
   @RequestMapping("/testpulls")
