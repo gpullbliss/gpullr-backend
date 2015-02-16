@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.domain;
 
+import javax.validation.constraints.NotNull;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,6 +17,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class User {
 
   @Id
+  @NotNull
   public Integer id;
 
   @NotBlank
