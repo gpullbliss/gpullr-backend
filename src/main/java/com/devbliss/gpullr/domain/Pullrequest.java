@@ -7,6 +7,12 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+/**
+ * Represents a pullrequest persisted in our application.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 @Entity
 public class Pullrequest {
 

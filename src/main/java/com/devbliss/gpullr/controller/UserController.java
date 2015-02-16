@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST controller to manage users.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
  */
 @RestController
 @RequestMapping("/users")

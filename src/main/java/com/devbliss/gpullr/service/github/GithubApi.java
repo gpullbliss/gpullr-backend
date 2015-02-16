@@ -70,9 +70,9 @@ public class GithubApi {
 
       if (etagHeader.isPresent()) {
         req.header(HEADER_ETAG, etagHeader.get());
-        System.err.println("******** ETAG HEADER PRESENT: " + etagHeader.get());
+        logger.debug("******** ETAG HEADER PRESENT: " + etagHeader.get());
       } else {
-        System.err.println("******** ETAG HEADER __NOT__ PRESENT!");
+        logger.debug("******** ETAG HEADER __NOT__ PRESENT!");
       }
 
       final JsonResponse resp = req.fetch().as(JsonResponse.class);
