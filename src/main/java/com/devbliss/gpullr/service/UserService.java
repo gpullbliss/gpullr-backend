@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * Business Layer for {@link com.devbliss.gpullr.domain.User} objects.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
  */
 @Service
 public class UserService {
