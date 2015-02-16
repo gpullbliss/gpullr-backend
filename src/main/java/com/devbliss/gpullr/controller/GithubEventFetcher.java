@@ -1,5 +1,10 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.domain.Pullrequest;
+
+import com.devbliss.gpullr.domain.Pullrequest.State;
+import com.devbliss.gpullr.domain.PullrequestEvent.Type;
+import com.devbliss.gpullr.domain.PullrequestEvent;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
@@ -57,7 +62,7 @@ public class GithubEventFetcher {
   }
 
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
-    response.pullrequestEvents.forEach(ev -> pullrequestService.insertOrUpdate(ev.pullrequest));
+    response.pullrequestEvents.forEach(this::handlePullrequestEvent);
     logger.info("Fetched " + response.pullrequestEvents.size() + " new PRs for " + repo.name);
     Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
     executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
@@ -65,5 +70,16 @@ public class GithubEventFetcher {
 
   private void fetchEvents(Repo repo, Optional<String> etagHeader) {
     handleEventsResponse(githubApi.fetchAllEvents(repo, etagHeader), repo);
+  }
+
+  private void handlePullrequestEvent(PullrequestEvent event) {
+    Pullrequest pullRequest = event.pullrequest;
+
+    if (event.type == Type.PULLREQUEST_CREATED) {
+      pullRequest.state = State.OPEN;
+    } else {
+      pullRequest.state = State.CLOSED;
+    }
+    pullrequestService.insertOrUpdate(pullRequest);
   }
 }

@@ -40,6 +40,8 @@ public class GithubApi {
 
   private static final String PULLREQUEST_ACTION_CREATED = "opened";
 
+  private static final String PULLREQUEST_ACTION_CLOSED = "closed";
+
   private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
 
   private static final String HEADER_ETAG = "ETag";
@@ -108,14 +110,23 @@ public class GithubApi {
   }
 
   private Optional<PullrequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
-    if (isPullRequestCreatedEvent(eventJson)) {
+    if (isPullRequestEvent(eventJson)) {
       return parsePullrequestEvent(eventJson, repo);
     }
     return Optional.empty();
   }
 
   private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
-    Type type = Type.PULLREQUEST_CREATED;
+    Type type;
+
+    if (isPullRequestCreatedEvent(eventJson)) {
+      type = Type.PULLREQUEST_CREATED;
+    } else if (isPullRequestClosedEvent(eventJson)) {
+      type = Type.PULLREQUEST_CLOSED;
+    } else {
+      return Optional.empty();
+    }
+
     Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(
         "pull_request"));
     pullrequest.repo = repo;
@@ -128,7 +139,6 @@ public class GithubApi {
     pullRequest.url = pullrequestJson.getString("html_url");
     pullRequest.title = pullrequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
-    pullRequest.state = State.OPEN;
     pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
     pullRequest.additions = pullrequestJson.getInt("additions");
     pullRequest.deletions = pullrequestJson.getInt("deletions");
@@ -136,9 +146,17 @@ public class GithubApi {
     return pullRequest;
   }
 
+  private boolean isPullRequestEvent(JsonObject event) {
+    return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type"));
+  }
+
   private boolean isPullRequestCreatedEvent(JsonObject event) {
+    return PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString("action"));
+  }
+
+  private boolean isPullRequestClosedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
-        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString("action"));
+        PULLREQUEST_ACTION_CLOSED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString("action"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {

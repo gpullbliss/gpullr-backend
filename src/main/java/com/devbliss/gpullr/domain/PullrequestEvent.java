@@ -10,7 +10,7 @@ package com.devbliss.gpullr.domain;
 public class PullrequestEvent {
 
   public enum Type {
-    PULLREQUEST_CREATED
+    PULLREQUEST_CREATED, PULLREQUEST_CLOSED
   }
   
   public final Type type;

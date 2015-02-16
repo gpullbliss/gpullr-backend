@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 public class Pullrequest {
 
   public enum State {
-    OPEN
+    OPEN, CLOSED
   }
 
   @Id

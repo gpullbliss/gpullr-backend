@@ -15,8 +15,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
+  private final UserRepository userRepository;
+  
   @Autowired
-  private UserRepository userRepository;
+  public UserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   public void insertOrUpdate(User user) {
     userRepository.save(user);
