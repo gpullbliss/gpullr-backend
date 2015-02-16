@@ -8,4 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 public interface PullrequestRepository extends CrudRepository<Pullrequest, Integer>{
 
   List<Pullrequest> findAll();
+
+  Pullrequest findById(Integer id);
+
 }

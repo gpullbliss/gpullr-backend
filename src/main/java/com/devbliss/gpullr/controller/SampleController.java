@@ -5,6 +5,7 @@ import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
+import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,22 +25,33 @@ public class SampleController {
   @Autowired
   private PullrequestService pullrequestService;
 
+  @Autowired
+  private UserService userService;
+
   @RequestMapping(value = "/repos", produces = "application/json", method = RequestMethod.GET)
   public List<Repo> getAllRepos() {
     return repoService.findAll();
   }
 
   @RequestMapping(value = "test")
-  public String  test() throws Exception {
-    User user = new User(123, "username", "avatar_url");
+  public String test() throws Exception {
+    User user = null;
+    List<User> users = userService.findAll();
+    for (int i = 0; i < users.size(); i++) {
+      if (users.get(i).name.equals("dwalldorf")) {
+        user = users.get(i);
+      }
+    }
 
-    Repo repo = new Repo();
-    repo.name = "repo_name";
+    Pullrequest pr = null;
+    List<Pullrequest> prs = pullrequestService.findAll();
 
-    Pullrequest pr = new Pullrequest();
-    pr.id = 5;
-    pr.title = "PR title";
-    pr.repo = repo;
+    for (int i = 0; i < prs.size(); i++) {
+      String title = prs.get(i).title;
+      if (title != null && title.contains("blubb")) {
+        pr = prs.get(i);
+      }
+    }
 
     githubApi.assingUserToPullRequest(user, pr);
 

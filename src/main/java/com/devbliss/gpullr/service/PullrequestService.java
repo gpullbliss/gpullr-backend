@@ -38,4 +38,9 @@ public class PullrequestService {
     userRepository.save(pullrequest.owner);
     pullrequestRepository.save(pullrequest);
   }
+
+  public Pullrequest findById(Integer id) {
+    return pullrequestRepository.findById(id);
+  }
+
 }
