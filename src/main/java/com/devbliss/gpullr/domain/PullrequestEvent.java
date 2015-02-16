@@ -1,6 +1,12 @@
 package com.devbliss.gpullr.domain;
 
-
+/**
+ * Event referring to a pullrequest as received from GitHub API. Contains the pull request itself and the type of 
+ * event, e.g. <code>PULLREQUEST_CREATED</code>.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 public class PullrequestEvent {
 
   public enum Type {
