@@ -28,11 +28,6 @@ public class SampleController {
     return repoService.findAll();
   }
 
-  @RequestMapping(value = "test")
-  public void test() throws Exception {
-    githubApi.fetchAllOrgaMembers();
-  }
-
   @RequestMapping("/testpulls")
   public List<Pullrequest> getAllPullRequests() {
     return pullrequestService.findAll();

@@ -9,6 +9,7 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
+import com.jcabi.http.Request;
 import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -63,7 +64,13 @@ public class GithubApi {
 
     try {
       String path = "repos/devbliss/" + repo.name + "/events";
-      final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
+      Request req = client.entry().uri().path(path).back();
+
+      if (etagHeader.isPresent()) {
+        req.header(HEADER_ETAG, etagHeader.get());
+      }
+
+      final JsonResponse resp = req.fetch().as(JsonResponse.class);
       return handleGithubEventsResponse(resp, jo -> parseEvent(jo, repo), path, 1);
     } catch (IOException e) {
       throw new UnexpectedException(e);

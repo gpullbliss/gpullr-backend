@@ -37,6 +37,6 @@ public class GithubFetchScheduler {
   }
 
   private void startFetchEventsLoop() {
-    githubEventFetcher.fetchEvents();
+    githubEventFetcher.startFetchEventsLoop();
   }
 }
