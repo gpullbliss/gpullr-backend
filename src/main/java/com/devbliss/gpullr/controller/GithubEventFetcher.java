@@ -1,14 +1,13 @@
 package com.devbliss.gpullr.controller;
 
-import java.util.Date;
-
-import java.time.Instant;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
 import com.devbliss.gpullr.util.Log;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,11 +58,10 @@ public class GithubEventFetcher {
     response.pullrequestEvents.forEach(ev -> pullrequestService.insertOrUpdate(ev.pullrequest));
     logger.info("Fetched " + response.pullrequestEvents.size() + " new PRs for " + repo.name);
     Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
-    executor.schedule(() -> fetchEvents(repo, Optional.of(response.etagHeader)), start);
+    executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
   }
 
   private void fetchEvents(Repo repo, Optional<String> etagHeader) {
     handleEventsResponse(githubApi.fetchAllEvents(repo, etagHeader), repo);
   }
-
 }

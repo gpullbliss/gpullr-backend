@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
+import javax.json.JsonException;
+
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.PullrequestEvent;
@@ -68,6 +70,9 @@ public class GithubApi {
 
       if (etagHeader.isPresent()) {
         req.header(HEADER_ETAG, etagHeader.get());
+        System.err.println("******** ETAG HEADER PRESENT: " + etagHeader.get());
+      } else {
+        System.err.println("******** ETAG HEADER __NOT__ PRESENT!");
       }
 
       final JsonResponse resp = req.fetch().as(JsonResponse.class);
@@ -133,15 +138,19 @@ public class GithubApi {
       throws IOException {
 
     List<PullrequestEvent> events = new ArrayList<>();
-    String etag = getEtag(resp);
+    Optional<String> etag = getEtag(resp);
     int nextRequestAfterSeconds = getPollInterval(resp);
     GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
     handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullrequestEvents::add));
     return result;
   }
 
-  private String getEtag(JsonResponse resp) {
-    return resp.headers().get(HEADER_ETAG).get(0);
+  private Optional<String> getEtag(JsonResponse resp) {
+    if (resp.headers().containsKey(HEADER_ETAG)) {
+      return Optional.of(resp.headers().get(HEADER_ETAG).get(0));
+    } else {
+      return Optional.empty();
+    }
   }
 
   private int getPollInterval(JsonResponse resp) {
@@ -168,12 +177,21 @@ public class GithubApi {
   private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
     // JsonResponse#json() fails on non-UTF-8 characters, so we have to do the binary workaround:
     JsonReaderFactory jrf = Json.createReaderFactory(null);
-    return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-      .readArray()
-      .stream()
-      .filter(v -> v.getValueType() == ValueType.OBJECT)
-      .map(v -> (JsonObject) v)
-      .map(mapper)
-      .collect(Collectors.toList());
+
+    try {
+      return jrf.createReader(new ByteArrayInputStream(resp.binary()))
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
+    } catch (JsonException e) {
+      logger.error("Error reading response json: " + e.getMessage());
+      logger.error("raw response:");
+      logger.error(resp.toString());
+      throw e;
+    }
+
   }
 }
