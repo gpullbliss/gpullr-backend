@@ -1,15 +1,14 @@
 package com.devbliss.gpullr.repository;
 
-import javax.persistence.Converter;
-
-import javax.persistence.AttributeConverter;
 import java.sql.Date;
 import java.time.LocalDate;
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
 /**
  * Converts {@link LocalDate} to {@link Date} and vice versa for mapping respective entity values in JPA.
  * 
- * @author Henning Schütz <henning@byteshaper.com>
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
 @Converter(autoApply = true)

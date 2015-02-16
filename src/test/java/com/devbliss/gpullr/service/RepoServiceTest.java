@@ -1,11 +1,14 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.repository.RepoRepository;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +61,7 @@ public class RepoServiceTest {
 
     // update repo and make sure it is really updated:
     final String updatedName = NAME + "_updated";
-    final String updatedDescription = DESCRIPTION + "_updated";
+    final String updatedDescription = DESCRIPTION + "_upd8ted";
     repoService.insertOrUpdate(new Repo(ID, updatedName, updatedDescription));
 
     allRepos = repoService.findAll();
@@ -68,5 +71,24 @@ public class RepoServiceTest {
     assertEquals(ID, repo.id);
     assertEquals(updatedName, repo.name);
     assertEquals(updatedDescription, repo.description);
+  }
+
+  @Test
+  public void findRepoByName() {
+    final String name = NAME + "_nameSearch";
+    final String description = DESCRIPTION + "_nameSearch";
+
+    // first try without existing repository
+    Optional<Repo> repo = repoService.findByName(name);
+    assertFalse(repo.isPresent());
+
+    // insert new repo to findByName first
+    repoService.insertOrUpdate(new Repo(ID, name, description));
+
+    repo = repoService.findByName(name);
+    assertTrue(repo.isPresent());
+    assertEquals(ID, repo.get().id);
+    assertEquals(name, repo.get().name);
+    assertEquals(description, repo.get().description);
   }
 }

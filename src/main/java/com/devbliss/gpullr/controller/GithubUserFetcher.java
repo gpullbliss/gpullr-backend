@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
+ * Fetches all users belonging to Devbliss from GitHub API.
+ *  
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
 @Component
@@ -33,7 +36,7 @@ public class GithubUserFetcher {
       users.forEach(userService::insertOrUpdate);
       logger.info("Finished fetching users from GitHub,");
     } catch (IOException e) {
-      logger.error("Error fetchint users from GitHub: " + e.getMessage(), e);
+      logger.error("Error fetching users from GitHub: " + e.getMessage(), e);
     }
   }
 

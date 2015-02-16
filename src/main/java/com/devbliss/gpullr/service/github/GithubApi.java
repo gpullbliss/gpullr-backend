@@ -10,6 +10,7 @@ import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
 import com.jcabi.http.Request;
+import com.jcabi.http.Request;
 import com.jcabi.http.Response;
 import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.json.Json;
+import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonValue.ValueType;
@@ -37,9 +39,24 @@ import org.springframework.stereotype.Service;
 public class GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
+
   private static final String PULLREQUEST_ACTION_CREATED = "opened";
+
+  private static final String PULLREQUEST_ACTION_CLOSED = "closed";
+
   private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
+
   private static final String HEADER_ETAG = "ETag";
+
+  private static final String FIELD_KEY_ID = "id";
+
+  private static final String FIELD_KEY_NAME = "name";
+
+  private static final String FIELD_KEY_DESCRIPTION = "description";
+
+  private static final String FIELD_KEY_PAYLOAD = "payload";
+
+  private static final String HEADER_LINK = "Link";
 
   @Log
   private Logger logger;
@@ -55,7 +72,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-        jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
+          jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -66,7 +83,16 @@ public class GithubApi {
 
     try {
       String path = "repos/devbliss/" + repo.name + "/events";
-      final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
+      Request req = client.entry().uri().path(path).back();
+
+      if (etagHeader.isPresent()) {
+        req.header(HEADER_ETAG, etagHeader.get());
+        logger.debug("******** ETAG HEADER PRESENT: " + etagHeader.get());
+      } else {
+        logger.debug("******** ETAG HEADER __NOT__ PRESENT!");
+      }
+
+      final JsonResponse resp = req.fetch().as(JsonResponse.class);
       return handleGithubEventsResponse(resp, jo -> parseEvent(jo, repo), path, 1);
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -101,40 +127,58 @@ public class GithubApi {
   }
 
   private User parseUser(JsonObject userJson) {
-    return new User(userJson.getInt("id"), userJson.getString("login"), userJson.getString("avatar_url"));
+    return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"), userJson.getString("avatar_url"));
   }
 
   private Optional<PullrequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
-    if (isPullRequestCreatedEvent(eventJson)) {
+    if (isPullRequestEvent(eventJson)) {
       return parsePullrequestEvent(eventJson, repo);
     }
     return Optional.empty();
   }
 
   private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
-    Type type = Type.PULLREQUEST_CREATED;
-    Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject("payload").getJsonObject("pull_request"));
+    Type type;
+
+    if (isPullRequestCreatedEvent(eventJson)) {
+      type = Type.PULLREQUEST_CREATED;
+    } else if (isPullRequestClosedEvent(eventJson)) {
+      type = Type.PULLREQUEST_CLOSED;
+    } else {
+      return Optional.empty();
+    }
+
+    Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(
+        "pull_request"));
     pullrequest.repo = repo;
     return Optional.of(new PullrequestEvent(type, pullrequest));
   }
 
   private Pullrequest parsePullrequestPayload(JsonObject pullrequestJson) {
     Pullrequest pullRequest = new Pullrequest();
-    pullRequest.id = pullrequestJson.getInt("id");
+    pullRequest.id = pullrequestJson.getInt(FIELD_KEY_ID);
     pullRequest.url = pullrequestJson.getString("html_url");
     pullRequest.title = pullrequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
-    pullRequest.state = State.OPEN;
     pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
     pullRequest.additions = pullrequestJson.getInt("additions");
     pullRequest.deletions = pullrequestJson.getInt("deletions");
     pullRequest.changedFiles = pullrequestJson.getInt("changed_files");
+    pullRequest.number = pullrequestJson.getInt("number");
     return pullRequest;
   }
 
+  private boolean isPullRequestEvent(JsonObject event) {
+    return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type"));
+  }
+
   private boolean isPullRequestCreatedEvent(JsonObject event) {
+    return PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString("action"));
+  }
+
+  private boolean isPullRequestClosedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
-      PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
+        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
@@ -143,19 +187,23 @@ public class GithubApi {
   }
 
   private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-    Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
-    throws IOException {
+      Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
+      throws IOException {
 
     List<PullrequestEvent> events = new ArrayList<>();
-    String etag = getEtag(resp);
+    Optional<String> etag = getEtag(resp);
     int nextRequestAfterSeconds = getPollInterval(resp);
     GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
     handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullrequestEvents::add));
     return result;
   }
 
-  private String getEtag(JsonResponse resp) {
-    return resp.headers().get(HEADER_ETAG).get(0);
+  private Optional<String> getEtag(JsonResponse resp) {
+    if (resp.headers().containsKey(HEADER_ETAG)) {
+      return Optional.of(resp.headers().get(HEADER_ETAG).get(0));
+    } else {
+      return Optional.empty();
+    }
   }
 
   private int getPollInterval(JsonResponse resp) {
@@ -163,7 +211,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-    throws IOException {
+      throws IOException {
 
     List<T> result = responseToList(resp, mapper);
 
@@ -176,18 +224,26 @@ public class GithubApi {
 
   private boolean hasMorePage(JsonResponse resp) {
     return resp.headers().keySet().contains("Link")
-      && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"));
+        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"));
   }
 
   private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
     // JsonResponse#json() fails on non-UTF-8 characters, so we have to do the binary workaround:
     JsonReaderFactory jrf = Json.createReaderFactory(null);
-    return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-      .readArray()
-      .stream()
-      .filter(v -> v.getValueType() == ValueType.OBJECT)
-      .map(v -> (JsonObject) v)
-      .map(mapper)
-      .collect(Collectors.toList());
+
+    try {
+      return jrf.createReader(new ByteArrayInputStream(resp.binary()))
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
+    } catch (JsonException e) {
+      logger.error("Error reading response json: " + e.getMessage());
+      logger.error("raw response:");
+      logger.error(resp.toString());
+      throw e;
+    }
   }
 }

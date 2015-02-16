@@ -6,7 +6,10 @@ import javax.persistence.Id;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
- * User of the application
+ * User of the application, fetched from GitHub API.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
  */
 @Entity
 public class User {

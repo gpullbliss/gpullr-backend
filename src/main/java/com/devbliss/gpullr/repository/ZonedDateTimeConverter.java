@@ -7,11 +7,11 @@ import javax.persistence.Converter;
 /**
  * Converts {@link ZonedDateTime} to {@link String} and vice versa for mapping respective entity values in JPA.
  * 
- * @author Henning Schütz <henning@byteshaper.com>
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
 @Converter(autoApply = true)
-public class ZonedDateTimerConverter implements AttributeConverter<ZonedDateTime, String> {
+public class ZonedDateTimeConverter implements AttributeConverter<ZonedDateTime, String> {
 
   @Override
   public String convertToDatabaseColumn(ZonedDateTime entityAttibute) {
