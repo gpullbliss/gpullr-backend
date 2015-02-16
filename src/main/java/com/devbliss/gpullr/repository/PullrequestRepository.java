@@ -1,8 +1,7 @@
 package com.devbliss.gpullr.repository;
 
-import java.util.List;
-
 import com.devbliss.gpullr.domain.Pullrequest;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 /**

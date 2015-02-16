@@ -124,7 +124,7 @@ public class GithubApi {
 
   private Pullrequest parsePullrequestPayload(JsonObject pullrequestJson) {
     Pullrequest pullRequest = new Pullrequest();
-    pullRequest.id = pullrequestJson.getInt("id");
+    pullRequest.id = pullrequestJson.getInt(FIELD_KEY_ID);
     pullRequest.url = pullrequestJson.getString("html_url");
     pullRequest.title = pullrequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
@@ -138,7 +138,7 @@ public class GithubApi {
 
   private boolean isPullRequestCreatedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
-        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject("payload").getString("action"));
+        PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString("action"));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
