@@ -4,12 +4,12 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * Business Layer for {@link com.devbliss.gpullr.domain.User} objects.
  */
-@Component
+@Service
 public class UserService {
 
   @Autowired

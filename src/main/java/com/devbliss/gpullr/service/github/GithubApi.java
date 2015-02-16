@@ -44,6 +44,16 @@ public class GithubApi {
 
   private static final String HEADER_ETAG = "ETag";
 
+  private static final String FIELD_KEY_ID = "id";
+
+  private static final String FIELD_KEY_NAME = "name";
+
+  private static final String FIELD_KEY_DESCRIPTION = "description";
+
+  private static final String FIELD_KEY_PAYLOAD = "payload";
+
+  private static final String HEADER_LINK = "Link";
+
   @Log
   private Logger logger;
 
@@ -58,7 +68,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-          jo -> new Repo(jo.getInt("id"), jo.getString("name"), jo.getString("description")));
+          jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -94,7 +104,7 @@ public class GithubApi {
   }
 
   private User parseUser(JsonObject userJson) {
-    return new User(userJson.getInt("id"), userJson.getString("login"), userJson.getString("avatar_url"));
+    return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"), userJson.getString("avatar_url"));
   }
 
   private Optional<PullrequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
@@ -106,7 +116,8 @@ public class GithubApi {
 
   private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
     Type type = Type.PULLREQUEST_CREATED;
-    Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject("payload").getJsonObject("pull_request"));
+    Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(
+        "pull_request"));
     pullrequest.repo = repo;
     return Optional.of(new PullrequestEvent(type, pullrequest));
   }
@@ -172,8 +183,8 @@ public class GithubApi {
   }
 
   private boolean hasMorePage(JsonResponse resp) {
-    return resp.headers().keySet().contains("Link")
-        && resp.headers().get("Link").stream().anyMatch(s -> s.contains("next"));
+    return resp.headers().keySet().contains(HEADER_LINK)
+        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains("next"));
   }
 
   private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
@@ -194,6 +205,5 @@ public class GithubApi {
       logger.error(resp.toString());
       throw e;
     }
-
   }
 }
