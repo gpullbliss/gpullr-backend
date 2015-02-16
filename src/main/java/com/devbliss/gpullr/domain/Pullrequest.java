@@ -2,6 +2,8 @@ package com.devbliss.gpullr.domain;
 
 import java.time.ZonedDateTime;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
@@ -27,17 +29,24 @@ public class Pullrequest {
 
   @ManyToOne(optional = false)
   public Repo repo;
-  
+
   @ManyToOne(optional = false)
   public User owner;
 
   public String title;
-  
+
   public String url;
 
   public ZonedDateTime createdAt;
 
+  @NotNull
+  @Enumerated(EnumType.STRING)
   public State state;
+
+  /**
+   * Number of the PR (unique only within the same repository!).  
+   */
+  public Integer number;
 
   public Integer additions;
 

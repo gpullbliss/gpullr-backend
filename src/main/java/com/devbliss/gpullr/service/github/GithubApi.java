@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.Pullrequest;
-import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.PullrequestEvent;
 import com.devbliss.gpullr.domain.PullrequestEvent.Type;
 import com.devbliss.gpullr.domain.Repo;
@@ -143,6 +142,7 @@ public class GithubApi {
     pullRequest.additions = pullrequestJson.getInt("additions");
     pullRequest.deletions = pullrequestJson.getInt("deletions");
     pullRequest.changedFiles = pullrequestJson.getInt("changed_files");
+    pullRequest.number = pullrequestJson.getInt("number");
     return pullRequest;
   }
 
