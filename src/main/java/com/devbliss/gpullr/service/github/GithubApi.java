@@ -1,7 +1,5 @@
 package com.devbliss.gpullr.service.github;
 
-import javax.json.JsonException;
-
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.PullrequestEvent;
@@ -22,6 +20,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.json.Json;
+import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonValue.ValueType;
@@ -38,8 +37,11 @@ import org.springframework.stereotype.Service;
 public class GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
+
   private static final String PULLREQUEST_ACTION_CREATED = "opened";
+
   private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
+
   private static final String HEADER_ETAG = "ETag";
 
   @Log
