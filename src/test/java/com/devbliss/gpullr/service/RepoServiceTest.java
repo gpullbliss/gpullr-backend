@@ -58,7 +58,7 @@ public class RepoServiceTest {
 
     // update repo and make sure it is really updated:
     final String updatedName = NAME + "_updated";
-    final String updatedDescription = DESCRIPTION + "_updated";
+    final String updatedDescription = DESCRIPTION + "_upd8ted";
     repoService.insertOrUpdate(new Repo(ID, updatedName, updatedDescription));
 
     allRepos = repoService.findAll();
