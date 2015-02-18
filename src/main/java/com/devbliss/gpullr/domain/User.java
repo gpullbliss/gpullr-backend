@@ -27,8 +27,6 @@ public class User {
   public boolean canLogin;
 
   public User() {
-    // default = false - non organizational person, cannot log in
-    canLogin = false;
   }
 
   public User(Integer id, String username, String avatarUrl) {
