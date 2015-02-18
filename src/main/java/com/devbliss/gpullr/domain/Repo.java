@@ -38,4 +38,8 @@ public class Repo {
     this.name = name;
     this.description = description;
   }
+
+  public String toConstructorString() {
+    return String.format("new Repo(%d, \"%s\", \"%s\")", id, name, description);
+  }
 }
