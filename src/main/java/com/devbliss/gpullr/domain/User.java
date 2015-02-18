@@ -24,11 +24,10 @@ public class User {
 
   public String avatarUrl;
 
-  @NotNull
   public boolean canLogin;
 
   public User() {
-    //default = false - non organizational person, cannot log in
+    // default = false - non organizational person, cannot log in
     canLogin = false;
   }
 
@@ -36,5 +35,6 @@ public class User {
     this.id = id;
     this.username = username;
     this.avatarUrl = avatarUrl;
+    this.canLogin = false;
   }
 }
