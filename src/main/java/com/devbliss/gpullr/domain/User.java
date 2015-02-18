@@ -14,8 +14,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @Entity
 public class User {
 
-  public boolean canLogin;
-
   @Id
   @NotNull
   public Integer id;
@@ -26,8 +24,11 @@ public class User {
 
   public String avatarUrl;
 
+  @NotNull
+  public boolean canLogin;
+
   public User() {
-    //default = false - not organizational person
+    //default = false - non organizational person, cannot log in
     canLogin = false;
   }
 
