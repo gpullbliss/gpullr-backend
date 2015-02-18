@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
  * Afterwards, it independently polls periodically again according to the poll interval returned by GitHub.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
- *
  */
 @Component
 public class GithubEventFetcher {

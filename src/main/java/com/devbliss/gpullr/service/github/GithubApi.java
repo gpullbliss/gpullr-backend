@@ -169,7 +169,7 @@ public class GithubApi {
   }
 
   private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-      Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
+                                                          Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
       throws IOException {
 
     List<PullrequestEvent> events = new ArrayList<>();
@@ -215,12 +215,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-        .readArray()
-        .stream()
-        .filter(v -> v.getValueType() == ValueType.OBJECT)
-        .map(v -> (JsonObject) v)
-        .map(mapper)
-        .collect(Collectors.toList());
+          .readArray()
+          .stream()
+          .filter(v -> v.getValueType() == ValueType.OBJECT)
+          .map(v -> (JsonObject) v)
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (JsonException e) {
       logger.error("Error reading response json: " + e.getMessage());
       logger.error("raw response:");

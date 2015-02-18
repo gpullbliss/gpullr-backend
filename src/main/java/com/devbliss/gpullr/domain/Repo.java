@@ -8,13 +8,12 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
- * A repository at GitHub, i.e. a project whose pullrequests are handled by this application. 
+ * A repository at GitHub, i.e. a project whose pull requests are handled by this application.
  * Belongs to our organization in terms of GitHub permissions.
- * 
- * The id the one given by GitHub! 
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
+ * <p>
+ * The id the one given by GitHub!
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Entity
 public class Repo {
@@ -31,7 +30,8 @@ public class Repo {
   @Column(nullable = true, length = 1000)
   public String description;
 
-  public Repo() {}
+  public Repo() {
+  }
 
   public Repo(int id, String name, String description) {
     this.id = id;

@@ -11,13 +11,12 @@ import org.springframework.stereotype.Component;
  * Since the events endpoint of GitHub does *not* deliver the event that a new repository has been created
  * (unlike the documentation tells), this class fetches the full list of repositories and store
  * changes in our persistence layer.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
 public class GithubReposFetcher {
-  
+
   @Log
   private Logger logger;
 
@@ -26,7 +25,7 @@ public class GithubReposFetcher {
 
   @Autowired
   private RepoService repoService;
-  
+
   public void fetchRepos() {
     logger.info("Fetching repos from GitHub...");
     githubApi.fetchAllGithubRepos().forEach(r -> repoService.insertOrUpdate(r));

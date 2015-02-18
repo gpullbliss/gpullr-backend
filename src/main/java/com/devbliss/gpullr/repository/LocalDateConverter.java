@@ -7,9 +7,8 @@ import javax.persistence.Converter;
 
 /**
  * Converts {@link LocalDate} to {@link Date} and vice versa for mapping respective entity values in JPA.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Converter(autoApply = true)
 public class LocalDateConverter implements AttributeConverter<LocalDate, Date> {

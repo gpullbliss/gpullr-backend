@@ -8,15 +8,14 @@ import org.springframework.stereotype.Service;
 
 /**
  * Business Layer for {@link com.devbliss.gpullr.domain.User} objects.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Service
 public class UserService {
 
   private final UserRepository userRepository;
-  
+
   @Autowired
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;

@@ -11,9 +11,8 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Represents a pullrequest persisted in our application.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Entity
 public class Pullrequest {
@@ -44,7 +43,7 @@ public class Pullrequest {
   public State state;
 
   /**
-   * Number of the PR (unique only within the same repository!).  
+   * Number of the PR (unique only within the same repository!).
    */
   public Integer number;
 

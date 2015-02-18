@@ -10,10 +10,11 @@ import org.hibernate.validator.constraints.NotBlank;
  * User of the application, fetched from GitHub API.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
- *
  */
 @Entity
 public class User {
+
+  public boolean canLogin;
 
   @Id
   @NotNull
@@ -26,6 +27,8 @@ public class User {
   public String avatarUrl;
 
   public User() {
+    //default = false - not organizational person
+    canLogin = false;
   }
 
   public User(Integer id, String username, String avatarUrl) {

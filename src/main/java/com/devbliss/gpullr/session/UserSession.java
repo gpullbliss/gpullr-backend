@@ -8,9 +8,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 /**
  * Represent the session of a user and includes its {@link User} object.
- * 
- * @author Philipp Karstedt <philipp.karstedt@devbliss.com>
  *
+ * @author Philipp Karstedt <philipp.karstedt@devbliss.com>
  */
 @Component
 @Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)

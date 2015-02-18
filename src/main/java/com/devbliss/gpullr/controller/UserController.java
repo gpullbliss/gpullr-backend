@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST controller to manage users.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @RestController
 @RequestMapping("/users")
@@ -20,8 +19,8 @@ public class UserController {
 
   @Autowired
   private UserService userService;
-  
-  @RequestMapping(method=RequestMethod.GET)
+
+  @RequestMapping(method = RequestMethod.GET)
   public List<User> getAllUsers() {
     return userService.findAll();
   }

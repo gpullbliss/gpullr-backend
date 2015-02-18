@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to inject {@link org.slf4j.Logger} with the class name.
- *
  */
 @Retention(RUNTIME)
 @Target(FIELD)

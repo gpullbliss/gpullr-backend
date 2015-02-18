@@ -12,9 +12,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Fetches all users belonging to Devbliss from GitHub API.
- *  
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
 public class GithubUserFetcher {
@@ -33,6 +32,7 @@ public class GithubUserFetcher {
       logger.info("Start fetching users from GitHub...");
       List<User> users = githubApi.fetchAllOrgaMembers();
       users.forEach(u -> logger.debug("fetched user: " + u.username));
+      users.forEach(u -> u.canLogin = true);
       users.forEach(userService::insertOrUpdate);
       logger.info("Finished fetching users from GitHub,");
     } catch (IOException e) {
