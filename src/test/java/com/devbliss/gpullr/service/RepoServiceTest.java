@@ -76,7 +76,7 @@ public class RepoServiceTest {
   @Test
   public void findRepoByName() {
     final String name = NAME + "_nameSearch";
-    final String description = DESCRIPTION + "_nameSearch";
+    final String description = DESCRIPTION;
 
     // first try without existing repository
     Optional<Repo> repo = repoService.findByName(name);

@@ -1,9 +1,7 @@
 package com.devbliss.gpullr.service;
 
-import org.springframework.transaction.TransactionSystemException;
-
-import org.springframework.orm.jpa.JpaSystemException;
 import static org.junit.Assert.assertEquals;
+
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -15,8 +13,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.TransactionSystemException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)

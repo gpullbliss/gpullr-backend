@@ -85,13 +85,13 @@ public class PullrequestServiceTest {
     prService.insertOrUpdate(testPr);
     prs = prService.findAll();
     assertEquals(1, prs.size());
-    int fetched_PR_id = prs.get(0).id;
-    int fetched_PR_User_id = prs.get(0).owner.id;
-    int fetched_PR_Repo_id = prs.get(0).repo.id;
+    int fetchedPrId = prs.get(0).id;
+    int fetchedPrUserId = prs.get(0).owner.id;
+    int fetchedPrRepoId = prs.get(0).repo.id;
 
-    assertEquals(PR_ID, fetched_PR_id);
-    assertEquals(USER_ID, fetched_PR_User_id);
-    assertEquals(REPO_ID, fetched_PR_Repo_id);
+    assertEquals(PR_ID, fetchedPrId);
+    assertEquals(USER_ID, fetchedPrUserId);
+    assertEquals(REPO_ID, fetchedPrRepoId);
     assertEquals(testPr.state, prs.get(0).state);
   }
 

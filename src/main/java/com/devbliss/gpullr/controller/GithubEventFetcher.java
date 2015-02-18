@@ -1,10 +1,9 @@
 package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.domain.Pullrequest;
-
 import com.devbliss.gpullr.domain.Pullrequest.State;
-import com.devbliss.gpullr.domain.PullrequestEvent.Type;
 import com.devbliss.gpullr.domain.PullrequestEvent;
+import com.devbliss.gpullr.domain.PullrequestEvent.Type;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
@@ -20,10 +19,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 /**
- * Fetches pull requests for all our repositories.
- * Must be started once using {@link #startFetchEventsLoop()}. Afterwards, it independently polls periodically again
- * according to the poll interval returned by GitHub. 
- * 
+ * Fetches pull requests for all our repositories. Must be started once using {@link #startFetchEventsLoop()}.
+ * Afterwards, it independently polls periodically again according to the poll interval returned by GitHub.
+ *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */

@@ -55,6 +55,10 @@ public class GithubApi {
 
   private static final String HEADER_LINK = "Link";
 
+  private static final String FIELD_KEY_TYPE = "type";
+
+  private static final String FIELD_KEY_ACTION = "action";
+
   @Log
   private Logger logger;
 
@@ -147,16 +151,16 @@ public class GithubApi {
   }
 
   private boolean isPullRequestEvent(JsonObject event) {
-    return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type"));
+    return EVENT_TYPE_PULL_REQUEST.equals(event.getString(FIELD_KEY_TYPE));
   }
 
   private boolean isPullRequestCreatedEvent(JsonObject event) {
-    return PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString("action"));
+    return PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString(FIELD_KEY_ACTION));
   }
 
   private boolean isPullRequestClosedEvent(JsonObject event) {
-    return EVENT_TYPE_PULL_REQUEST.equals(event.getString("type")) &&
-        PULLREQUEST_ACTION_CLOSED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString("action"));
+    return EVENT_TYPE_PULL_REQUEST.equals(event.getString(FIELD_KEY_TYPE)) &&
+        PULLREQUEST_ACTION_CLOSED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString(FIELD_KEY_ACTION));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
