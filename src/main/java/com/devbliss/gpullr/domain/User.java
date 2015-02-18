@@ -35,4 +35,16 @@ public class User {
     this.avatarUrl = avatarUrl;
     this.canLogin = false;
   }
+
+  public User(Integer id, String username, String avatarUrl, boolean canLogin) {
+    this.id = id;
+    this.username = username;
+    this.avatarUrl = avatarUrl;
+    this.canLogin = canLogin;
+    this.canLogin = false;
+  }
+
+  public String toConstructorString() {
+    return String.format("new User(%d, \"%s\", \"%s\", %s)", id, username, avatarUrl, canLogin);
+  }
 }
