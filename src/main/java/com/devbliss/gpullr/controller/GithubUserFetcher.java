@@ -31,13 +31,17 @@ public class GithubUserFetcher {
     try {
       logger.info("Start fetching users from GitHub...");
       List<User> users = githubApi.fetchAllOrgaMembers();
-      users.forEach(u -> logger.debug("fetched user: " + u.username));
-      users.forEach(u -> u.canLogin = true);
-      users.forEach(userService::insertOrUpdate);
+      users.forEach(u -> handleUser(u));
       logger.info("Finished fetching users from GitHub,");
     } catch (IOException e) {
       logger.error("Error fetching users from GitHub: " + e.getMessage(), e);
     }
+  }
+
+  private void handleUser(User user) {
+    logger.debug("fetched user: " + user.username);
+    user.canLogin = true;
+    userService.insertOrUpdate(user);
   }
 
 }
