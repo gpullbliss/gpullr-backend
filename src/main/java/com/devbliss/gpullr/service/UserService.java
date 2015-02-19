@@ -2,6 +2,7 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.UserRepository;
+import com.devbliss.gpullr.session.UserSession;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,14 @@ public class UserService {
 
   private final UserRepository userRepository;
 
+  private UserSession userSession;
+
   private List<User> devblissMembers;
 
   @Autowired
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, UserSession userSession) {
     this.userRepository = userRepository;
+    this.userSession = userSession;
     this.devblissMembers = new ArrayList();
   }
 
@@ -39,8 +43,17 @@ public class UserService {
     return devblissMembers;
   }
 
-  public User findById(int id) {
-    return userRepository.findOne(id);
+  public void login(int id) {
+    User loggedInUser = userRepository.findOne(id);
+    userSession.setUser(loggedInUser);
+  }
+
+  public User whoAmI() {
+    if (userSession.getUser() != null) {
+      return userSession.getUser();
+    } else {
+      return null;
+    }
   }
 
   private void addDevblissMember(User user) {

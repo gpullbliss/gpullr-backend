@@ -2,7 +2,6 @@ package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.UserService;
-import com.devbliss.gpullr.session.UserSession;
 import com.devbliss.gpullr.util.Log;
 import java.util.List;
 import org.slf4j.Logger;
@@ -29,9 +28,6 @@ public class UserController {
   @Autowired
   private UserService userService;
 
-  @Autowired
-  private UserSession userSession;
-
   @RequestMapping(method = RequestMethod.GET)
   public List<User> getAllOrgaMembers() {
     return userService.findAllOrgaMembers();
@@ -40,19 +36,12 @@ public class UserController {
   @RequestMapping(value = "/login/{id}", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
   public void login(@PathVariable("id") int id) {
-    // find user in db and set for userSession
-    User loggedInUser = userService.findById(id);
-    userSession.setUser(loggedInUser);
-    logger.debug("Login for: " + loggedInUser.username);
+    userService.login(id);
   }
 
   @RequestMapping(value = "/me", method = RequestMethod.GET)
   public User whoAmI() {
-    if (userSession.getUser() != null) {
-      return userSession.getUser();
-    } else {
-      return null;
-    }
+    return userService.whoAmI();
   }
 
 }
