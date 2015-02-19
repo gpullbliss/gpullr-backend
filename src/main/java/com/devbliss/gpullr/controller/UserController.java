@@ -5,7 +5,6 @@ import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.session.UserSession;
 import com.devbliss.gpullr.util.Log;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,17 +39,17 @@ public class UserController {
 
   @RequestMapping(value = "/login/{id}", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
-  public void login(@PathVariable("id") int id, HttpServletRequest request) {
+  public void login(@PathVariable("id") int id) {
     // find user in db and set for userSession
     User loggedInUser = userService.findById(id);
-    userSession.user = loggedInUser;
-    logger.debug("Login for: " + loggedInUser.username + " with session: " + request.getSession());
+    userSession.setUser(loggedInUser);
+    logger.debug("Login for: " + loggedInUser.username);
   }
 
   @RequestMapping(value = "/me", method = RequestMethod.GET)
   public User whoAmI() {
-    if (userSession.user != null) {
-      return userSession.user;
+    if (userSession.getUser() != null) {
+      return userSession.getUser();
     } else {
       return null;
     }

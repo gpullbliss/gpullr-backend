@@ -2,7 +2,6 @@ package com.devbliss.gpullr.session;
 
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.util.Log;
-import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -21,10 +20,14 @@ public class UserSession {
   @Log
   Logger logger;
 
-  public User user;
+  private User user;
 
-  @PostConstruct
-  public void userSession() {
-    logger.debug("############################### Fucking PostConstruct of userSession ###################################");
+  public User getUser() {
+    return user;
   }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
 }
