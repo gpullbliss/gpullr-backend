@@ -47,4 +47,14 @@ public class User {
   public String toConstructorString() {
     return String.format("new User(%d, \"%s\", \"%s\", %s)", id, username, avatarUrl, canLogin);
   }
+
+  @Override
+  public String toString() {
+    return "User{" +
+        "id=" + id +
+        ", username='" + username + '\'' +
+        ", avatarUrl='" + avatarUrl + '\'' +
+        ", canLogin=" + canLogin +
+        '}';
+  }
 }
