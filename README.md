@@ -14,7 +14,7 @@ To build the application, type
 ## verify the login
 ### using curl
 #### login
-curl -b cookies.txt -v -XPOST http://127.0.0.1:8888/users/login/95374
+curl -b cookies.txt -c cookies.txt -v -XPOST http://127.0.0.1:8888/users/login/95374
 
 #### check session
-curl -b cookies.txt -v http://127.0.0.1:8888/users/me
+curl -b cookies.txt -c cookies.txt -v http://127.0.0.1:8888/users/me

@@ -169,7 +169,8 @@ public class GithubApi {
   }
 
   private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-                                                          Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
+                                                          Function<JsonObject, Optional<PullrequestEvent>> mapper,
+                                                          String path, int page)
       throws IOException {
 
     List<PullrequestEvent> events = new ArrayList<>();

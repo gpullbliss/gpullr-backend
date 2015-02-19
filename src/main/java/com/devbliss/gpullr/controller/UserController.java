@@ -2,15 +2,12 @@ package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.controller.dto.UserConverter;
 import com.devbliss.gpullr.controller.dto.UserDto;
-import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.exception.ForbiddenException;
 import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
