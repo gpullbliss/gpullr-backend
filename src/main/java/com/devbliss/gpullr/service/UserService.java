@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.exception.ForbiddenException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
 import java.util.ArrayList;
@@ -43,17 +44,21 @@ public class UserService {
     return devblissMembers;
   }
 
+  public void requireLogin() throws ForbiddenException {
+    if (userSession.getUser() == null) {
+      throw new ForbiddenException();
+    }
+  }
+
+
   public void login(int id) {
     User loggedInUser = userRepository.findOne(id);
     userSession.setUser(loggedInUser);
   }
 
   public User whoAmI() {
-    if (userSession.getUser() != null) {
-      return userSession.getUser();
-    } else {
-      return null;
-    }
+    requireLogin();
+    return userSession.getUser();
   }
 
   private void addDevblissMember(User user) {
