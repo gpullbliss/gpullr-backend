@@ -3,11 +3,12 @@ package com.devbliss.gpullr.domain;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * User of the application, fetched from GitHub API.
- * 
+ *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
@@ -15,6 +16,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class User {
 
   @Id
+  @NotNull
   public Integer id;
 
   @NotBlank
@@ -22,7 +24,6 @@ public class User {
   public String name;
 
   public String avatarUrl;
-
 
   public User() {
   }
