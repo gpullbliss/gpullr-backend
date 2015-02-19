@@ -114,8 +114,9 @@ public class GithubApi {
     final String uri = sb.toString();
 
     try {
-      Response fetch = client.entry().uri().path(uri).back()
+      Response fetch = client.entry()
         .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
         .back().fetch();
       System.out.println(fetch);
 

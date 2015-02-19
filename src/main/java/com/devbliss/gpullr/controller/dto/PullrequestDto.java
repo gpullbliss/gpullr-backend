@@ -14,6 +14,7 @@ public class PullrequestDto {
   public Integer linesAdded;
   public Integer linesRemoved;
   public String status;
+  public User assignee;
 
 
 }
