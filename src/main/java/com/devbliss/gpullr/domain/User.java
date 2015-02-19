@@ -36,6 +36,14 @@ public class User {
     this.canLogin = false;
   }
 
+  /**
+   * only needed for temporary userlist --> remove before merge
+   * 
+   * @param id
+   * @param username
+   * @param avatarUrl
+   * @param canLogin
+   */
   public User(Integer id, String username, String avatarUrl, boolean canLogin) {
     this.id = id;
     this.username = username;
