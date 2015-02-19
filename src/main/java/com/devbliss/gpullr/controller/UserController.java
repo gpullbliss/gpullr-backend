@@ -1,8 +1,10 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.controller.dto.UserConverter;
+import com.devbliss.gpullr.controller.dto.UserDto;
 import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.util.Log;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +30,14 @@ public class UserController {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private UserConverter userConverter;
+
   @RequestMapping(method = RequestMethod.GET)
-  public List<User> getAllOrgaMembers() {
-    return userService.findAllOrgaMembers();
+  public List<UserDto> getAllOrgaMembers() {
+    List<UserDto> result = new ArrayList();
+    userService.findAllOrgaMembers().forEach(u -> result.add(userConverter.toDto(u)));
+    return result;
   }
 
   @RequestMapping(value = "/login/{id}", method = RequestMethod.POST)
@@ -40,8 +47,8 @@ public class UserController {
   }
 
   @RequestMapping(value = "/me", method = RequestMethod.GET)
-  public User whoAmI() {
-    return userService.whoAmI();
+  public UserDto whoAmI() {
+    return userConverter.toDto(userService.whoAmI());
   }
 
 }

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.UserRepository;
+import com.devbliss.gpullr.session.UserSession;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -32,11 +33,14 @@ public class UserServiceTest {
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+  private UserSession userSession;
+
   private UserService userService;
 
   @Before
   public void setup() {
-    userService = new UserService(userRepository);
+    userService = new UserService(userRepository, userSession);
   }
 
   @After
