@@ -50,7 +50,6 @@ public class UserService {
     }
   }
 
-
   public void login(int id) {
     User loggedInUser = userRepository.findOne(id);
     userSession.setUser(loggedInUser);
