@@ -1,6 +1,8 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
@@ -77,6 +79,25 @@ public class UserServiceTest {
     assertEquals(updatedAvatarUrl, loaded.avatarUrl);
     assertEquals(updatedUsername, loaded.username);
   }
+
+  @Test
+  public void findAllOrgaMembers() {
+    userService.insertOrUpdate(new User(ID, USERNAME, AVATAR_URL));
+    User user = userRepository.findOne(ID);
+    // ensure that user is no organization member
+    assertFalse(user.canLogin);
+
+    List<User> orgaMembers = userService.findAllOrgaMembers();
+    orgaMembers.forEach(mem -> assertTrue(mem.canLogin));
+    orgaMembers.forEach(mem -> assertFalse(mem.id == ID));
+    orgaMembers.forEach(mem -> assertFalse(mem.username == USERNAME));
+  }
+
+  // @Test
+  // public void login() {
+  // userService.login(ID);
+  // assertNotNull(userSession.getUser());
+  // }
 
   @Test(expected = DataIntegrityViolationException.class)
   public void usernameUnique() {
