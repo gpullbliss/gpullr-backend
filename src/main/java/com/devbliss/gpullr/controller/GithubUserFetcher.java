@@ -22,8 +22,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class GithubUserFetcher {
 
-  private static final int ONE_DAY_IN_SECONDS = 86400;
-
   private static final int HOURS_OF_DAY = 24;
 
   @Log
