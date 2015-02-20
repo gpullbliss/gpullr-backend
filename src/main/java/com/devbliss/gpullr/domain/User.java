@@ -21,7 +21,7 @@ public class User {
 
   @NotBlank
   @Column(unique = true)
-  public String name;
+  public String username;
 
   public String avatarUrl;
 
@@ -30,7 +30,7 @@ public class User {
 
   public User(Integer id, String username, String avatarUrl) {
     this.id = id;
-    this.name = username;
+    this.username = username;
     this.avatarUrl = avatarUrl;
   }
 }

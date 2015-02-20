@@ -105,7 +105,7 @@ public class GithubApi {
   }
 
   public void assingUserToPullRequest(User user, Pullrequest pull) {
-    JsonObject json = Json.createObjectBuilder().add("assignee", user.name).build();
+    JsonObject json = Json.createObjectBuilder().add("assignee", user.username).build();
 
     StringBuilder sb = new StringBuilder();
     sb.append("/repos")

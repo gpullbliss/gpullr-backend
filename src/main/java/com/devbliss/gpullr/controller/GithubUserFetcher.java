@@ -32,7 +32,7 @@ public class GithubUserFetcher {
     try {
       logger.info("Start fetching users from GitHub...");
       List<User> users = githubApi.fetchAllOrgaMembers();
-      users.forEach(u -> logger.debug("fetched user: " + u.name));
+      users.forEach(u -> logger.debug("fetched user: " + u.username));
       users.forEach(userService::insertOrUpdate);
       logger.info("Finished fetching users from GitHub,");
     } catch (IOException e) {

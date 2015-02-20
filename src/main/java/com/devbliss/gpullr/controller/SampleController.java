@@ -38,7 +38,7 @@ public class SampleController {
     User user = null;
     List<User> users = userService.findAll();
     for (int i = 0; i < users.size(); i++) {
-      if (users.get(i).name.equals("dwalldorf")) {
+      if (users.get(i).username.equals("dwalldorf")) {
         user = users.get(i);
       }
     }
