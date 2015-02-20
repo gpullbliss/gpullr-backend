@@ -1,15 +1,16 @@
 package com.devbliss.gpullr.service;
 
-import com.devbliss.gpullr.service.github.GithubApi;
-
 import static org.junit.Assert.assertEquals;
+
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.Pullrequest;
+import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.PullrequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
+import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
 import java.util.List;
 import org.junit.After;
@@ -53,7 +54,7 @@ public class PullrequestServiceTest {
 
   @Autowired
   private RepoRepository repoRepository;
-  
+
   @Autowired
   private GithubApi githubApi;
 
@@ -96,6 +97,27 @@ public class PullrequestServiceTest {
     assertEquals(USER_ID, fetchedPrUserId);
     assertEquals(REPO_ID, fetchedPrRepoId);
     assertEquals(testPr.state, prs.get(0).state);
+  }
+
+  @Test
+  public void findAllOpenPullrequests() {
+    // store a pullrequest with state OPEN:
+    prService.insertOrUpdate(testPr);
+
+    // store another with state CLOSED:
+    Pullrequest pullrequest = new Pullrequest();
+    pullrequest.id = PR_ID + 1;
+    pullrequest.repo = testPr.repo;
+    pullrequest.owner = testPr.owner;
+    pullrequest.state = State.CLOSED;
+    pullrequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullrequest);
+    
+    // make sure only the open PR is returned: 
+    List<Pullrequest> openPrs = prService.findAllOpen();
+    assertEquals(1, openPrs.size());
+    assertEquals(State.OPEN, openPrs.get(0).state);
+    assertEquals(PR_ID, openPrs.get(0).id.intValue());
   }
 
   private Repo initRepo() {
