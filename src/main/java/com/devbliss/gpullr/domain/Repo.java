@@ -27,7 +27,8 @@ public class Repo {
   @Column(unique = true)
   public String name;
 
-  @Column(nullable = true, length = 1000)
+  @Column(nullable = true,
+          length = 1000)
   public String description;
 
   public Repo() {
@@ -39,7 +40,4 @@ public class Repo {
     this.description = description;
   }
 
-  public String toConstructorString() {
-    return String.format("new Repo(%d, \"%s\", \"%s\")", id, name, description);
-  }
 }

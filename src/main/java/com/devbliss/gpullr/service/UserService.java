@@ -4,7 +4,6 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,13 +20,10 @@ public class UserService {
 
   private UserSession userSession;
 
-  private List<User> devblissMembers;
-
   @Autowired
   public UserService(UserRepository userRepository, UserSession userSession) {
     this.userRepository = userRepository;
     this.userSession = userSession;
-    this.devblissMembers = new ArrayList();
   }
 
   public void insertOrUpdate(User user) {
@@ -39,9 +35,7 @@ public class UserService {
   }
 
   public List<User> findAllOrgaMembers() {
-    devblissMembers.clear();
-    userRepository.findAll().forEach(user -> addDevblissMember(user));
-    return devblissMembers;
+    return userRepository.findByCanLoginIsTrue();
   }
 
   public void requireLogin() throws LoginRequiredException {
@@ -58,11 +52,5 @@ public class UserService {
   public User whoAmI() {
     requireLogin();
     return userSession.getUser();
-  }
-
-  private void addDevblissMember(User user) {
-    if (user.canLogin) {
-      devblissMembers.add(user);
-    }
   }
 }

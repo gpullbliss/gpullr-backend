@@ -30,3 +30,4 @@ build/
 /gpullrDb.mv.db
 
 /gpullrDb.trace.db
+cookies.txt

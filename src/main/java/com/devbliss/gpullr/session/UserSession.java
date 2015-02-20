@@ -14,7 +14,8 @@ import org.springframework.web.context.WebApplicationContext;
  * @author Philipp Karstedt <philipp.karstedt@devbliss.com>
  */
 @Component
-@Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(value = WebApplicationContext.SCOPE_SESSION,
+       proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class UserSession {
 
   @Log

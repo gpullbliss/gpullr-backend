@@ -40,10 +40,10 @@ public class PullrequestService {
   public List<Pullrequest> findAll() {
 
     return pullrequestRepository
-      .findAll()
-      .stream()
-      .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
-      .collect(Collectors.toList());
+        .findAll()
+        .stream()
+        .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
+        .collect(Collectors.toList());
   }
 
   public List<Pullrequest> findAllOpen() {

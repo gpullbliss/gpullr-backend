@@ -5,6 +5,8 @@ package com.devbliss.gpullr.exception;
  */
 public class LoginRequiredException extends RuntimeException {
 
+  private static final long serialVersionUID = -3356763029053744330L;
+
   public LoginRequiredException(String message) {
     super(message);
   }

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Converter for {@link User} and {@link UserDto} objects.
- *
  */
 @Component
 public class UserConverter {

@@ -12,4 +12,6 @@ import org.springframework.stereotype.Component;
 public interface UserRepository extends CrudRepository<User, Integer> {
 
   List<User> findAll();
+
+  List<User> findByCanLoginIsTrue();
 }

@@ -17,7 +17,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -40,7 +39,6 @@ public class UserServiceTest {
   @Autowired
   private UserRepository userRepository;
 
-  @Mock
   private UserSession userSession;
 
   private UserService userService;
@@ -116,9 +114,9 @@ public class UserServiceTest {
   public void whoAmIWorksFine() {
     when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
 
-    User iAm = userService.whoAmI();
-    assertNotNull(iAm);
-    assertEquals(ID, iAm.id);
+    User iam = userService.whoAmI();
+    assertNotNull(iam);
+    assertEquals(ID, iam.id);
   }
 
   @Test(expected = LoginRequiredException.class)
