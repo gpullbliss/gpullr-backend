@@ -1,8 +1,9 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.Pullrequest;
@@ -15,6 +16,7 @@ import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +59,7 @@ public class PullrequestServiceTest {
   @Autowired
   private RepoRepository repoRepository;
 
-//  @Autowired
+  // @Autowired
   private GithubApi githubApi;
 
   private PullrequestService prService;
@@ -129,7 +131,7 @@ public class PullrequestServiceTest {
     Pullrequest pullrequest = new Pullrequest();
     pullrequest.id = PR_ID + 1;
     pullrequest.repo = testPr.repo;
-    pullrequest.state = State.CLOSED;
+    pullrequest.state = State.OPEN;
     pullrequest.owner = testPr.owner;
     pullrequest.createdAt = ZonedDateTime.now();
     prService.insertOrUpdate(pullrequest);
@@ -141,7 +143,22 @@ public class PullrequestServiceTest {
     verify(githubApi).assingUserToPullRequest(assignee, pullrequest);
   }
 
-  // TODO test find by id
+  @Test
+  public void findById() {
+    // create a pull request:
+    Pullrequest pullrequest = new Pullrequest();
+    pullrequest.id = PR_ID + 1;
+    pullrequest.repo = testPr.repo;
+    pullrequest.state = State.CLOSED;
+    pullrequest.owner = testPr.owner;
+    pullrequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullrequest);
+
+    // verify it can be fetched by id:
+    Optional<Pullrequest> fetched = prService.findById(pullrequest.id);
+    assertTrue(fetched.isPresent());
+    assertEquals(pullrequest, fetched.get().id);
+  }
 
   private Repo initRepo() {
     Repo repo = new Repo(REPO_ID, REPO_NAME, REPO_DESC);
