@@ -47,7 +47,7 @@ public class GithubUserFetcher {
       users.forEach(this::handleUser);
       logger.info("Finished fetching users from GitHub,");
 
-      // executor.schedule(() -> fetchUsers(), calculateNextUserFetch());
+      executor.schedule(() -> fetchUsers(), calculateNextUserFetch());
     } catch (IOException e) {
       logger.error("Error fetching users from GitHub: " + e.getMessage(), e);
     }
