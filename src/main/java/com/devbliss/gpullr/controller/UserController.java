@@ -6,6 +6,7 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,9 +32,11 @@ public class UserController {
 
   @RequestMapping(method = RequestMethod.GET)
   public List<UserDto> getAllOrgaMembers() {
-    List<UserDto> result = new ArrayList();
-    userService.findAllOrgaMembers().forEach(u -> result.add(userConverter.toDto(u)));
-    return result;
+    return userService
+        .findAllOrgaMembers()
+        .stream()
+        .map(userConverter::toDto)
+        .collect(Collectors.toList());
   }
 
   @RequestMapping(value = "/login/{id}",
