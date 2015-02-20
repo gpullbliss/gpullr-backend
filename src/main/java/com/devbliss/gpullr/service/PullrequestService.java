@@ -2,6 +2,7 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullrequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
@@ -53,7 +54,9 @@ public class PullrequestService {
   }
 
   public void assignPullrequest(User user, Integer pullrequestId) {
-    Pullrequest pullrequest = pullrequestRepository.findOne(pullrequestId);
+    Pullrequest pullrequest = pullrequestRepository
+      .findById(pullrequestId)
+      .orElseThrow(() -> new NotFoundException("No pullrequest found with id " + pullrequestId));
     githubApi.assingUserToPullRequest(user, pullrequest);
   }
 
