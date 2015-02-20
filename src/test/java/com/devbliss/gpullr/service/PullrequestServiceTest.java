@@ -59,7 +59,7 @@ public class PullrequestServiceTest {
 
   @Before
   public void setup() {
-    prService = new PullrequestService(prRepository, userRepository);
+    prService = new PullrequestService(prRepository, userRepository, githubApi);
     testPr = new Pullrequest();
     testPr.id = PR_ID;
     testPr.owner = initUser();

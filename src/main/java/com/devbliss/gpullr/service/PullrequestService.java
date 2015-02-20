@@ -1,8 +1,10 @@
 package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.Pullrequest;
+import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.PullrequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
+import com.devbliss.gpullr.service.github.GithubApi;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +23,13 @@ public class PullrequestService {
 
   private final UserRepository userRepository;
 
+  private final GithubApi githubApi;
+
   @Autowired
-  public PullrequestService(PullrequestRepository pullrequestRepository, UserRepository userRepository) {
+  public PullrequestService(PullrequestRepository pullrequestRepository, UserRepository userRepository, GithubApi githubApi) {
     this.pullrequestRepository = pullrequestRepository;
     this.userRepository = userRepository;
+    this.githubApi = githubApi;
   }
 
   public List<Pullrequest> findAll() {
@@ -36,8 +41,9 @@ public class PullrequestService {
       .collect(Collectors.toList());
   }
 
-  public void assignPullrequest(String sessionId, Integer pullrequestId) {
+  public void assignPullrequest(User user, Integer pullrequestId) {
     Pullrequest pullrequest = pullrequestRepository.findOne(pullrequestId);
+    githubApi.assingUserToPullRequest(user, pullrequest);
   }
 
   public void insertOrUpdate(Pullrequest pullrequest) {
