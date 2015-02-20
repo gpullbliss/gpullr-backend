@@ -4,7 +4,6 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -4,7 +4,6 @@ import com.devbliss.gpullr.controller.dto.UserConverter;
 import com.devbliss.gpullr.controller.dto.UserDto;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.UserService;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +38,17 @@ public class UserController {
         .collect(Collectors.toList());
   }
 
-  @RequestMapping(value = "/login/{id}",
-                  method = RequestMethod.POST)
+  @RequestMapping(
+      value = "/login/{id}",
+      method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
   public void login(@PathVariable("id") int id) {
     userService.login(id);
   }
 
-  @RequestMapping(value = "/me",
-                  method = RequestMethod.GET)
+  @RequestMapping(
+      value = "/me",
+      method = RequestMethod.GET)
   public UserDto whoAmI() {
     User entity = userService.whoAmI();
     return userConverter.toDto(entity);

@@ -4,7 +4,6 @@ import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.util.Log;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

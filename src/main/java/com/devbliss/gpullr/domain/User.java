@@ -36,25 +36,6 @@ public class User {
     this.canLogin = false;
   }
 
-  /**
-   * only needed for temporary userlist --> remove before merge
-   *
-   * @param id
-   * @param username
-   * @param avatarUrl
-   * @param canLogin
-   */
-  public User(Integer id, String username, String avatarUrl, boolean canLogin) {
-    this.id = id;
-    this.username = username;
-    this.avatarUrl = avatarUrl;
-    this.canLogin = canLogin;
-  }
-
-  public String toConstructorString() {
-    return String.format("new User(%d, \"%s\", \"%s\", %s)", id, username, avatarUrl, canLogin);
-  }
-
   @Override
   public String toString() {
     return "User{" +
