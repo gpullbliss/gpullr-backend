@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 public class GithubUserFetcher {
 
   private static final int HOURS_OF_DAY = 24;
+  private static final int SECONDS_PER_HOUR = 3600;
 
   @Log
   private Logger logger;
@@ -67,7 +68,7 @@ public class GithubUserFetcher {
     int diff = HOURS_OF_DAY - LocalTime.now().getHour();
     logger.debug("Still " + diff + " hours until midnight.");
     diff++;
-    Date nextExecution = Date.from(Instant.now().plusSeconds(diff * 3600));
+    Date nextExecution = Date.from(Instant.now().plusSeconds(diff * SECONDS_PER_HOUR));
     logger.debug("The next fetch of organization members from github will be at: "
         + DateFormat.getInstance().format(nextExecution));
 
