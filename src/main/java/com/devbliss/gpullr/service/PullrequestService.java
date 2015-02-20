@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 
 /**
  * Business facade for persisting and retrieving {@link Pullrequest} objects.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
+
 @Service
 public class PullrequestService {
 
@@ -41,7 +41,9 @@ public class PullrequestService {
   }
 
   public void insertOrUpdate(Pullrequest pullrequest) {
-    userRepository.save(pullrequest.owner);
+    if (userRepository.findOne(pullrequest.owner.id) == null) {
+      userRepository.save(pullrequest.owner);
+    }
     pullrequestRepository.save(pullrequest);
   }
 

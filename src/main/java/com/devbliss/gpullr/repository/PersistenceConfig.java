@@ -12,24 +12,24 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 @Configuration
 public class PersistenceConfig {
-  
+
   private static final String DRIVER_CLASS_NAME = "org.h2.Driver";
-  
+
   @Profile("test")
   @Bean
   public DataSource createTestDataSource() {
     return DataSourceBuilder.create().url("jdbc:h2:mem:gpullrDb_test").driverClassName(DRIVER_CLASS_NAME).build();
   }
-  
+
   @Profile({"prod", "dev"})
   @Bean
   public DataSource createDataSource() {
     return DataSourceBuilder.create().url("jdbc:h2:./gpullrDb").driverClassName(DRIVER_CLASS_NAME).build();
   }
-  
+
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource,
-      JpaVendorAdapter jpaVendorAdapter) {
+                                                                     JpaVendorAdapter jpaVendorAdapter) {
     LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
     emfb.setDataSource(dataSource);
     emfb.setPackagesToScan("com.devbliss.gpullr");

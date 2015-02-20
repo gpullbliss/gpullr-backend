@@ -74,7 +74,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-        jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
+          jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -153,7 +153,7 @@ public class GithubApi {
     }
 
     Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(
-      "pull_request"));
+        "pull_request"));
     pullrequest.repo = repo;
     return Optional.of(new PullrequestEvent(type, pullrequest));
   }
@@ -182,7 +182,7 @@ public class GithubApi {
 
   private boolean isPullRequestClosedEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString(FIELD_KEY_TYPE)) &&
-      PULLREQUEST_ACTION_CLOSED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString(FIELD_KEY_ACTION));
+        PULLREQUEST_ACTION_CLOSED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString(FIELD_KEY_ACTION));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
@@ -191,8 +191,9 @@ public class GithubApi {
   }
 
   private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-    Function<JsonObject, Optional<PullrequestEvent>> mapper, String path, int page)
-    throws IOException {
+                                                          Function<JsonObject, Optional<PullrequestEvent>> mapper,
+                                                          String path, int page)
+      throws IOException {
 
     List<PullrequestEvent> events = new ArrayList<>();
     Optional<String> etag = getEtag(resp);
@@ -215,7 +216,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-    throws IOException {
+      throws IOException {
 
     List<T> result = responseToList(resp, mapper);
 
@@ -228,7 +229,7 @@ public class GithubApi {
 
   private boolean hasMorePage(JsonResponse resp) {
     return resp.headers().keySet().contains(HEADER_LINK)
-      && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains("next"));
+        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains("next"));
   }
 
   private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
@@ -237,12 +238,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-        .readArray()
-        .stream()
-        .filter(v -> v.getValueType() == ValueType.OBJECT)
-        .map(v -> (JsonObject) v)
-        .map(mapper)
-        .collect(Collectors.toList());
+          .readArray()
+          .stream()
+          .filter(v -> v.getValueType() == ValueType.OBJECT)
+          .map(v -> (JsonObject) v)
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (JsonException e) {
       logger.error("Error reading response json: " + e.getMessage());
       logger.error("raw response:");
