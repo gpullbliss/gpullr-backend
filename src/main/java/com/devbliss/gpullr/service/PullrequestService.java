@@ -26,7 +26,10 @@ public class PullrequestService {
   private final GithubApi githubApi;
 
   @Autowired
-  public PullrequestService(PullrequestRepository pullrequestRepository, UserRepository userRepository, GithubApi githubApi) {
+  public PullrequestService(
+      PullrequestRepository pullrequestRepository,
+      UserRepository userRepository,
+      GithubApi githubApi) {
     this.pullrequestRepository = pullrequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -36,6 +39,14 @@ public class PullrequestService {
 
     return pullrequestRepository
       .findAll()
+      .stream()
+      .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
+      .collect(Collectors.toList());
+  }
+
+  public List<Pullrequest> findAllOpen() {
+    return pullrequestRepository
+      .findAllByState(Pullrequest.State.OPEN)
       .stream()
       .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
       .collect(Collectors.toList());
@@ -52,9 +63,4 @@ public class PullrequestService {
     }
     pullrequestRepository.save(pullrequest);
   }
-
-  public Pullrequest findById(Integer id) {
-    return pullrequestRepository.findById(id);
-  }
-
 }

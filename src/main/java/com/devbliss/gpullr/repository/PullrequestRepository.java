@@ -13,6 +13,5 @@ public interface PullrequestRepository extends CrudRepository<Pullrequest, Integ
 
   List<Pullrequest> findAll();
 
-  Pullrequest findById(Integer id);
-
+  List<Pullrequest> findAllByState(Pullrequest.State state);
 }

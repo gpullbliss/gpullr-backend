@@ -2,11 +2,10 @@ package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.controller.dto.PullrequestConverter;
 import com.devbliss.gpullr.controller.dto.PullrequestDto;
-import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.UserService;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,25 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class PullrequestController {
 
   @Autowired
-  PullrequestService pullrequestService;
+  private PullrequestService pullrequestService;
 
   @Autowired
-  PullrequestConverter pullrequestConverter;
+  private PullrequestConverter pullrequestConverter;
 
   @Autowired
-  UserService userService;
+  private UserService userService;
 
   @RequestMapping(method = RequestMethod.GET)
-  public List<PullrequestDto> getPullrequests() {
-    List<Pullrequest> allPullrequests = pullrequestService.findAll();
-
-    List<PullrequestDto> allDtos = new ArrayList<PullrequestDto>();
-
-    for (Pullrequest pullrequest : allPullrequests) {
-      allDtos.add(pullrequestConverter.toDto(pullrequest));
-    }
-
-    return allDtos;
+  public List<PullrequestDto> findAll() {
+    return pullrequestService
+      .findAllOpen()
+      .stream()
+      .map(pr -> pullrequestConverter.toDto(pr))
+      .collect(Collectors.toList());
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/{pullrequestId}")
