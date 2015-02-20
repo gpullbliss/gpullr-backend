@@ -35,7 +35,7 @@ public class GithubReposFetcher {
     List<Repo> repos = githubApi.fetchAllGithubRepos();
 
     repos.forEach(r -> {
-          logger.info(String.format("fetched repo: [%d][%s]", r.id, r.name));
+          logger.debug(String.format("fetched repo: [%d][%s]", r.id, r.name));
           repoService.insertOrUpdate(r);
         }
     );
