@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.controller;
 
+import javax.validation.constraints.NotNull;
+
 import com.devbliss.gpullr.controller.dto.PullrequestConverter;
 import com.devbliss.gpullr.controller.dto.PullrequestDto;
 import com.devbliss.gpullr.service.PullrequestService;
@@ -38,7 +40,7 @@ public class PullrequestController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/{pullrequestId}")
-  public void assignPullrequest(@PathVariable Integer pullrequestId) {
+  public void assignPullrequest(@PathVariable @NotNull Integer pullrequestId) {
     pullrequestService.assignPullrequest(userService.whoAmI(), pullrequestId);
   }
 

@@ -1,7 +1,9 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
@@ -119,7 +121,26 @@ public class PullrequestServiceTest {
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
   }
+  
+  @Test
+  public void assignPullrequest() {
+    // create new PR w/o owner:
+    Pullrequest pullrequest = new Pullrequest();
+    pullrequest.id = PR_ID + 1;
+    pullrequest.repo = testPr.repo;
+    pullrequest.state = State.CLOSED;
+    pullrequest.owner = testPr.owner;
+    prService.insertOrUpdate(pullrequest);
+    
+    // make sure there is no one auto-assigned or so:
+    Optional<Pullrequest> fetched = prService.findById(pullrequest.id);
+    assertNull(fetched.get().owner);
+    
+    // assign someone:
+  }
 
+  // TODO test find by id
+  
   private Repo initRepo() {
     Repo repo = new Repo(REPO_ID, REPO_NAME, REPO_DESC);
     return repoRepository.save(repo);
