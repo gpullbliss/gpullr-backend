@@ -2,10 +2,14 @@ package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
 import java.util.List;
@@ -13,6 +17,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,13 +40,14 @@ public class UserServiceTest {
   @Autowired
   private UserRepository userRepository;
 
-  @Autowired
+  @Mock
   private UserSession userSession;
 
   private UserService userService;
 
   @Before
   public void setup() {
+    userSession = mock(UserSession.class);
     userService = new UserService(userRepository, userSession);
   }
 
@@ -93,11 +99,37 @@ public class UserServiceTest {
     orgaMembers.forEach(mem -> assertFalse(mem.username == USERNAME));
   }
 
-  // @Test
-  // public void login() {
-  // userService.login(ID);
-  // assertNotNull(userSession.getUser());
-  // }
+  @Test
+  public void login() {
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+    userService.login(ID);
+    assertNotNull(userSession.getUser());
+  }
+
+  @Test
+  public void requireLoginWithoutException() {
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+    userService.requireLogin();
+  }
+
+  @Test
+  public void whoAmIWorksFine() {
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+
+    User iAm = userService.whoAmI();
+    assertNotNull(iAm);
+    assertEquals(ID, iAm.id);
+  }
+
+  @Test(expected = LoginRequiredException.class)
+  public void whoAmIFails() {
+    userService.whoAmI();
+  }
+
+  @Test(expected = LoginRequiredException.class)
+  public void requireLogin() {
+    userService.requireLogin();
+  }
 
   @Test(expected = DataIntegrityViolationException.class)
   public void usernameUnique() {
