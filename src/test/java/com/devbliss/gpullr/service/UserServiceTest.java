@@ -1,10 +1,17 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
+import com.devbliss.gpullr.session.UserSession;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -32,11 +39,14 @@ public class UserServiceTest {
   @Autowired
   private UserRepository userRepository;
 
+  private UserSession userSession;
+
   private UserService userService;
 
   @Before
   public void setup() {
-    userService = new UserService(userRepository);
+    userSession = mock(UserSession.class);
+    userService = new UserService(userRepository, userSession);
   }
 
   @After
@@ -72,6 +82,51 @@ public class UserServiceTest {
     assertEquals(ID, loaded.id);
     assertEquals(updatedAvatarUrl, loaded.avatarUrl);
     assertEquals(updatedUsername, loaded.username);
+  }
+
+  @Test
+  public void findAllOrgaMembers() {
+    userService.insertOrUpdate(new User(ID, USERNAME, AVATAR_URL));
+    User user = userRepository.findOne(ID);
+    // ensure that user is no organization member
+    assertFalse(user.canLogin);
+
+    List<User> orgaMembers = userService.findAllOrgaMembers();
+    orgaMembers.forEach(mem -> assertTrue(mem.canLogin));
+    orgaMembers.forEach(mem -> assertFalse(mem.id == ID));
+    orgaMembers.forEach(mem -> assertFalse(mem.username == USERNAME));
+  }
+
+  @Test
+  public void login() {
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+    userService.login(ID);
+    assertNotNull(userSession.getUser());
+  }
+
+  @Test
+  public void requireLoginWithoutException() {
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+    userService.requireLogin();
+  }
+
+  @Test
+  public void whoAmIWorksFine() {
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+
+    User iam = userService.whoAmI();
+    assertNotNull(iam);
+    assertEquals(ID, iam.id);
+  }
+
+  @Test(expected = LoginRequiredException.class)
+  public void whoAmIFails() {
+    userService.whoAmI();
+  }
+
+  @Test(expected = LoginRequiredException.class)
+  public void requireLogin() {
+    userService.requireLogin();
   }
 
   @Test(expected = DataIntegrityViolationException.class)

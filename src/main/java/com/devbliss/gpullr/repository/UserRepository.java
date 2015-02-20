@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
  * Persistence layer for {@link com.devbliss.gpullr.domain.User} objects.
  */
 @Component
-public interface UserRepository extends CrudRepository<User, Long> {
+public interface UserRepository extends CrudRepository<User, Integer> {
 
   List<User> findAll();
 
+  List<User> findByCanLoginIsTrue();
 }

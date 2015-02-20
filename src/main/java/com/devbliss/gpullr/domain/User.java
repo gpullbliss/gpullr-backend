@@ -10,7 +10,6 @@ import org.hibernate.validator.constraints.NotBlank;
  * User of the application, fetched from GitHub API.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
- *
  */
 @Entity
 public class User {
@@ -25,6 +24,8 @@ public class User {
 
   public String avatarUrl;
 
+  public Boolean canLogin = false;
+
   public User() {
   }
 
@@ -32,5 +33,16 @@ public class User {
     this.id = id;
     this.username = username;
     this.avatarUrl = avatarUrl;
+    this.canLogin = false;
+  }
+
+  @Override
+  public String toString() {
+    return "User{" +
+        "id=" + id +
+        ", username='" + username + '\'' +
+        ", avatarUrl='" + avatarUrl + '\'' +
+        ", canLogin=" + canLogin +
+        '}';
   }
 }

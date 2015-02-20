@@ -6,12 +6,11 @@ import org.springframework.data.repository.CrudRepository;
 
 /**
  * Persists {@link Repo} objects.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
-public interface RepoRepository extends CrudRepository<Repo, Integer>{
-  
+public interface RepoRepository extends CrudRepository<Repo, Integer> {
+
   Optional<Repo> findByName(String name);
-  
+
 }

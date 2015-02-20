@@ -8,12 +8,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 /**
- * Starts / coordinates the fetching of data from GithubAPI. 
- * Starts fetching repos and users first, and after ({@link #START_EVENTSLOOP_AFTER_SECONDS}) seconds
- * fetching the pull requests for the repos. 
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
+ * Starts / coordinates the fetching of data from GithubAPI. Starts fetching repos and users first, and after (
+ * {@link #START_EVENTSLOOP_AFTER_SECONDS}) seconds fetching the pull requests for the repos.
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
 public class GithubFetchScheduler {

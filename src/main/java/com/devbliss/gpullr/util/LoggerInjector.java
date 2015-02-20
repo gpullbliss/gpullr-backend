@@ -9,7 +9,6 @@ import org.springframework.util.ReflectionUtils;
 /**
  * Inject fields that are annotated with {@link Log}.
  * For these fields a Logger is created with the Bean's classname.
- *
  */
 @Component
 public class LoggerInjector implements BeanPostProcessor {

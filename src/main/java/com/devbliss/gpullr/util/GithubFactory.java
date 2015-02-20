@@ -20,7 +20,7 @@ public class GithubFactory {
   public Github createClient() {
     return new RtGithub(oauthToken);
   }
-  
+
   @Bean
   @Profile("test")
   public Github createTestClient() {

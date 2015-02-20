@@ -11,28 +11,27 @@ import org.springframework.stereotype.Service;
 
 /**
  * Business facade for persisting and retrieving {@link Repo} objects.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Service
 public class RepoService {
-  
+
   private final RepoRepository repoRepository;
-  
+
   @Autowired
   public RepoService(RepoRepository repoRepository) {
     this.repoRepository = repoRepository;
   }
-  
+
   public Optional<Repo> findByName(String name) {
     return repoRepository.findByName(name);
   }
-  
+
   public void insertOrUpdate(Repo repo) {
     repoRepository.save(repo);
   }
-  
+
   public List<Repo> findAll() {
     return StreamSupport.stream(repoRepository.findAll().spliterator(), false).collect(Collectors.toList());
   }
