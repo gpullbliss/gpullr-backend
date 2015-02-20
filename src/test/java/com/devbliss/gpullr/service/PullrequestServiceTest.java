@@ -1,9 +1,9 @@
 package com.devbliss.gpullr.service;
 
-import java.util.Optional;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
+
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
@@ -57,7 +57,7 @@ public class PullrequestServiceTest {
   @Autowired
   private RepoRepository repoRepository;
 
-  @Autowired
+//  @Autowired
   private GithubApi githubApi;
 
   private PullrequestService prService;
@@ -66,6 +66,7 @@ public class PullrequestServiceTest {
 
   @Before
   public void setup() {
+    githubApi = mock(GithubApi.class);
     prService = new PullrequestService(prRepository, userRepository, githubApi);
     testPr = new Pullrequest();
     testPr.id = PR_ID;
@@ -114,14 +115,14 @@ public class PullrequestServiceTest {
     pullrequest.state = State.CLOSED;
     pullrequest.createdAt = ZonedDateTime.now();
     prService.insertOrUpdate(pullrequest);
-    
-    // make sure only the open PR is returned: 
+
+    // make sure only the open PR is returned:
     List<Pullrequest> openPrs = prService.findAllOpen();
     assertEquals(1, openPrs.size());
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
   }
-  
+
   @Test
   public void assignPullrequest() {
     // create new PR w/o owner:
@@ -130,17 +131,18 @@ public class PullrequestServiceTest {
     pullrequest.repo = testPr.repo;
     pullrequest.state = State.CLOSED;
     pullrequest.owner = testPr.owner;
+    pullrequest.createdAt = ZonedDateTime.now();
     prService.insertOrUpdate(pullrequest);
-    
-    // make sure there is no one auto-assigned or so:
-    Optional<Pullrequest> fetched = prService.findById(pullrequest.id);
-    assertNull(fetched.get().owner);
-    
+
     // assign someone:
+    User assignee = new User(USER_ID + 1, USER_NAME + "_2", "what.ever.jpg");
+    prService.assignPullrequest(assignee, pullrequest.id);
+
+    verify(githubApi).assingUserToPullRequest(assignee, pullrequest);
   }
 
   // TODO test find by id
-  
+
   private Repo initRepo() {
     Repo repo = new Repo(REPO_ID, REPO_NAME, REPO_DESC);
     return repoRepository.save(repo);
