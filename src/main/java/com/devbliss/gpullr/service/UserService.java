@@ -21,13 +21,10 @@ public class UserService {
 
   private UserSession userSession;
 
-  private List<User> devblissMembers;
-
   @Autowired
   public UserService(UserRepository userRepository, UserSession userSession) {
     this.userRepository = userRepository;
     this.userSession = userSession;
-    this.devblissMembers = new ArrayList();
   }
 
   public void insertOrUpdate(User user) {
@@ -39,9 +36,7 @@ public class UserService {
   }
 
   public List<User> findAllOrgaMembers() {
-    devblissMembers.clear();
-    userRepository.findAll().forEach(user -> addDevblissMember(user));
-    return devblissMembers;
+    return userRepository.findByCanLoginIsTrue();
   }
 
   public void requireLogin() throws LoginRequiredException {
@@ -58,11 +53,5 @@ public class UserService {
   public User whoAmI() {
     requireLogin();
     return userSession.getUser();
-  }
-
-  private void addDevblissMember(User user) {
-    if (user.canLogin) {
-      devblissMembers.add(user);
-    }
   }
 }

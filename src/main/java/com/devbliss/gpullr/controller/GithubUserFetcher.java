@@ -7,8 +7,10 @@ import com.devbliss.gpullr.util.Log;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalField;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -65,7 +67,7 @@ public class GithubUserFetcher {
    * @return
    */
   private Date calculateNextUserFetch() {
-    int diff = HOURS_OF_DAY - Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+    int diff = HOURS_OF_DAY - LocalTime.now().getHour();
     logger.debug("Still " + diff + " hours until midnight.");
     diff++;
     Date nextExecution = Date.from(Instant.now().plusSeconds(diff * 3600));

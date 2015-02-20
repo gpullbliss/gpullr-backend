@@ -2,6 +2,7 @@ package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.controller.dto.UserConverter;
 import com.devbliss.gpullr.controller.dto.UserDto;
+import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,8 @@ public class UserController {
   @RequestMapping(value = "/me",
                   method = RequestMethod.GET)
   public UserDto whoAmI() {
-    return userConverter.toDto(userService.whoAmI());
+    User entity = userService.whoAmI();
+    return userConverter.toDto(entity);
   }
 
 }
