@@ -24,7 +24,7 @@ public class User {
 
   public String avatarUrl;
 
-  public boolean canLogin;
+  public Boolean canLogin = false;
 
   public User() {
   }
@@ -38,7 +38,7 @@ public class User {
 
   /**
    * only needed for temporary userlist --> remove before merge
-   * 
+   *
    * @param id
    * @param username
    * @param avatarUrl
@@ -49,7 +49,6 @@ public class User {
     this.username = username;
     this.avatarUrl = avatarUrl;
     this.canLogin = canLogin;
-    this.canLogin = false;
   }
 
   public String toConstructorString() {

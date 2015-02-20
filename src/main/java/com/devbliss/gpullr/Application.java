@@ -3,13 +3,11 @@ package com.devbliss.gpullr;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Application entry point
  */
-@Configuration
 @ComponentScan
 @EnableAutoConfiguration
 @EnableScheduling

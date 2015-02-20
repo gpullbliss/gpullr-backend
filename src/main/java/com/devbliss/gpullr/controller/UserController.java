@@ -3,10 +3,8 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.controller.dto.UserConverter;
 import com.devbliss.gpullr.controller.dto.UserDto;
 import com.devbliss.gpullr.service.UserService;
-import com.devbliss.gpullr.util.Log;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
 
-  @Log
-  private Logger logger;
-
   @Autowired
   private UserService userService;
 
@@ -40,13 +35,15 @@ public class UserController {
     return result;
   }
 
-  @RequestMapping(value = "/login/{id}", method = RequestMethod.POST)
+  @RequestMapping(value = "/login/{id}",
+                  method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
   public void login(@PathVariable("id") int id) {
     userService.login(id);
   }
 
-  @RequestMapping(value = "/me", method = RequestMethod.GET)
+  @RequestMapping(value = "/me",
+                  method = RequestMethod.GET)
   public UserDto whoAmI() {
     return userConverter.toDto(userService.whoAmI());
   }

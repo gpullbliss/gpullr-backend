@@ -119,7 +119,7 @@ public class GithubUserFetcher {
         new User(1777918, "tumminelli", "https://avatars.githubusercontent.com/u/1777918?v=3", true),
         new User(266249, "ujanssen", "https://avatars.githubusercontent.com/u/266249?v=3", true),
         new User(668408, "wolfgangpfnuer", "https://avatars.githubusercontent.com/u/668408?v=3", true)
-      );
+    );
     return userList;
   }
 }

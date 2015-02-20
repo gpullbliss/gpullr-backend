@@ -27,7 +27,8 @@ public class Repo {
   @Column(unique = true)
   public String name;
 
-  @Column(nullable = true, length = 1000)
+  @Column(nullable = true,
+          length = 1000)
   public String description;
 
   public Repo() {
