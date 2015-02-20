@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -40,7 +41,6 @@ public class UserServiceTest {
   @Autowired
   private UserRepository userRepository;
 
-  @Mock
   private UserSession userSession;
 
   private UserService userService;
