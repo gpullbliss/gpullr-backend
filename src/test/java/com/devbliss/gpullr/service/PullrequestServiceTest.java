@@ -1,7 +1,8 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.assertEquals;
+import com.devbliss.gpullr.service.github.GithubApi;
 
+import static org.junit.Assert.assertEquals;
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Repo;
@@ -52,6 +53,9 @@ public class PullrequestServiceTest {
 
   @Autowired
   private RepoRepository repoRepository;
+  
+  @Autowired
+  private GithubApi githubApi;
 
   private PullrequestService prService;
 
