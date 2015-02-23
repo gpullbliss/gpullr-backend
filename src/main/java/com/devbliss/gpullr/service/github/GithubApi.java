@@ -9,7 +9,6 @@ import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
 import com.jcabi.http.Request;
-import com.jcabi.http.Response;
 import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -43,7 +42,7 @@ public class GithubApi {
   private static final String HEADER_ETAG = "ETag";
 
   private static final String HEADER_LINK = "Link";
-  
+
   private static final String FIELD_KEY_ID = "id";
 
   private static final String FIELD_KEY_NAME = "name";
@@ -110,11 +109,10 @@ public class GithubApi {
         .back().uri().path(uri)
         .back();
 
-      Response fetch = req.fetch();
-      System.out.println(fetch);
+      req.fetch();
 
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new UnexpectedException(e);
     }
   }
 
