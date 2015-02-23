@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.Pullrequest;
-import com.devbliss.gpullr.domain.PullrequestEvent;
-import com.devbliss.gpullr.domain.PullrequestEvent.Action;
+import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequestEvent;
+import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
@@ -100,7 +100,7 @@ public class GithubApi {
     return loadAllPages("/orgs/devbliss/members", this::parseUser);
   }
 
-  public void assingUserToPullRequest(User user, Pullrequest pull) {
+  public void assingUserToPullRequest(User user, PullRequest pull) {
     JsonObject json = Json.createObjectBuilder().add("assignee", user.username).build();
     final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
 
@@ -122,24 +122,24 @@ public class GithubApi {
     return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"), userJson.getString("avatar_url"));
   }
 
-  private Optional<PullrequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
+  private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
     if (isPullRequestEvent(eventJson)) {
       return parsePullrequestEvent(eventJson, repo);
     }
     return Optional.empty();
   }
 
-  private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
+  private Optional<PullRequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
     JsonObject payloadJson = eventJson.getJsonObject(FIELD_KEY_PAYLOAD);
     Action action = Action.parse(payloadJson.getString(FIELD_KEY_ACTION));
-    Pullrequest pullrequest = parsePullrequestPayload(payloadJson.getJsonObject("pull_request"));
+    PullRequest pullrequest = parsePullrequestPayload(payloadJson.getJsonObject("pull_request"));
     pullrequest.repo = repo;
-    return Optional.of(new PullrequestEvent(action, pullrequest));
+    return Optional.of(new PullRequestEvent(action, pullrequest));
   }
 
-  private Pullrequest parsePullrequestPayload(JsonObject pullrequestJson) {
+  private PullRequest parsePullrequestPayload(JsonObject pullrequestJson) {
 
-    Pullrequest pullRequest = new Pullrequest();
+    PullRequest pullRequest = new PullRequest();
     pullRequest.id = pullrequestJson.getInt(FIELD_KEY_ID);
     pullRequest.url = pullrequestJson.getString("html_url");
     pullRequest.title = pullrequestJson.getString("title");
@@ -162,15 +162,15 @@ public class GithubApi {
   }
 
   private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-      Function<JsonObject, Optional<PullrequestEvent>> mapper,
+      Function<JsonObject, Optional<PullRequestEvent>> mapper,
       String path, int page)
       throws IOException {
 
-    List<PullrequestEvent> events = new ArrayList<>();
+    List<PullRequestEvent> events = new ArrayList<>();
     Optional<String> etag = getEtag(resp);
     int nextRequestAfterSeconds = getPollInterval(resp);
     GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
-    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullrequestEvents::add));
+    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullRequestEvents::add));
     return result;
   }
 

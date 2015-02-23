@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Entity
-public class Pullrequest {
+public class PullRequest {
 
   public enum State {
     OPEN, CLOSED
@@ -77,7 +77,7 @@ public class Pullrequest {
       return false;
     }
 
-    Pullrequest other = (Pullrequest) obj;
+    PullRequest other = (PullRequest) obj;
 
     if (id == null) {
       if (other.id != null) {

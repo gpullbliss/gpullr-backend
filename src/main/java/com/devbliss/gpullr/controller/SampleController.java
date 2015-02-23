@@ -1,9 +1,9 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.domain.Pullrequest;
+import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.service.PullrequestService;
+import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.service.github.GithubApi;
@@ -23,7 +23,7 @@ public class SampleController {
   private GithubApi githubApi;
 
   @Autowired
-  private PullrequestService pullrequestService;
+  private PullRequestService pullrequestService;
 
   @Autowired
   private UserService userService;
@@ -43,8 +43,8 @@ public class SampleController {
       }
     }
 
-    Pullrequest pr = null;
-    List<Pullrequest> prs = pullrequestService.findAll();
+    PullRequest pr = null;
+    List<PullRequest> prs = pullrequestService.findAll();
 
     for (int i = 0; i < prs.size(); i++) {
       String title = prs.get(i).title;
@@ -59,7 +59,7 @@ public class SampleController {
   }
 
   @RequestMapping("/testpulls")
-  public List<Pullrequest> getAllPullRequests() {
+  public List<PullRequest> getAllPullRequests() {
     return pullrequestService.findAll();
   }
 }

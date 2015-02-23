@@ -1,9 +1,9 @@
 package com.devbliss.gpullr.service;
 
-import com.devbliss.gpullr.domain.Pullrequest;
+import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.NotFoundException;
-import com.devbliss.gpullr.repository.PullrequestRepository;
+import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.util.List;
@@ -13,23 +13,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Business facade for persisting and retrieving {@link Pullrequest} objects.
+ * Business facade for persisting and retrieving {@link PullRequest} objects.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 
 @Service
-public class PullrequestService {
+public class PullRequestService {
 
-  private final PullrequestRepository pullrequestRepository;
+  private final PullRequestRepository pullrequestRepository;
 
   private final UserRepository userRepository;
 
   private final GithubApi githubApi;
 
   @Autowired
-  public PullrequestService(
-      PullrequestRepository pullrequestRepository,
+  public PullRequestService(
+      PullRequestRepository pullrequestRepository,
       UserRepository userRepository,
       GithubApi githubApi) {
     this.pullrequestRepository = pullrequestRepository;
@@ -37,7 +37,7 @@ public class PullrequestService {
     this.githubApi = githubApi;
   }
 
-  public List<Pullrequest> findAll() {
+  public List<PullRequest> findAll() {
 
     return pullrequestRepository
       .findAll()
@@ -46,15 +46,15 @@ public class PullrequestService {
       .collect(Collectors.toList());
   }
 
-  public List<Pullrequest> findAllOpen() {
+  public List<PullRequest> findAllOpen() {
     return pullrequestRepository
-      .findAllByState(Pullrequest.State.OPEN)
+      .findAllByState(PullRequest.State.OPEN)
       .stream()
       .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
       .collect(Collectors.toList());
   }
 
-  public Optional<Pullrequest> findById(Integer id) {
+  public Optional<PullRequest> findById(Integer id) {
     return pullrequestRepository.findById(id);
   }
 
@@ -63,7 +63,7 @@ public class PullrequestService {
   }
 
   public void assignPullrequest(User user, Integer pullrequestId) {
-    Pullrequest pullrequest = pullrequestRepository
+    PullRequest pullrequest = pullrequestRepository
       .findById(pullrequestId)
       .orElseThrow(() -> new NotFoundException("No pullrequest found with id " + pullrequestId));
 
@@ -76,7 +76,7 @@ public class PullrequestService {
     pullrequestRepository.save(pullrequest);
   }
 
-  public void insertOrUpdate(Pullrequest pullrequest) {
+  public void insertOrUpdate(PullRequest pullrequest) {
     if (!doesUserExist(pullrequest.owner)) {
       userRepository.save(pullrequest.owner);
     }

@@ -1,9 +1,9 @@
 package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.controller.dto.ListDto;
-import com.devbliss.gpullr.controller.dto.PullrequestConverter;
-import com.devbliss.gpullr.controller.dto.PullrequestDto;
-import com.devbliss.gpullr.service.PullrequestService;
+import com.devbliss.gpullr.controller.dto.PullRequestConverter;
+import com.devbliss.gpullr.controller.dto.PullRequestDto;
+import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.service.UserService;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
@@ -20,20 +20,20 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/pulls")
-public class PullrequestController {
+public class PullRequestController {
 
   @Autowired
-  private PullrequestService pullrequestService;
+  private PullRequestService pullrequestService;
 
   @Autowired
-  private PullrequestConverter pullrequestConverter;
+  private PullRequestConverter pullrequestConverter;
 
   @Autowired
   private UserService userService;
 
   @RequestMapping(method = RequestMethod.GET)
-  public ListDto<PullrequestDto> findAll() {
-    return new ListDto<PullrequestDto>(pullrequestService
+  public ListDto<PullRequestDto> findAll() {
+    return new ListDto<PullRequestDto>(pullrequestService
       .findAllOpen()
       .stream()
       .map(pr -> pullrequestConverter.toDto(pr))

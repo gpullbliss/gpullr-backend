@@ -1,18 +1,18 @@
 package com.devbliss.gpullr.controller.dto;
 
-import com.devbliss.gpullr.domain.Pullrequest;
+import com.devbliss.gpullr.domain.PullRequest;
 import org.springframework.stereotype.Component;
 
 /**
- * Converter for {@link com.devbliss.gpullr.domain.Pullrequest} and 
- * {@link com.devbliss.gpullr.controller.dto.PullrequestDto} objects.
+ * Converter for {@link com.devbliss.gpullr.domain.PullRequest} and 
+ * {@link com.devbliss.gpullr.controller.dto.PullRequestDto} objects.
  */
 @Component
-public class PullrequestConverter {
+public class PullRequestConverter {
 
-  public PullrequestDto toDto(Pullrequest entity) {
+  public PullRequestDto toDto(PullRequest entity) {
 
-    PullrequestDto dto = new PullrequestDto();
+    PullRequestDto dto = new PullRequestDto();
     dto.id = entity.id;
     dto.title = entity.title;
     dto.url = entity.url;
@@ -27,7 +27,7 @@ public class PullrequestConverter {
     return dto;
   }
 
-  public Pullrequest toEntity(PullrequestDto dto) {
+  public PullRequest toEntity(PullRequestDto dto) {
     // TODO: implement
     return null;
   }

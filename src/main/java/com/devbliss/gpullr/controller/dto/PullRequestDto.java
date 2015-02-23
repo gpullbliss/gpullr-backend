@@ -2,7 +2,7 @@ package com.devbliss.gpullr.controller.dto;
 
 import com.devbliss.gpullr.domain.User;
 
-public class PullrequestDto {
+public class PullRequestDto {
 
   public Integer id;
   

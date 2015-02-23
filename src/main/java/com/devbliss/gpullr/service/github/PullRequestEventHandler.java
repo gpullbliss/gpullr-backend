@@ -1,10 +1,10 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.Pullrequest;
-import com.devbliss.gpullr.domain.Pullrequest.State;
-import com.devbliss.gpullr.domain.PullrequestEvent;
-import com.devbliss.gpullr.domain.PullrequestEvent.Action;
-import com.devbliss.gpullr.service.PullrequestService;
+import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequest.State;
+import com.devbliss.gpullr.domain.PullRequestEvent;
+import com.devbliss.gpullr.domain.PullRequestEvent.Action;
+import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.Log;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -18,21 +18,21 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class PullrequestEventHandler {
+public class PullRequestEventHandler {
 
   @Log
   Logger logger;
 
-  private final PullrequestService pullrequestService;
+  private final PullRequestService pullrequestService;
 
   @Autowired
-  public PullrequestEventHandler(PullrequestService pullrequestService) {
+  public PullRequestEventHandler(PullRequestService pullrequestService) {
     this.pullrequestService = pullrequestService;
   }
 
-  public void handlePullrequestEvent(PullrequestEvent event) {
-    Pullrequest pullrequestFromEvent = event.pullrequest;
-    Optional<Pullrequest> pullrequestFromDb = pullrequestService.findById(pullrequestFromEvent.id);
+  public void handlePullrequestEvent(PullRequestEvent event) {
+    PullRequest pullrequestFromEvent = event.pullrequest;
+    Optional<PullRequest> pullrequestFromDb = pullrequestService.findById(pullrequestFromEvent.id);
 
     if (event.action == Action.OPENED) {
       if (pullrequestFromDb.isPresent()) {

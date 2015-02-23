@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.devbliss.gpullr.domain.Pullrequest;
-import com.devbliss.gpullr.domain.Pullrequest.State;
-import com.devbliss.gpullr.domain.PullrequestEvent;
-import com.devbliss.gpullr.domain.PullrequestEvent.Action;
-import com.devbliss.gpullr.service.PullrequestService;
+import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequest.State;
+import com.devbliss.gpullr.domain.PullRequestEvent;
+import com.devbliss.gpullr.domain.PullRequestEvent.Action;
+import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,25 +26,25 @@ import org.slf4j.LoggerFactory;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PullrequestEventHandlerTest {
+public class PullRequestEventHandlerTest {
 
   private static final Integer PR_ID = 1981;
 
   @Mock
-  private PullrequestService pullrequestService;
+  private PullRequestService pullrequestService;
 
   @Captor
-  private ArgumentCaptor<Pullrequest> pullrequestCaptor;
+  private ArgumentCaptor<PullRequest> pullrequestCaptor;
 
-  private Pullrequest existingPullrequest;
+  private PullRequest existingPullrequest;
 
-  private PullrequestEventHandler pullrequestEventHandler;
+  private PullRequestEventHandler pullrequestEventHandler;
 
   @Before
   public void setup() {
-    pullrequestEventHandler = new PullrequestEventHandler(pullrequestService);
-    pullrequestEventHandler.logger = LoggerFactory.getLogger(PullrequestEventHandler.class);
-    existingPullrequest = new Pullrequest();
+    pullrequestEventHandler = new PullRequestEventHandler(pullrequestService);
+    pullrequestEventHandler.logger = LoggerFactory.getLogger(PullRequestEventHandler.class);
+    existingPullrequest = new PullRequest();
     existingPullrequest.id = PR_ID;
   }
 
@@ -54,9 +54,9 @@ public class PullrequestEventHandlerTest {
     when(pullrequestService.findById(PR_ID)).thenReturn(Optional.empty());
 
     // handle event:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID;
-    pullrequestEventHandler.handlePullrequestEvent(new PullrequestEvent(Action.OPENED, pullrequest));
+    pullrequestEventHandler.handlePullrequestEvent(new PullRequestEvent(Action.OPENED, pullrequest));
 
     // verify PR is stored with state OPEN and correct id:
     verify(pullrequestService).findById(PR_ID);
@@ -72,9 +72,9 @@ public class PullrequestEventHandlerTest {
     when(pullrequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullrequest));
     
     // handle event:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID;
-    pullrequestEventHandler.handlePullrequestEvent(new PullrequestEvent(Action.OPENED, pullrequest));
+    pullrequestEventHandler.handlePullrequestEvent(new PullRequestEvent(Action.OPENED, pullrequest));
 
     // verify PR is stored with state OPEN and correct id:
     verify(pullrequestService).findById(PR_ID);
@@ -90,9 +90,9 @@ public class PullrequestEventHandlerTest {
     when(pullrequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullrequest));
     
     // handle event:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID;
-    pullrequestEventHandler.handlePullrequestEvent(new PullrequestEvent(Action.OPENED, pullrequest));
+    pullrequestEventHandler.handlePullrequestEvent(new PullRequestEvent(Action.OPENED, pullrequest));
 
     // verify PR is stored with state CLOSED and correct id:
     verify(pullrequestService).findById(PR_ID);
@@ -108,9 +108,9 @@ public class PullrequestEventHandlerTest {
     when(pullrequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullrequest));
     
     // handle event:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID;
-    pullrequestEventHandler.handlePullrequestEvent(new PullrequestEvent(Action.REOPENED, pullrequest));
+    pullrequestEventHandler.handlePullrequestEvent(new PullRequestEvent(Action.REOPENED, pullrequest));
 
     // verify PR is stored with state OPENED and correct id:
     verify(pullrequestService).findById(PR_ID);
@@ -126,9 +126,9 @@ public class PullrequestEventHandlerTest {
     when(pullrequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullrequest));
     
     // handle event:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID;
-    pullrequestEventHandler.handlePullrequestEvent(new PullrequestEvent(Action.REOPENED, pullrequest));
+    pullrequestEventHandler.handlePullrequestEvent(new PullRequestEvent(Action.REOPENED, pullrequest));
 
     // verify PR is stored with state OPENED and correct id:
     verify(pullrequestService).findById(PR_ID);

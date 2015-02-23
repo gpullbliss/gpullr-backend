@@ -6,7 +6,7 @@ package com.devbliss.gpullr.domain;
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
-public class PullrequestEvent {
+public class PullRequestEvent {
 
   public enum Action {
     ASSIGNED, UNASSIGNED, LABELED, UNLABELED, OPENED, CLOSED, REOPENED, SYNCHRONIZE;
@@ -18,9 +18,9 @@ public class PullrequestEvent {
 
   public final Action action;
 
-  public final Pullrequest pullrequest;
+  public final PullRequest pullrequest;
 
-  public PullrequestEvent(Action action, Pullrequest pullrequest) {
+  public PullRequestEvent(Action action, PullRequest pullrequest) {
     this.action = action;
     this.pullrequest = pullrequest;
   }

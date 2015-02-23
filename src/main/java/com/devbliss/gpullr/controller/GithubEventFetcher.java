@@ -1,11 +1,11 @@
 package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.domain.Repo;
-import com.devbliss.gpullr.service.PullrequestService;
+import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
-import com.devbliss.gpullr.service.github.PullrequestEventHandler;
+import com.devbliss.gpullr.service.github.PullRequestEventHandler;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.util.Date;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  * Fetches pull requests for all our repositories. Must be started once using {@link #startFetchEventsLoop()}.
  * Afterwards, it independently polls periodically according to the poll interval returned by GitHub.
  * 
- * The actual business logic for handling the fetched events takes place in {@link PullrequestEventHandler}.
+ * The actual business logic for handling the fetched events takes place in {@link PullRequestEventHandler}.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
@@ -36,7 +36,7 @@ public class GithubEventFetcher {
   private RepoService repoService;
 
   @Autowired
-  private PullrequestEventHandler pullrequestEventHandler;
+  private PullRequestEventHandler pullRequestEventHandler;
 
   private ThreadPoolTaskScheduler executor;
 
@@ -62,8 +62,8 @@ public class GithubEventFetcher {
   }
   
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
-    response.pullrequestEvents.forEach(pullrequestEventHandler::handlePullrequestEvent);
-    logger.debug("Fetched " + response.pullrequestEvents.size() + " PR events for " + repo.name);
+    response.pullRequestEvents.forEach(pullRequestEventHandler::handlePullrequestEvent);
+    logger.debug("Fetched " + response.pullRequestEvents.size() + " PR events for " + repo.name);
     Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
     executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
   }

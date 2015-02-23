@@ -6,12 +6,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.devbliss.gpullr.Application;
-import com.devbliss.gpullr.domain.Pullrequest;
-import com.devbliss.gpullr.domain.Pullrequest.State;
+import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.NotFoundException;
-import com.devbliss.gpullr.repository.PullrequestRepository;
+import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
@@ -29,7 +29,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Tests for {@link PullrequestService}
+ * Tests for {@link PullRequestService}
  *
  * @author Philipp Karstedt <philipp.karstedt@devbliss.com>
  */
@@ -37,7 +37,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
 @ActiveProfiles("test")
-public class PullrequestServiceTest {
+public class PullRequestServiceTest {
 
   private static final int REPO_ID = 1000;
 
@@ -58,7 +58,7 @@ public class PullrequestServiceTest {
   private static final int PR_ID = 1;
 
   @Autowired
-  private PullrequestRepository prRepository;
+  private PullRequestRepository prRepository;
 
   @Autowired
   private UserRepository userRepository;
@@ -69,19 +69,19 @@ public class PullrequestServiceTest {
   // @Autowired
   private GithubApi githubApi;
 
-  private PullrequestService prService;
+  private PullRequestService prService;
 
-  private Pullrequest testPr;
+  private PullRequest testPr;
 
   @Before
   public void setup() {
     githubApi = mock(GithubApi.class);
-    prService = new PullrequestService(prRepository, userRepository, githubApi);
-    testPr = new Pullrequest();
+    prService = new PullRequestService(prRepository, userRepository, githubApi);
+    testPr = new PullRequest();
     testPr.id = PR_ID;
     testPr.owner = initUser();
     testPr.repo = initRepo();
-    testPr.state = Pullrequest.State.OPEN;
+    testPr.state = PullRequest.State.OPEN;
     testPr.createdAt = ZonedDateTime.now();
   }
 
@@ -95,7 +95,7 @@ public class PullrequestServiceTest {
   @Test
   public void insertOrupdatePullrequest() {
     // first of all check that no Pullrequest exists
-    List<Pullrequest> prs = prService.findAll();
+    List<PullRequest> prs = prService.findAll();
     assertEquals(0, prs.size());
 
     prService.insertOrUpdate(testPr);
@@ -117,7 +117,7 @@ public class PullrequestServiceTest {
     prService.insertOrUpdate(testPr);
 
     // store another with state CLOSED:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID + 1;
     pullrequest.repo = testPr.repo;
     pullrequest.owner = testPr.owner;
@@ -126,7 +126,7 @@ public class PullrequestServiceTest {
     prService.insertOrUpdate(pullrequest);
 
     // make sure only the open PR is returned:
-    List<Pullrequest> openPrs = prService.findAllOpen();
+    List<PullRequest> openPrs = prService.findAllOpen();
     assertEquals(1, openPrs.size());
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
@@ -135,7 +135,7 @@ public class PullrequestServiceTest {
   @Test
   public void assignPullrequest() {
     // create new PR w/o owner:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID + 1;
     pullrequest.repo = testPr.repo;
     pullrequest.state = State.OPEN;
@@ -158,7 +158,7 @@ public class PullrequestServiceTest {
   @Test(expected = NotFoundException.class)
   public void assigningPullrequestToUnknownUserFails() {
     // create new PR w/o owner:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID + 1;
     pullrequest.repo = testPr.repo;
     pullrequest.state = State.OPEN;
@@ -174,7 +174,7 @@ public class PullrequestServiceTest {
   @Test
   public void findById() {
     // create a pull request:
-    Pullrequest pullrequest = new Pullrequest();
+    PullRequest pullrequest = new PullRequest();
     pullrequest.id = PR_ID + 1;
     pullrequest.repo = testPr.repo;
     pullrequest.state = State.CLOSED;
@@ -183,7 +183,7 @@ public class PullrequestServiceTest {
     prService.insertOrUpdate(pullrequest);
 
     // verify it can be fetched by id:
-    Optional<Pullrequest> fetched = prService.findById(pullrequest.id);
+    Optional<PullRequest> fetched = prService.findById(pullrequest.id);
     assertTrue(fetched.isPresent());
     assertEquals(pullrequest, fetched.get());
   }
