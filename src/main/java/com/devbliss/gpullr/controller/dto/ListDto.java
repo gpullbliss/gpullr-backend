@@ -14,15 +14,12 @@ public class ListDto<T> {
 
   private List<T> items;
 
-  private int count;
-
   public ListDto() {
     // for deserializer
   }
 
   public ListDto(List<T> items) {
     this.items = items;
-    this.count = items.size();
   }
 
   public List<T> getItems() {
@@ -31,10 +28,5 @@ public class ListDto<T> {
 
   public void setItems(List<T> items) {
     this.items = items;
-    this.count = items.size();
-  }
-
-  public int getCount() {
-    return this.count;
   }
 }
