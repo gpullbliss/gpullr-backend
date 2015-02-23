@@ -191,6 +191,11 @@ public class GithubApi {
   }
 
   private int getPollInterval(JsonResponse resp) {
+    if (resp.headers().get(HEADER_POLL_INTERVAL) == null) {
+      throw new UnexpectedException("No poll interval header set in response, response state was: "
+          + resp.status() + " / " + resp.reason());
+    }
+
     return Integer.parseInt(resp.headers().get(HEADER_POLL_INTERVAL).get(0));
   }
 
