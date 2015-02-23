@@ -100,7 +100,7 @@ public class GithubApi {
     return loadAllPages("/orgs/devbliss/members", this::parseUser);
   }
 
-  public void assingUserToPullRequest(User user, PullRequest pull) {
+  public void assignUserToPullRequest(User user, PullRequest pull) {
     JsonObject json = Json.createObjectBuilder().add("assignee", user.username).build();
     final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
 

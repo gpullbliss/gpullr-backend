@@ -42,8 +42,8 @@ public class PullRequestController {
 
   @RequestMapping(method = RequestMethod.POST, value = "/{pullRequestId}")
   @ResponseStatus(value = HttpStatus.NO_CONTENT)
-  public void assignpullRequest(@PathVariable @NotNull Integer pullRequestId) {
-    pullRequestService.assignpullRequest(userService.whoAmI(), pullRequestId);
+  public void assignPullRequest(@PathVariable @NotNull Integer pullRequestId) {
+    pullRequestService.assignPullRequest(userService.whoAmI(), pullRequestId);
   }
 
 }
