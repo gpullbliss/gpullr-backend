@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.domain.PullrequestEventHandler;
+import com.devbliss.gpullr.service.github.PullrequestEventHandler;
+
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;

@@ -1,13 +1,15 @@
-package com.devbliss.gpullr.domain;
+package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
+import com.devbliss.gpullr.domain.PullrequestEvent;
 import com.devbliss.gpullr.domain.PullrequestEvent.Action;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.util.Log;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * Handles pullrequest events fetched from GitHub and triggers the appropriate action in business layer. 
@@ -15,14 +17,14 @@ import org.springframework.stereotype.Component;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
-@Component
+@Service
 public class PullrequestEventHandler {
-  
+
   @Log
   Logger logger;
-  
+
   private final PullrequestService pullrequestService;
-  
+
   @Autowired
   public PullrequestEventHandler(PullrequestService pullrequestService) {
     this.pullrequestService = pullrequestService;

@@ -1,9 +1,12 @@
-package com.devbliss.gpullr.domain;
+package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.domain.Pullrequest;
+import com.devbliss.gpullr.domain.PullrequestEvent;
+
+import com.devbliss.gpullr.service.github.PullrequestEventHandler;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.PullrequestEvent.Action;
 import com.devbliss.gpullr.service.PullrequestService;
