@@ -23,13 +23,7 @@ public class PullRequestConverter {
     dto.linesAdded = entity.additions;
     dto.linesRemoved = entity.deletions;
     dto.status = entity.state.toString();
-
+    dto.assignee = entity.assignee;
     return dto;
   }
-
-  public PullRequest toEntity(PullRequestDto dto) {
-    // TODO: implement
-    return null;
-  }
-
 }
