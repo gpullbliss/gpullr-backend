@@ -1,9 +1,6 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.domain.Pullrequest;
-import com.devbliss.gpullr.domain.Pullrequest.State;
-import com.devbliss.gpullr.domain.PullrequestEvent;
-import com.devbliss.gpullr.domain.PullrequestEvent.Action;
+import com.devbliss.gpullr.domain.PullrequestEventHandler;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
@@ -21,6 +18,8 @@ import org.springframework.stereotype.Component;
 /**
  * Fetches pull requests for all our repositories. Must be started once using {@link #startFetchEventsLoop()}.
  * Afterwards, it independently polls periodically again according to the poll interval returned by GitHub.
+ * 
+ * The actual bussiness logic for handling the fetched events takes place in {@link PullrequestEventHandler}.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
@@ -38,6 +37,9 @@ public class GithubEventFetcher {
 
   @Autowired
   private PullrequestService pullrequestService;
+
+  @Autowired
+  private PullrequestEventHandler pullrequestEventHandler;
 
   private ThreadPoolTaskScheduler executor;
 
@@ -58,34 +60,14 @@ public class GithubEventFetcher {
     logger.info("Finished fetching events from GitHub.");
   }
 
-  private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
-    response.pullrequestEvents.forEach(this::handlePullrequestEvent);
-    logger.debug("Fetched " + response.pullrequestEvents.size() + " PR events for " + repo.name);
-    Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
-    executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
-  }
-
   private void fetchEvents(Repo repo, Optional<String> etagHeader) {
     handleEventsResponse(githubApi.fetchAllEvents(repo, etagHeader), repo);
   }
-
-  private void handlePullrequestEvent(PullrequestEvent event) {
-    Pullrequest pullrequestFromEvent = event.pullrequest;
-    Optional<Pullrequest> pullrequestFromDb = pullrequestService.findById(pullrequestFromEvent.id);
-
-    if (event.action == Action.OPENED) {
-      if (pullrequestFromDb.isPresent()) {
-        pullrequestFromEvent.state = pullrequestFromDb.get().state;
-      } else {
-        pullrequestFromEvent.state = State.OPEN;
-      }
-    } else if (event.action == Action.CLOSED) {
-      pullrequestFromEvent.state = State.CLOSED;
-    } else if (event.action == Action.REOPENED) {
-      pullrequestFromEvent.state = State.OPEN;
-    }
-
-    logger.debug("handling pr ev: " + event.pullrequest.title + " / " + event.pullrequest.state);
-    pullrequestService.insertOrUpdate(pullrequestFromEvent);
+  
+  private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
+    response.pullrequestEvents.forEach(pullrequestEventHandler::handlePullrequestEvent);
+    logger.debug("Fetched " + response.pullrequestEvents.size() + " PR events for " + repo.name);
+    Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
+    executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
   }
 }
