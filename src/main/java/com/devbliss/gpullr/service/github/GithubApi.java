@@ -2,7 +2,7 @@ package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.PullrequestEvent;
-import com.devbliss.gpullr.domain.PullrequestEvent.Type;
+import com.devbliss.gpullr.domain.PullrequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
@@ -37,10 +37,6 @@ import org.springframework.stereotype.Service;
 public class GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
-
-  private static final String PULLREQUEST_ACTION_CREATED = "opened";
-
-  private static final String PULLREQUEST_ACTION_CLOSED = "closed";
 
   private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
 
@@ -142,23 +138,15 @@ public class GithubApi {
   }
 
   private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
-    Type type;
-
-    if (isPullRequestCreatedEvent(eventJson)) {
-      type = Type.PULLREQUEST_CREATED;
-    } else if (isPullRequestClosedEvent(eventJson)) {
-      type = Type.PULLREQUEST_CLOSED;
-    } else {
-      return Optional.empty();
-    }
-
-    Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(
-        "pull_request"));
+    JsonObject payloadJson = eventJson.getJsonObject(FIELD_KEY_PAYLOAD);
+    Action action = Action.parse(payloadJson.getString(FIELD_KEY_ACTION));
+    Pullrequest pullrequest = parsePullrequestPayload(payloadJson.getJsonObject("pull_request"));
     pullrequest.repo = repo;
-    return Optional.of(new PullrequestEvent(type, pullrequest));
+    return Optional.of(new PullrequestEvent(action, pullrequest));
   }
 
   private Pullrequest parsePullrequestPayload(JsonObject pullrequestJson) {
+
     Pullrequest pullRequest = new Pullrequest();
     pullRequest.id = pullrequestJson.getInt(FIELD_KEY_ID);
     pullRequest.url = pullrequestJson.getString("html_url");
@@ -176,23 +164,14 @@ public class GithubApi {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString(FIELD_KEY_TYPE));
   }
 
-  private boolean isPullRequestCreatedEvent(JsonObject event) {
-    return PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString(FIELD_KEY_ACTION));
-  }
-
-  private boolean isPullRequestClosedEvent(JsonObject event) {
-    return EVENT_TYPE_PULL_REQUEST.equals(event.getString(FIELD_KEY_TYPE)) &&
-        PULLREQUEST_ACTION_CLOSED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString(FIELD_KEY_ACTION));
-  }
-
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
     final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
     return handleResponse(resp, mapper, path, 1);
   }
 
   private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-                                                          Function<JsonObject, Optional<PullrequestEvent>> mapper,
-                                                          String path, int page)
+      Function<JsonObject, Optional<PullrequestEvent>> mapper,
+      String path, int page)
       throws IOException {
 
     List<PullrequestEvent> events = new ArrayList<>();
@@ -238,12 +217,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (JsonException e) {
       logger.error("Error reading response json: " + e.getMessage());
       logger.error("raw response:");

@@ -3,7 +3,7 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.PullrequestEvent;
-import com.devbliss.gpullr.domain.PullrequestEvent.Type;
+import com.devbliss.gpullr.domain.PullrequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
@@ -60,7 +60,7 @@ public class GithubEventFetcher {
 
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
     response.pullrequestEvents.forEach(this::handlePullrequestEvent);
-    logger.debug("Fetched " + response.pullrequestEvents.size() + " new PRs for " + repo.name);
+    logger.debug("Fetched " + response.pullrequestEvents.size() + " PR events for " + repo.name);
     Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
     executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
   }
@@ -70,13 +70,22 @@ public class GithubEventFetcher {
   }
 
   private void handlePullrequestEvent(PullrequestEvent event) {
-    Pullrequest pullRequest = event.pullrequest;
+    Pullrequest pullrequestFromEvent = event.pullrequest;
+    Optional<Pullrequest> pullrequestFromDb = pullrequestService.findById(pullrequestFromEvent.id);
 
-    if (event.type == Type.PULLREQUEST_CREATED) {
-      pullRequest.state = State.OPEN;
-    } else {
-      pullRequest.state = State.CLOSED;
+    if (event.action == Action.OPENED) {
+      if (pullrequestFromDb.isPresent()) {
+        pullrequestFromEvent.state = pullrequestFromDb.get().state;
+      } else {
+        pullrequestFromEvent.state = State.OPEN;
+      }
+    } else if (event.action == Action.CLOSED) {
+      pullrequestFromEvent.state = State.CLOSED;
+    } else if (event.action == Action.REOPENED) {
+      pullrequestFromEvent.state = State.OPEN;
     }
-    pullrequestService.insertOrUpdate(pullRequest);
+
+    logger.debug("handling pr ev: " + event.pullrequest.title + " / " + event.pullrequest.state);
+    pullrequestService.insertOrUpdate(pullrequestFromEvent);
   }
 }

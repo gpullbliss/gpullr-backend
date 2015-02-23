@@ -8,16 +8,20 @@ package com.devbliss.gpullr.domain;
  */
 public class PullrequestEvent {
 
-  public enum Type {
-    PULLREQUEST_CREATED, PULLREQUEST_CLOSED
+  public enum Action {
+    ASSIGNED, UNASSIGNED, LABELED, UNLABELED, OPENED, CLOSED, REOPENED, SYNCHRONIZE;
+    
+    public static Action parse(String lowerCaseName) {
+      return valueOf(lowerCaseName.toUpperCase());
+    }
   }
 
-  public final Type type;
+  public final Action action;
 
   public final Pullrequest pullrequest;
 
-  public PullrequestEvent(Type type, Pullrequest pullrequest) {
-    this.type = type;
+  public PullrequestEvent(Action action, Pullrequest pullrequest) {
+    this.action = action;
     this.pullrequest = pullrequest;
   }
 }

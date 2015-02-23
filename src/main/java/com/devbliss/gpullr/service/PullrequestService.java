@@ -58,6 +58,10 @@ public class PullrequestService {
     return pullrequestRepository.findById(id);
   }
 
+  public boolean exists(Integer id) {
+    return pullrequestRepository.exists(id);
+  }
+
   public void assignPullrequest(User user, Integer pullrequestId) {
     Pullrequest pullrequest = pullrequestRepository
       .findById(pullrequestId)
