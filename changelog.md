@@ -1,5 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
+ - [feature] endpoint for self-assigning PRs; bug-fixes for fetching PR events from GitHub
  - [feature] user session upon login
  - [feature] periodically fetching users, repos and (PR-)events
  - [bug] fixed database config
@@ -10,4 +11,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Alexander Bluem <alexander.bluem@devbliss.com> Fri Feb 20 14:08:16 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Feb 23 13:31:38 CET 2015
