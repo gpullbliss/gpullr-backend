@@ -112,7 +112,7 @@ public class PullRequestServiceTest {
   }
 
   @Test
-  public void findAllOpenpullRequests() {
+  public void findAllOpenPullRequests() {
     // store a pullRequest with state OPEN:
     prService.insertOrUpdate(testPr);
 
@@ -133,7 +133,7 @@ public class PullRequestServiceTest {
   }
 
   @Test
-  public void assignpullRequest() {
+  public void assignPullRequest() {
     // create new PR w/o owner:
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = PR_ID + 1;
@@ -156,7 +156,7 @@ public class PullRequestServiceTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void assigningpullRequestToUnknownUserFails() {
+  public void assigningPullRequestToUnknownUserFails() {
     // create new PR w/o owner:
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = PR_ID + 1;
