@@ -17,7 +17,7 @@ public class ListDto<T> {
   private int count;
 
   public ListDto() {
-
+    // for deserializer
   }
 
   public ListDto(List<T> items) {
