@@ -21,10 +21,10 @@ public class GithubEventsResponse {
   public final Optional<String> etagHeader;
 
   public GithubEventsResponse(
-      List<PullRequestEvent> pullequestEvents,
+      List<PullRequestEvent> pullRequestEvents,
       int nextRequestAfterSeconds,
       Optional<String> etagHeader) {
-    this.pullRequestEvents = pullequestEvents;
+    this.pullRequestEvents = pullRequestEvents;
     this.nextRequestAfterSeconds = nextRequestAfterSeconds;
     this.etagHeader = etagHeader;
   }

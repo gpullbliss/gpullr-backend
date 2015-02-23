@@ -30,7 +30,7 @@ public class PullRequestEventHandler {
     this.pullRequestService = pullRequestService;
   }
 
-  public void handlepullRequestEvent(PullRequestEvent event) {
+  public void handlePullRequestEvent(PullRequestEvent event) {
     PullRequest pullRequestFromEvent = event.pullRequest;
     Optional<PullRequest> pullRequestFromDb = pullRequestService.findById(pullRequestFromEvent.id);
 

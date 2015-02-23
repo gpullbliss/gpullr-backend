@@ -36,7 +36,7 @@ public class PullRequestEventHandlerTest {
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
 
-  private PullRequest existingpullRequest;
+  private PullRequest existingPullRequest;
 
   private PullRequestEventHandler pullRequestEventHandler;
 
@@ -44,19 +44,19 @@ public class PullRequestEventHandlerTest {
   public void setup() {
     pullRequestEventHandler = new PullRequestEventHandler(pullRequestService);
     pullRequestEventHandler.logger = LoggerFactory.getLogger(PullRequestEventHandler.class);
-    existingpullRequest = new PullRequest();
-    existingpullRequest.id = PR_ID;
+    existingPullRequest = new PullRequest();
+    existingPullRequest.id = PR_ID;
   }
 
   @Test
-  public void handleOpenedEventWithoutExistingpullRequest() {
+  public void handleOpenedEventWithoutExistingPullRequest() {
     // assume the PR does not exist yet:
     when(pullRequestService.findById(PR_ID)).thenReturn(Optional.empty());
 
     // handle event:
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlepullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
 
     // verify PR is stored with state OPEN and correct id:
     verify(pullRequestService).findById(PR_ID);
@@ -66,15 +66,15 @@ public class PullRequestEventHandlerTest {
   }
 
   @Test
-  public void handleOpenedEventWithExistingOpenpullRequest() {
+  public void handleOpenedEventWithExistingOpenPullRequest() {
     // assume the PR exists and has state OPEN:
-    existingpullRequest.state = State.OPEN;
-    when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingpullRequest));
+    existingPullRequest.state = State.OPEN;
+    when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullRequest));
     
     // handle event:
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlepullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
 
     // verify PR is stored with state OPEN and correct id:
     verify(pullRequestService).findById(PR_ID);
@@ -84,15 +84,15 @@ public class PullRequestEventHandlerTest {
   }
   
   @Test
-  public void handleOpenedEventWithExistingClosedpullRequest() {
+  public void handleOpenedEventWithExistingClosedPullRequest() {
     // assume the PR exists and has state CLOSED:
-    existingpullRequest.state = State.CLOSED;
-    when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingpullRequest));
+    existingPullRequest.state = State.CLOSED;
+    when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullRequest));
     
     // handle event:
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlepullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
 
     // verify PR is stored with state CLOSED and correct id:
     verify(pullRequestService).findById(PR_ID);
@@ -102,15 +102,15 @@ public class PullRequestEventHandlerTest {
   }
   
   @Test
-  public void handleReopenedEventWithExistingOpenpullRequest() {
+  public void handleReopenedEventWithExistingOpenPullRequest() {
     // assume the PR exists and has state OPEN:
-    existingpullRequest.state = State.OPEN;
-    when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingpullRequest));
+    existingPullRequest.state = State.OPEN;
+    when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullRequest));
     
     // handle event:
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlepullRequestEvent(new PullRequestEvent(Action.REOPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.REOPENED, pullRequest));
 
     // verify PR is stored with state OPENED and correct id:
     verify(pullRequestService).findById(PR_ID);
@@ -120,15 +120,15 @@ public class PullRequestEventHandlerTest {
   }
   
   @Test
-  public void handleReopenedEventWithExistingClosedpullRequest() {
+  public void handleReopenedEventWithExistingClosedPullRequest() {
     // assume the PR exists and has state CLOSED:
-    existingpullRequest.state = State.CLOSED;
-    when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingpullRequest));
+    existingPullRequest.state = State.CLOSED;
+    when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullRequest));
     
     // handle event:
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlepullRequestEvent(new PullRequestEvent(Action.REOPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.REOPENED, pullRequest));
 
     // verify PR is stored with state OPENED and correct id:
     verify(pullRequestService).findById(PR_ID);
