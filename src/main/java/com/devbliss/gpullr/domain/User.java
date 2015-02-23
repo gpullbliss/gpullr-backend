@@ -71,10 +71,12 @@ public class User {
     User other = (User) obj;
 
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
-    } else if (!id.equals(other.id))
+      }
+    } else if (!id.equals(other.id)) {
       return false;
+    }
     if (username == null) {
       if (other.username != null) {
         return false;

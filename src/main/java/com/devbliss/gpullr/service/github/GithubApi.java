@@ -102,15 +102,7 @@ public class GithubApi {
 
   public void assingUserToPullRequest(User user, Pullrequest pull) {
     JsonObject json = Json.createObjectBuilder().add("assignee", user.username).build();
-
-    StringBuilder sb = new StringBuilder();
-    sb.append("/repos")
-      .append("/devbliss")
-      .append("/").append(pull.repo.name)
-      .append("/issues")
-      .append("/").append(pull.number);
-
-    final String uri = sb.toString();
+    final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
 
     try {
       Request req = client.entry()

@@ -76,6 +76,7 @@ public class Pullrequest {
     if (getClass() != obj.getClass()) {
       return false;
     }
+
     Pullrequest other = (Pullrequest) obj;
 
     if (id == null) {
