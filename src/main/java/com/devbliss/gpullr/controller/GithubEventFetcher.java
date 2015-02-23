@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * Fetches pull requests for all our repositories. Must be started once using {@link #startFetchEventsLoop()}.
- * Afterwards, it independently polls periodically again according to the poll interval returned by GitHub.
+ * Afterwards, it independently polls periodically according to the poll interval returned by GitHub.
  * 
- * The actual bussiness logic for handling the fetched events takes place in {@link PullrequestEventHandler}.
+ * The actual business logic for handling the fetched events takes place in {@link PullrequestEventHandler}.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
@@ -34,9 +34,6 @@ public class GithubEventFetcher {
 
   @Autowired
   private RepoService repoService;
-
-  @Autowired
-  private PullrequestService pullrequestService;
 
   @Autowired
   private PullrequestEventHandler pullrequestEventHandler;
