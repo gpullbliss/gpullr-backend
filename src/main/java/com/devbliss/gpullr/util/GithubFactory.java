@@ -17,18 +17,30 @@ public class GithubFactory {
 
   @Bean
   @Profile({"prod", "dev"})
-  public Github createClient() {
+  public Github createJCabiClient() {
     return new RtGithub(oauthToken);
   }
 
   @Bean
   @Profile("test")
-  public Github createTestClient() {
+  public Github createJCabiTestClient() {
     try {
       return new MkGithub();
     } catch (IOException e) {
       e.printStackTrace();
       return null;
     }
+  }
+
+  @Bean
+  @Profile({"prod", "dev"})
+  public GithubClient createClient() {
+    return new GithubClientImpl();
+  }
+
+  @Bean
+  @Profile("test")
+  public GithubClient createTestClient() {
+    return new GithubClientImplNoop();
   }
 }
