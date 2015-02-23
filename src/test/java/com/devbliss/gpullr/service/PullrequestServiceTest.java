@@ -142,7 +142,11 @@ public class PullrequestServiceTest {
     userRepository.save(assignee);
     prService.assignPullrequest(assignee, pullrequest.id);
 
+    // verify GitHub-API is called:
     verify(githubApi).assingUserToPullRequest(assignee, pullrequest);
+
+    // verify the assignee is stored in our database as well:
+    assertEquals(assignee, prService.findById(pullrequest.id).get().assignee);
   }
 
   @Test(expected = NotFoundException.class)
