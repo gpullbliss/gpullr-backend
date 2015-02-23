@@ -40,10 +40,10 @@ public class PullrequestService {
   public List<Pullrequest> findAll() {
 
     return pullrequestRepository
-        .findAll()
-        .stream()
-        .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
-        .collect(Collectors.toList());
+      .findAll()
+      .stream()
+      .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
+      .collect(Collectors.toList());
   }
 
   public List<Pullrequest> findAllOpen() {
@@ -62,13 +62,24 @@ public class PullrequestService {
     Pullrequest pullrequest = pullrequestRepository
       .findById(pullrequestId)
       .orElseThrow(() -> new NotFoundException("No pullrequest found with id " + pullrequestId));
+
+    if (!doesUserExist(user)) {
+      throw new NotFoundException("Cannot assign unknown user " + user.username + " to a pullrequest.");
+    }
+
     githubApi.assingUserToPullRequest(user, pullrequest);
+    pullrequest.assignee = user;
+    pullrequestRepository.save(pullrequest);
   }
 
   public void insertOrUpdate(Pullrequest pullrequest) {
-    if (userRepository.findOne(pullrequest.owner.id) == null) {
+    if (!doesUserExist(pullrequest.owner)) {
       userRepository.save(pullrequest.owner);
     }
     pullrequestRepository.save(pullrequest);
+  }
+
+  private boolean doesUserExist(User user) {
+    return userRepository.findOne(user.id) != null;
   }
 }

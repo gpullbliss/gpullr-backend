@@ -10,6 +10,7 @@ import com.devbliss.gpullr.domain.Pullrequest;
 import com.devbliss.gpullr.domain.Pullrequest.State;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullrequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -136,11 +137,28 @@ public class PullrequestServiceTest {
     pullrequest.createdAt = ZonedDateTime.now();
     prService.insertOrUpdate(pullrequest);
 
-    // assign someone:
+    // assign to an existing user:
     User assignee = new User(USER_ID + 1, USER_NAME + "_2", "what.ever.jpg");
+    userRepository.save(assignee);
     prService.assignPullrequest(assignee, pullrequest.id);
 
     verify(githubApi).assingUserToPullRequest(assignee, pullrequest);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void assigningPullrequestToUnknownUserFails() {
+    // create new PR w/o owner:
+    Pullrequest pullrequest = new Pullrequest();
+    pullrequest.id = PR_ID + 1;
+    pullrequest.repo = testPr.repo;
+    pullrequest.state = State.OPEN;
+    pullrequest.owner = testPr.owner;
+    pullrequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullrequest);
+
+    // assign to a non existing user:
+    User assignee = new User(USER_ID + 1, USER_NAME + "_2", "what.ever.jpg");
+    prService.assignPullrequest(assignee, pullrequest.id);
   }
 
   @Test

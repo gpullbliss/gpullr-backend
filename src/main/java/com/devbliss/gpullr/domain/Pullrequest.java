@@ -32,6 +32,9 @@ public class Pullrequest {
   @ManyToOne(optional = false)
   public User owner;
 
+  @ManyToOne(optional = true)
+  public User assignee;
+
   public String title;
 
   public String url;
@@ -77,5 +80,4 @@ public class Pullrequest {
       return false;
     return true;
   }
-
 }

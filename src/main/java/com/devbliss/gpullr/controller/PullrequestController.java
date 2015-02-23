@@ -1,7 +1,9 @@
 package com.devbliss.gpullr.controller;
 
-import javax.validation.constraints.NotNull;
+import org.springframework.http.HttpStatus;
 
+import org.springframework.web.bind.annotation.ResponseStatus;
+import javax.validation.constraints.NotNull;
 import com.devbliss.gpullr.controller.dto.PullrequestConverter;
 import com.devbliss.gpullr.controller.dto.PullrequestDto;
 import com.devbliss.gpullr.service.PullrequestService;
@@ -40,6 +42,7 @@ public class PullrequestController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/{pullrequestId}")
+  @ResponseStatus(value = HttpStatus.NO_CONTENT)
   public void assignPullrequest(@PathVariable @NotNull Integer pullrequestId) {
     pullrequestService.assignPullrequest(userService.whoAmI(), pullrequestId);
   }
