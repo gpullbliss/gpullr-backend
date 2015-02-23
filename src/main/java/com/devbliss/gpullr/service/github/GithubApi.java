@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.Pullrequest;
-import com.devbliss.gpullr.domain.PullrequestEvent;
-import com.devbliss.gpullr.domain.PullrequestEvent.Type;
+import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequestEvent;
+import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
@@ -37,13 +37,11 @@ public class GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
 
-  private static final String PULLREQUEST_ACTION_CREATED = "opened";
-
-  private static final String PULLREQUEST_ACTION_CLOSED = "closed";
-
   private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
 
   private static final String HEADER_ETAG = "ETag";
+
+  private static final String HEADER_LINK = "Link";
 
   private static final String FIELD_KEY_ID = "id";
 
@@ -52,8 +50,6 @@ public class GithubApi {
   private static final String FIELD_KEY_DESCRIPTION = "description";
 
   private static final String FIELD_KEY_PAYLOAD = "payload";
-
-  private static final String HEADER_LINK = "Link";
 
   private static final String FIELD_KEY_TYPE = "type";
 
@@ -103,64 +99,59 @@ public class GithubApi {
     return loadAllPages("/orgs/devbliss/members", this::parseUser);
   }
 
-  public void assingUserToPullRequest(User user, Pullrequest pull) {
-    // TODO: implement
+  public void assignUserToPullRequest(User user, PullRequest pull) {
+    JsonObject json = Json.createObjectBuilder().add("assignee", user.username).build();
+    final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
 
+    try {
+      Request req = client.entry()
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
+
+      req.fetch();
+
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    }
   }
 
   private User parseUser(JsonObject userJson) {
     return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"), userJson.getString("avatar_url"));
   }
 
-  private Optional<PullrequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
+  private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
     if (isPullRequestEvent(eventJson)) {
-      return parsePullrequestEvent(eventJson, repo);
+      return parsePullRequestEvent(eventJson, repo);
     }
     return Optional.empty();
   }
 
-  private Optional<PullrequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
-    Type type;
-
-    if (isPullRequestCreatedEvent(eventJson)) {
-      type = Type.PULLREQUEST_CREATED;
-    } else if (isPullRequestClosedEvent(eventJson)) {
-      type = Type.PULLREQUEST_CLOSED;
-    } else {
-      return Optional.empty();
-    }
-
-    Pullrequest pullrequest = parsePullrequestPayload(eventJson.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(
-        "pull_request"));
-    pullrequest.repo = repo;
-    return Optional.of(new PullrequestEvent(type, pullrequest));
+  private Optional<PullRequestEvent> parsePullRequestEvent(JsonObject eventJson, Repo repo) {
+    JsonObject payloadJson = eventJson.getJsonObject(FIELD_KEY_PAYLOAD);
+    Action action = Action.parse(payloadJson.getString(FIELD_KEY_ACTION));
+    PullRequest pullRequest = parsePullRequestPayload(payloadJson.getJsonObject("pull_request"));
+    pullRequest.repo = repo;
+    return Optional.of(new PullRequestEvent(action, pullRequest));
   }
 
-  private Pullrequest parsePullrequestPayload(JsonObject pullrequestJson) {
-    Pullrequest pullRequest = new Pullrequest();
-    pullRequest.id = pullrequestJson.getInt(FIELD_KEY_ID);
-    pullRequest.url = pullrequestJson.getString("html_url");
-    pullRequest.title = pullrequestJson.getString("title");
-    pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
-    pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
-    pullRequest.additions = pullrequestJson.getInt("additions");
-    pullRequest.deletions = pullrequestJson.getInt("deletions");
-    pullRequest.changedFiles = pullrequestJson.getInt("changed_files");
-    pullRequest.number = pullrequestJson.getInt("number");
+  private PullRequest parsePullRequestPayload(JsonObject pullRequestJson) {
+
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = pullRequestJson.getInt(FIELD_KEY_ID);
+    pullRequest.url = pullRequestJson.getString("html_url");
+    pullRequest.title = pullRequestJson.getString("title");
+    pullRequest.createdAt = ZonedDateTime.parse(pullRequestJson.getString("created_at"));
+    pullRequest.owner = parseUser(pullRequestJson.getJsonObject("user"));
+    pullRequest.additions = pullRequestJson.getInt("additions");
+    pullRequest.deletions = pullRequestJson.getInt("deletions");
+    pullRequest.changedFiles = pullRequestJson.getInt("changed_files");
+    pullRequest.number = pullRequestJson.getInt("number");
     return pullRequest;
   }
 
   private boolean isPullRequestEvent(JsonObject event) {
     return EVENT_TYPE_PULL_REQUEST.equals(event.getString(FIELD_KEY_TYPE));
-  }
-
-  private boolean isPullRequestCreatedEvent(JsonObject event) {
-    return PULLREQUEST_ACTION_CREATED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString(FIELD_KEY_ACTION));
-  }
-
-  private boolean isPullRequestClosedEvent(JsonObject event) {
-    return EVENT_TYPE_PULL_REQUEST.equals(event.getString(FIELD_KEY_TYPE)) &&
-        PULLREQUEST_ACTION_CLOSED.equals(event.getJsonObject(FIELD_KEY_PAYLOAD).getString(FIELD_KEY_ACTION));
   }
 
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
@@ -169,15 +160,15 @@ public class GithubApi {
   }
 
   private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-                                                          Function<JsonObject, Optional<PullrequestEvent>> mapper,
-                                                          String path, int page)
+      Function<JsonObject, Optional<PullRequestEvent>> mapper,
+      String path, int page)
       throws IOException {
 
-    List<PullrequestEvent> events = new ArrayList<>();
+    List<PullRequestEvent> events = new ArrayList<>();
     Optional<String> etag = getEtag(resp);
     int nextRequestAfterSeconds = getPollInterval(resp);
     GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
-    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullrequestEvents::add));
+    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullRequestEvents::add));
     return result;
   }
 
@@ -190,6 +181,11 @@ public class GithubApi {
   }
 
   private int getPollInterval(JsonResponse resp) {
+    if (resp.headers().get(HEADER_POLL_INTERVAL) == null) {
+      throw new UnexpectedException("No poll interval header set in response, response state was: "
+          + resp.status() + " / " + resp.reason());
+    }
+
     return Integer.parseInt(resp.headers().get(HEADER_POLL_INTERVAL).get(0));
   }
 
@@ -216,12 +212,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (JsonException e) {
       logger.error("Error reading response json: " + e.getMessage());
       logger.error("raw response:");
