@@ -157,7 +157,7 @@ public class PullrequestServiceTest {
     // verify it can be fetched by id:
     Optional<Pullrequest> fetched = prService.findById(pullrequest.id);
     assertTrue(fetched.isPresent());
-    assertEquals(pullrequest, fetched.get().id);
+    assertEquals(pullrequest, fetched.get());
   }
 
   private Repo initRepo() {
