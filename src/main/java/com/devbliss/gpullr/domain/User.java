@@ -76,8 +76,9 @@ public class User {
     } else if (!id.equals(other.id))
       return false;
     if (username == null) {
-      if (other.username != null)
+      if (other.username != null) {
         return false;
+      }
     } else if (!username.equals(other.username)) {
       return false;
     }
