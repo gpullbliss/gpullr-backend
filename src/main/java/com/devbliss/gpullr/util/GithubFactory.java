@@ -4,6 +4,7 @@ import com.jcabi.github.Github;
 import com.jcabi.github.RtGithub;
 import com.jcabi.github.mock.MkGithub;
 import java.io.IOException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -14,6 +15,9 @@ public class GithubFactory {
 
   @Value("${github.oauthtoken}")
   private String oauthToken;
+
+  @Autowired
+  private GithubClientImpl githClientImpl;
 
   @Bean
   @Profile({"prod", "dev"})
@@ -35,7 +39,7 @@ public class GithubFactory {
   @Bean
   @Profile({"prod", "dev"})
   public GithubClient createClient() {
-    return new GithubClientImpl();
+    return githClientImpl;
   }
 
   @Bean
