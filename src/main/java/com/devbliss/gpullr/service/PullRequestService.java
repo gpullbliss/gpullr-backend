@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PullRequestService {
 
-  private final PullRequestRepository pullrequestRepository;
+  private final PullRequestRepository pullRequestRepository;
 
   private final UserRepository userRepository;
 
@@ -29,17 +29,17 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-      PullRequestRepository pullrequestRepository,
+      PullRequestRepository pullRequestRepository,
       UserRepository userRepository,
       GithubApi githubApi) {
-    this.pullrequestRepository = pullrequestRepository;
+    this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
   }
 
   public List<PullRequest> findAll() {
 
-    return pullrequestRepository
+    return pullRequestRepository
       .findAll()
       .stream()
       .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
@@ -47,7 +47,7 @@ public class PullRequestService {
   }
 
   public List<PullRequest> findAllOpen() {
-    return pullrequestRepository
+    return pullRequestRepository
       .findAllByState(PullRequest.State.OPEN)
       .stream()
       .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
@@ -55,32 +55,32 @@ public class PullRequestService {
   }
 
   public Optional<PullRequest> findById(Integer id) {
-    return pullrequestRepository.findById(id);
+    return pullRequestRepository.findById(id);
   }
 
   public boolean exists(Integer id) {
-    return pullrequestRepository.exists(id);
+    return pullRequestRepository.exists(id);
   }
 
-  public void assignPullrequest(User user, Integer pullrequestId) {
-    PullRequest pullrequest = pullrequestRepository
-      .findById(pullrequestId)
-      .orElseThrow(() -> new NotFoundException("No pullrequest found with id " + pullrequestId));
+  public void assignpullRequest(User user, Integer pullRequestId) {
+    PullRequest pullRequest = pullRequestRepository
+      .findById(pullRequestId)
+      .orElseThrow(() -> new NotFoundException("No pullRequest found with id " + pullRequestId));
 
     if (!doesUserExist(user)) {
-      throw new NotFoundException("Cannot assign unknown user " + user.username + " to a pullrequest.");
+      throw new NotFoundException("Cannot assign unknown user " + user.username + " to a pullRequest.");
     }
 
-    githubApi.assingUserToPullRequest(user, pullrequest);
-    pullrequest.assignee = user;
-    pullrequestRepository.save(pullrequest);
+    githubApi.assingUserToPullRequest(user, pullRequest);
+    pullRequest.assignee = user;
+    pullRequestRepository.save(pullRequest);
   }
 
-  public void insertOrUpdate(PullRequest pullrequest) {
-    if (!doesUserExist(pullrequest.owner)) {
-      userRepository.save(pullrequest.owner);
+  public void insertOrUpdate(PullRequest pullRequest) {
+    if (!doesUserExist(pullRequest.owner)) {
+      userRepository.save(pullRequest.owner);
     }
-    pullrequestRepository.save(pullrequest);
+    pullRequestRepository.save(pullRequest);
   }
 
   private boolean doesUserExist(User user) {

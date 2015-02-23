@@ -1,7 +1,7 @@
 package com.devbliss.gpullr.domain;
 
 /**
- * Event referring to a pullrequest as received from GitHub API. Contains the pull request itself and the type of
+ * Event referring to a pullRequest as received from GitHub API. Contains the pull request itself and the type of
  * event, e.g. <code>PULLREQUEST_CREATED</code>.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
@@ -18,10 +18,10 @@ public class PullRequestEvent {
 
   public final Action action;
 
-  public final PullRequest pullrequest;
+  public final PullRequest pullRequest;
 
-  public PullRequestEvent(Action action, PullRequest pullrequest) {
+  public PullRequestEvent(Action action, PullRequest pullRequest) {
     this.action = action;
-    this.pullrequest = pullrequest;
+    this.pullRequest = pullRequest;
   }
 }

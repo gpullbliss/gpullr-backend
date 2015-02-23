@@ -93,8 +93,8 @@ public class PullRequestServiceTest {
   }
 
   @Test
-  public void insertOrupdatePullrequest() {
-    // first of all check that no Pullrequest exists
+  public void insertOrupdatepullRequest() {
+    // first of all check that no pullRequest exists
     List<PullRequest> prs = prService.findAll();
     assertEquals(0, prs.size());
 
@@ -112,18 +112,18 @@ public class PullRequestServiceTest {
   }
 
   @Test
-  public void findAllOpenPullrequests() {
-    // store a pullrequest with state OPEN:
+  public void findAllOpenpullRequests() {
+    // store a pullRequest with state OPEN:
     prService.insertOrUpdate(testPr);
 
     // store another with state CLOSED:
-    PullRequest pullrequest = new PullRequest();
-    pullrequest.id = PR_ID + 1;
-    pullrequest.repo = testPr.repo;
-    pullrequest.owner = testPr.owner;
-    pullrequest.state = State.CLOSED;
-    pullrequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullrequest);
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 1;
+    pullRequest.repo = testPr.repo;
+    pullRequest.owner = testPr.owner;
+    pullRequest.state = State.CLOSED;
+    pullRequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullRequest);
 
     // make sure only the open PR is returned:
     List<PullRequest> openPrs = prService.findAllOpen();
@@ -133,59 +133,59 @@ public class PullRequestServiceTest {
   }
 
   @Test
-  public void assignPullrequest() {
+  public void assignpullRequest() {
     // create new PR w/o owner:
-    PullRequest pullrequest = new PullRequest();
-    pullrequest.id = PR_ID + 1;
-    pullrequest.repo = testPr.repo;
-    pullrequest.state = State.OPEN;
-    pullrequest.owner = testPr.owner;
-    pullrequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullrequest);
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 1;
+    pullRequest.repo = testPr.repo;
+    pullRequest.state = State.OPEN;
+    pullRequest.owner = testPr.owner;
+    pullRequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullRequest);
 
     // assign to an existing user:
     User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
     userRepository.save(assignee);
-    prService.assignPullrequest(assignee, pullrequest.id);
+    prService.assignpullRequest(assignee, pullRequest.id);
 
     // verify GitHub-API is called:
-    verify(githubApi).assingUserToPullRequest(assignee, pullrequest);
+    verify(githubApi).assingUserToPullRequest(assignee, pullRequest);
 
     // verify the assignee is stored in our database as well:
-    assertEquals(assignee, prService.findById(pullrequest.id).get().assignee);
+    assertEquals(assignee, prService.findById(pullRequest.id).get().assignee);
   }
 
   @Test(expected = NotFoundException.class)
-  public void assigningPullrequestToUnknownUserFails() {
+  public void assigningpullRequestToUnknownUserFails() {
     // create new PR w/o owner:
-    PullRequest pullrequest = new PullRequest();
-    pullrequest.id = PR_ID + 1;
-    pullrequest.repo = testPr.repo;
-    pullrequest.state = State.OPEN;
-    pullrequest.owner = testPr.owner;
-    pullrequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullrequest);
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 1;
+    pullRequest.repo = testPr.repo;
+    pullRequest.state = State.OPEN;
+    pullRequest.owner = testPr.owner;
+    pullRequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullRequest);
 
     // assign to a non existing user:
     User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
-    prService.assignPullrequest(assignee, pullrequest.id);
+    prService.assignpullRequest(assignee, pullRequest.id);
   }
 
   @Test
   public void findById() {
     // create a pull request:
-    PullRequest pullrequest = new PullRequest();
-    pullrequest.id = PR_ID + 1;
-    pullrequest.repo = testPr.repo;
-    pullrequest.state = State.CLOSED;
-    pullrequest.owner = testPr.owner;
-    pullrequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullrequest);
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 1;
+    pullRequest.repo = testPr.repo;
+    pullRequest.state = State.CLOSED;
+    pullRequest.owner = testPr.owner;
+    pullRequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullRequest);
 
     // verify it can be fetched by id:
-    Optional<PullRequest> fetched = prService.findById(pullrequest.id);
+    Optional<PullRequest> fetched = prService.findById(pullRequest.id);
     assertTrue(fetched.isPresent());
-    assertEquals(pullrequest, fetched.get());
+    assertEquals(pullRequest, fetched.get());
   }
 
   private Repo initRepo() {

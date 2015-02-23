@@ -23,27 +23,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class PullRequestController {
 
   @Autowired
-  private PullRequestService pullrequestService;
+  private PullRequestService pullRequestService;
 
   @Autowired
-  private PullRequestConverter pullrequestConverter;
+  private PullRequestConverter pullRequestConverter;
 
   @Autowired
   private UserService userService;
 
   @RequestMapping(method = RequestMethod.GET)
   public ListDto<PullRequestDto> findAll() {
-    return new ListDto<PullRequestDto>(pullrequestService
+    return new ListDto<PullRequestDto>(pullRequestService
       .findAllOpen()
       .stream()
-      .map(pr -> pullrequestConverter.toDto(pr))
+      .map(pr -> pullRequestConverter.toDto(pr))
       .collect(Collectors.toList()));
   }
 
-  @RequestMapping(method = RequestMethod.POST, value = "/{pullrequestId}")
+  @RequestMapping(method = RequestMethod.POST, value = "/{pullRequestId}")
   @ResponseStatus(value = HttpStatus.NO_CONTENT)
-  public void assignPullrequest(@PathVariable @NotNull Integer pullrequestId) {
-    pullrequestService.assignPullrequest(userService.whoAmI(), pullrequestId);
+  public void assignpullRequest(@PathVariable @NotNull Integer pullRequestId) {
+    pullRequestService.assignpullRequest(userService.whoAmI(), pullRequestId);
   }
 
 }

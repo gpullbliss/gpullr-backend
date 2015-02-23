@@ -23,7 +23,7 @@ public class SampleController {
   private GithubApi githubApi;
 
   @Autowired
-  private PullRequestService pullrequestService;
+  private PullRequestService pullRequestService;
 
   @Autowired
   private UserService userService;
@@ -44,7 +44,7 @@ public class SampleController {
     }
 
     PullRequest pr = null;
-    List<PullRequest> prs = pullrequestService.findAll();
+    List<PullRequest> prs = pullRequestService.findAll();
 
     for (int i = 0; i < prs.size(); i++) {
       String title = prs.get(i).title;
@@ -60,6 +60,6 @@ public class SampleController {
 
   @RequestMapping("/testpulls")
   public List<PullRequest> getAllPullRequests() {
-    return pullrequestService.findAll();
+    return pullRequestService.findAll();
   }
 }

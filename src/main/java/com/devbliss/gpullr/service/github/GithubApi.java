@@ -124,31 +124,31 @@ public class GithubApi {
 
   private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
     if (isPullRequestEvent(eventJson)) {
-      return parsePullrequestEvent(eventJson, repo);
+      return parsepullRequestEvent(eventJson, repo);
     }
     return Optional.empty();
   }
 
-  private Optional<PullRequestEvent> parsePullrequestEvent(JsonObject eventJson, Repo repo) {
+  private Optional<PullRequestEvent> parsepullRequestEvent(JsonObject eventJson, Repo repo) {
     JsonObject payloadJson = eventJson.getJsonObject(FIELD_KEY_PAYLOAD);
     Action action = Action.parse(payloadJson.getString(FIELD_KEY_ACTION));
-    PullRequest pullrequest = parsePullrequestPayload(payloadJson.getJsonObject("pull_request"));
-    pullrequest.repo = repo;
-    return Optional.of(new PullRequestEvent(action, pullrequest));
+    PullRequest pullRequest = parsepullRequestPayload(payloadJson.getJsonObject("pull_request"));
+    pullRequest.repo = repo;
+    return Optional.of(new PullRequestEvent(action, pullRequest));
   }
 
-  private PullRequest parsePullrequestPayload(JsonObject pullrequestJson) {
+  private PullRequest parsepullRequestPayload(JsonObject pullRequestJson) {
 
     PullRequest pullRequest = new PullRequest();
-    pullRequest.id = pullrequestJson.getInt(FIELD_KEY_ID);
-    pullRequest.url = pullrequestJson.getString("html_url");
-    pullRequest.title = pullrequestJson.getString("title");
-    pullRequest.createdAt = ZonedDateTime.parse(pullrequestJson.getString("created_at"));
-    pullRequest.owner = parseUser(pullrequestJson.getJsonObject("user"));
-    pullRequest.additions = pullrequestJson.getInt("additions");
-    pullRequest.deletions = pullrequestJson.getInt("deletions");
-    pullRequest.changedFiles = pullrequestJson.getInt("changed_files");
-    pullRequest.number = pullrequestJson.getInt("number");
+    pullRequest.id = pullRequestJson.getInt(FIELD_KEY_ID);
+    pullRequest.url = pullRequestJson.getString("html_url");
+    pullRequest.title = pullRequestJson.getString("title");
+    pullRequest.createdAt = ZonedDateTime.parse(pullRequestJson.getString("created_at"));
+    pullRequest.owner = parseUser(pullRequestJson.getJsonObject("user"));
+    pullRequest.additions = pullRequestJson.getInt("additions");
+    pullRequest.deletions = pullRequestJson.getInt("deletions");
+    pullRequest.changedFiles = pullRequestJson.getInt("changed_files");
+    pullRequest.number = pullRequestJson.getInt("number");
     return pullRequest;
   }
 

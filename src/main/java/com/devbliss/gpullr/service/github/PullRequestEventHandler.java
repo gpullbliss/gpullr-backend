@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Handles pullrequest events fetched from GitHub and triggers the appropriate action in business layer. 
+ * Handles pullRequest events fetched from GitHub and triggers the appropriate action in business layer. 
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
@@ -23,30 +23,30 @@ public class PullRequestEventHandler {
   @Log
   Logger logger;
 
-  private final PullRequestService pullrequestService;
+  private final PullRequestService pullRequestService;
 
   @Autowired
-  public PullRequestEventHandler(PullRequestService pullrequestService) {
-    this.pullrequestService = pullrequestService;
+  public PullRequestEventHandler(PullRequestService pullRequestService) {
+    this.pullRequestService = pullRequestService;
   }
 
-  public void handlePullrequestEvent(PullRequestEvent event) {
-    PullRequest pullrequestFromEvent = event.pullrequest;
-    Optional<PullRequest> pullrequestFromDb = pullrequestService.findById(pullrequestFromEvent.id);
+  public void handlepullRequestEvent(PullRequestEvent event) {
+    PullRequest pullRequestFromEvent = event.pullRequest;
+    Optional<PullRequest> pullRequestFromDb = pullRequestService.findById(pullRequestFromEvent.id);
 
     if (event.action == Action.OPENED) {
-      if (pullrequestFromDb.isPresent()) {
-        pullrequestFromEvent.state = pullrequestFromDb.get().state;
+      if (pullRequestFromDb.isPresent()) {
+        pullRequestFromEvent.state = pullRequestFromDb.get().state;
       } else {
-        pullrequestFromEvent.state = State.OPEN;
+        pullRequestFromEvent.state = State.OPEN;
       }
     } else if (event.action == Action.CLOSED) {
-      pullrequestFromEvent.state = State.CLOSED;
+      pullRequestFromEvent.state = State.CLOSED;
     } else if (event.action == Action.REOPENED) {
-      pullrequestFromEvent.state = State.OPEN;
+      pullRequestFromEvent.state = State.OPEN;
     }
 
-    logger.debug("handling pr ev: " + event.pullrequest.title + " / " + event.pullrequest.state);
-    pullrequestService.insertOrUpdate(pullrequestFromEvent);
+    logger.debug("handling pr ev: " + event.pullRequest.title + " / " + event.pullRequest.state);
+    pullRequestService.insertOrUpdate(pullRequestFromEvent);
   }
 }

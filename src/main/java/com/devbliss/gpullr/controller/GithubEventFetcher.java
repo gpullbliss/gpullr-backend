@@ -62,7 +62,7 @@ public class GithubEventFetcher {
   }
   
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
-    response.pullRequestEvents.forEach(pullRequestEventHandler::handlePullrequestEvent);
+    response.pullRequestEvents.forEach(pullRequestEventHandler::handlepullRequestEvent);
     logger.debug("Fetched " + response.pullRequestEvents.size() + " PR events for " + repo.name);
     Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
     executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
