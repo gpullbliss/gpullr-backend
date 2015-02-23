@@ -6,6 +6,7 @@ import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
+import com.devbliss.gpullr.util.GithubClient;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
 import com.jcabi.http.Request;
@@ -23,6 +24,9 @@ import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonValue.ValueType;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,6 +65,9 @@ public class GithubApi {
   @Autowired
   private Github client;
 
+  @Autowired
+  private GithubClient githubClient;
+
   /**
    * Retrieves all repositories (public, private, forked, etc.) belonging to our organization, from GitHub.
    *
@@ -78,14 +85,32 @@ public class GithubApi {
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
 
     try {
+      String uri = "https://api.github.com/repos/devbliss/" + repo.name + "/events";
+      HttpGet request = new HttpGet(uri);
+
+      if (etagHeader.isPresent()) {
+        logger.debug("******** ETAG HEADER PRESENT: " + etagHeader.get());
+        request.setHeader(HEADER_ETAG, etagHeader.get());
+      } else {
+        logger.debug("******** ETAG HEADER __NOT__ PRESENT!");
+      }
+
+      HttpResponse response = githubClient.execute(request);
+      int statusCode = response.getStatusLine().getStatusCode();
+
+      if (statusCode == org.apache.http.HttpStatus.SC_OK) {
+
+      }
+
+      else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
+        logger.debug("got 304 NOT MODIFIED for " + uri);
+      }
+
       String path = "repos/devbliss/" + repo.name + "/events";
       Request req = client.entry().uri().path(path).back();
 
       if (etagHeader.isPresent()) {
         req.header(HEADER_ETAG, etagHeader.get());
-        logger.debug("******** ETAG HEADER PRESENT: " + etagHeader.get());
-      } else {
-        logger.debug("******** ETAG HEADER __NOT__ PRESENT!");
       }
 
       final JsonResponse resp = req.fetch().as(JsonResponse.class);
@@ -172,9 +197,32 @@ public class GithubApi {
     return result;
   }
 
+  private GithubEventsResponse handleGithubEventsResponse(HttpResponse resp,
+      Function<JsonObject, Optional<PullRequestEvent>> mapper,
+      String path, int page)
+      throws IOException {
+
+    List<PullRequestEvent> events = new ArrayList<>();
+    Optional<String> etag = getEtag(resp);
+    int nextRequestAfterSeconds = getPollInterval(resp);
+    GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullRequestEvents::add));
+    return result;
+  }
+
   private Optional<String> getEtag(JsonResponse resp) {
     if (resp.headers().containsKey(HEADER_ETAG)) {
       return Optional.of(resp.headers().get(HEADER_ETAG).get(0));
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  private Optional<String> getEtag(HttpResponse resp) {
+    Header[] etagHeaders = resp.getHeaders(HEADER_ETAG);
+
+    if (etagHeaders != null && etagHeaders.length > 0) {
+      return Optional.of(etagHeaders[0].getValue());
     } else {
       return Optional.empty();
     }
@@ -187,6 +235,17 @@ public class GithubApi {
     }
 
     return Integer.parseInt(resp.headers().get(HEADER_POLL_INTERVAL).get(0));
+  }
+
+  private int getPollInterval(HttpResponse resp) {
+    Header[] pollIntervalHeaders = resp.getHeaders(HEADER_POLL_INTERVAL);
+
+    if (pollIntervalHeaders == null) {
+      throw new UnexpectedException("No poll interval header set in response, response state was: "
+          + resp.getStatusLine().getStatusCode());
+    }
+
+    return Integer.parseInt(pollIntervalHeaders[0].getValue());
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
