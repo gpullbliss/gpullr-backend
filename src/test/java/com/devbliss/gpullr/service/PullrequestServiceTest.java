@@ -39,17 +39,23 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ActiveProfiles("test")
 public class PullrequestServiceTest {
 
-  private static int REPO_ID = 1000;
+  private static final int REPO_ID = 1000;
 
-  private static String REPO_NAME = "pr_test_repo";
+  private static final String REPO_NAME = "pr_test_repo";
 
-  private static String REPO_DESC = "pr_test_repo_description";
+  private static final String REPO_DESC = "pr_test_repo_description";
 
-  private static String USER_NAME = "pr_test_user";
+  private static final String USER_NAME = "pr_test_user";
 
-  private static int USER_ID = 1000;
+  private static final String USER_NAME_2 = USER_NAME + "_2";
 
-  private static int PR_ID = 1;
+  private static final String AVATAR = "0815.jpg";
+
+  private static final String AVATAR_2 = "what.ever.jpg";
+
+  private static final int USER_ID = 1000;
+
+  private static final int PR_ID = 1;
 
   @Autowired
   private PullrequestRepository prRepository;
@@ -138,7 +144,7 @@ public class PullrequestServiceTest {
     prService.insertOrUpdate(pullrequest);
 
     // assign to an existing user:
-    User assignee = new User(USER_ID + 1, USER_NAME + "_2", "what.ever.jpg");
+    User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
     userRepository.save(assignee);
     prService.assignPullrequest(assignee, pullrequest.id);
 
@@ -161,7 +167,7 @@ public class PullrequestServiceTest {
     prService.insertOrUpdate(pullrequest);
 
     // assign to a non existing user:
-    User assignee = new User(USER_ID + 1, USER_NAME + "_2", "what.ever.jpg");
+    User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
     prService.assignPullrequest(assignee, pullrequest.id);
   }
 
@@ -188,7 +194,7 @@ public class PullrequestServiceTest {
   }
 
   private User initUser() {
-    User prOwner = new User(USER_ID, USER_NAME, "0815.jpg");
+    User prOwner = new User(USER_ID, USER_NAME, AVATAR);
     return userRepository.save(prOwner);
   }
 }
