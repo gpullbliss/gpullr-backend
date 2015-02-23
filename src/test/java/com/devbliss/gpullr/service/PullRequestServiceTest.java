@@ -93,7 +93,7 @@ public class PullRequestServiceTest {
   }
 
   @Test
-  public void insertOrupdatepullRequest() {
+  public void insertOrupdatePullRequest() {
     // first of all check that no pullRequest exists
     List<PullRequest> prs = prService.findAll();
     assertEquals(0, prs.size());
@@ -104,11 +104,12 @@ public class PullRequestServiceTest {
     int fetchedPrId = prs.get(0).id;
     int fetchedPrUserId = prs.get(0).owner.id;
     int fetchedPrRepoId = prs.get(0).repo.id;
+    State fetchedState = prs.get(0).state;
 
     assertEquals(PR_ID, fetchedPrId);
     assertEquals(USER_ID, fetchedPrUserId);
     assertEquals(REPO_ID, fetchedPrRepoId);
-    assertEquals(testPr.state, prs.get(0).state);
+    assertEquals(testPr.state, fetchedState);
   }
 
   @Test
