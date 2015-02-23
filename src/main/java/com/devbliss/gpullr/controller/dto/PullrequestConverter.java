@@ -4,7 +4,8 @@ import com.devbliss.gpullr.domain.Pullrequest;
 import org.springframework.stereotype.Component;
 
 /**
- * Converter for {@link com.devbliss.gpullr.domain.Pullrequest} and {@link com.devbliss.gpullr.controller.dto.PullrequestDto} objects.
+ * Converter for {@link com.devbliss.gpullr.domain.Pullrequest} and 
+ * {@link com.devbliss.gpullr.controller.dto.PullrequestDto} objects.
  */
 @Component
 public class PullrequestConverter {

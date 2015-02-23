@@ -1,12 +1,11 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.service.github.PullrequestEventHandler;
-
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.PullrequestService;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
+import com.devbliss.gpullr.service.github.PullrequestEventHandler;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.util.Date;
