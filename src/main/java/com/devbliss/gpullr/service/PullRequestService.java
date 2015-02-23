@@ -62,28 +62,28 @@ public class PullRequestService {
     return pullRequestRepository.exists(id);
   }
 
-  public void assignpullRequest(User user, Integer pullRequestId) {
+  public void assignPullRequest(User user, Integer pullRequestId) {
     PullRequest pullRequest = pullRequestRepository
       .findById(pullRequestId)
       .orElseThrow(() -> new NotFoundException("No pullRequest found with id " + pullRequestId));
 
-    if (!doesUserExist(user)) {
+    if (isUserUnknown(user)) {
       throw new NotFoundException("Cannot assign unknown user " + user.username + " to a pullRequest.");
     }
 
-    githubApi.assingUserToPullRequest(user, pullRequest);
+    githubApi.assignUserToPullRequest(user, pullRequest);
     pullRequest.assignee = user;
     pullRequestRepository.save(pullRequest);
   }
 
   public void insertOrUpdate(PullRequest pullRequest) {
-    if (!doesUserExist(pullRequest.owner)) {
+    if (isUserUnknown(pullRequest.owner)) {
       userRepository.save(pullRequest.owner);
     }
     pullRequestRepository.save(pullRequest);
   }
 
-  private boolean doesUserExist(User user) {
-    return userRepository.findOne(user.id) != null;
+  private boolean isUserUnknown(User user) {
+    return userRepository.findOne(user.id) == null;
   }
 }

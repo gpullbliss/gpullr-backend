@@ -42,6 +42,8 @@ public class GithubApi {
 
   private static final String HEADER_ETAG = "ETag";
 
+  private static final String HEADER_LINK = "Link";
+  
   private static final String FIELD_KEY_ID = "id";
 
   private static final String FIELD_KEY_NAME = "name";
@@ -49,8 +51,6 @@ public class GithubApi {
   private static final String FIELD_KEY_DESCRIPTION = "description";
 
   private static final String FIELD_KEY_PAYLOAD = "payload";
-
-  private static final String HEADER_LINK = "Link";
 
   private static final String FIELD_KEY_TYPE = "type";
 
@@ -100,7 +100,7 @@ public class GithubApi {
     return loadAllPages("/orgs/devbliss/members", this::parseUser);
   }
 
-  public void assingUserToPullRequest(User user, PullRequest pull) {
+  public void assignUserToPullRequest(User user, PullRequest pull) {
     JsonObject json = Json.createObjectBuilder().add("assignee", user.username).build();
     final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
 
@@ -124,20 +124,20 @@ public class GithubApi {
 
   private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
     if (isPullRequestEvent(eventJson)) {
-      return parsepullRequestEvent(eventJson, repo);
+      return parsePullRequestEvent(eventJson, repo);
     }
     return Optional.empty();
   }
 
-  private Optional<PullRequestEvent> parsepullRequestEvent(JsonObject eventJson, Repo repo) {
+  private Optional<PullRequestEvent> parsePullRequestEvent(JsonObject eventJson, Repo repo) {
     JsonObject payloadJson = eventJson.getJsonObject(FIELD_KEY_PAYLOAD);
     Action action = Action.parse(payloadJson.getString(FIELD_KEY_ACTION));
-    PullRequest pullRequest = parsepullRequestPayload(payloadJson.getJsonObject("pull_request"));
+    PullRequest pullRequest = parsePullRequestPayload(payloadJson.getJsonObject("pull_request"));
     pullRequest.repo = repo;
     return Optional.of(new PullRequestEvent(action, pullRequest));
   }
 
-  private PullRequest parsepullRequestPayload(JsonObject pullRequestJson) {
+  private PullRequest parsePullRequestPayload(JsonObject pullRequestJson) {
 
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = pullRequestJson.getInt(FIELD_KEY_ID);

@@ -146,10 +146,10 @@ public class PullRequestServiceTest {
     // assign to an existing user:
     User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
     userRepository.save(assignee);
-    prService.assignpullRequest(assignee, pullRequest.id);
+    prService.assignPullRequest(assignee, pullRequest.id);
 
     // verify GitHub-API is called:
-    verify(githubApi).assingUserToPullRequest(assignee, pullRequest);
+    verify(githubApi).assignUserToPullRequest(assignee, pullRequest);
 
     // verify the assignee is stored in our database as well:
     assertEquals(assignee, prService.findById(pullRequest.id).get().assignee);
@@ -168,7 +168,7 @@ public class PullRequestServiceTest {
 
     // assign to a non existing user:
     User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
-    prService.assignpullRequest(assignee, pullRequest.id);
+    prService.assignPullRequest(assignee, pullRequest.id);
   }
 
   @Test
