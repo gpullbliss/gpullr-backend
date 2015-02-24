@@ -39,7 +39,9 @@ public class GithubApi {
 
   private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
 
-  private static final String HEADER_ETAG = "ETag";
+  private static final String HEADER_ETAG_REQUEST = "If-None-Match";
+
+  private static final String HEADER_ETAG_RESPONSE = "ETag";
 
   private static final String HEADER_LINK = "Link";
 
@@ -80,9 +82,10 @@ public class GithubApi {
     try {
       String path = "repos/devbliss/" + repo.name + "/events";
       Request req = client.entry().uri().path(path).back();
+      logger.debug("+++ FETCH " + path);
 
       if (etagHeader.isPresent()) {
-        req.header(HEADER_ETAG, etagHeader.get());
+        req.header(HEADER_ETAG_REQUEST, etagHeader.get());
         logger.debug("******** ETAG HEADER PRESENT: " + etagHeader.get());
       } else {
         logger.debug("******** ETAG HEADER __NOT__ PRESENT!");
@@ -173,8 +176,8 @@ public class GithubApi {
   }
 
   private Optional<String> getEtag(JsonResponse resp) {
-    if (resp.headers().containsKey(HEADER_ETAG)) {
-      return Optional.of(resp.headers().get(HEADER_ETAG).get(0));
+    if (resp.headers().containsKey(HEADER_ETAG_RESPONSE)) {
+      return Optional.of(resp.headers().get(HEADER_ETAG_RESPONSE).get(0));
     } else {
       return Optional.empty();
     }
@@ -192,13 +195,21 @@ public class GithubApi {
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
       throws IOException {
 
-    List<T> result = responseToList(resp, mapper);
+    if (resp.status() == 200) {
+      List<T> result = responseToList(resp, mapper);
 
-    if (hasMorePage(resp)) {
-      resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
-      result.addAll(handleResponse(resp, mapper, path, page + 1));
+      if (hasMorePage(resp)) {
+        resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
+        result.addAll(handleResponse(resp, mapper, path, page + 1));
+      }
+
+      return result;
+    } else if (resp.status() == 304) {
+      logger.debug("### 304 resp for " + path);
+      return new ArrayList<>();
+    } else {
+      throw new UnexpectedException("Unexpected http status " + resp.status() + " for " + path);
     }
-    return result;
   }
 
   private boolean hasMorePage(JsonResponse resp) {
