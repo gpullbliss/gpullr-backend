@@ -1,5 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
+ - [feature] created extra checkstyle-test.xml to exclude string duplication check from tests
  - [feature] endpoint for self-assigning PRs; bug-fixes for fetching PR events from GitHub
  - [feature] user session upon login
  - [feature] periodically fetching users, repos and (PR-)events
@@ -11,4 +12,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Feb 23 13:31:38 CET 2015
+-- Last change by: Michael Diodone <michael.diodone@devbliss.com> Tue Feb 24 10:04:53 CET 2015
