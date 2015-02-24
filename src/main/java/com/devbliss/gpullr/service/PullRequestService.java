@@ -46,11 +46,16 @@ public class PullRequestService {
       .collect(Collectors.toList());
   }
 
+  /**
+   * Finds all open pull requests sorted by creation date, latest first.
+   * 
+   * @return possibly empty list of pull requests 
+   */
   public List<PullRequest> findAllOpen() {
     return pullRequestRepository
       .findAllByState(PullRequest.State.OPEN)
       .stream()
-      .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
+      .sorted((p1, p2) -> p2.createdAt.compareTo(p1.createdAt))
       .collect(Collectors.toList());
   }
 
