@@ -49,8 +49,10 @@ public class GithubEventFetcher {
     logger.info("Start fetching events from GitHub...");
 
     for (Repo repo : repoService.findAll()) {
-      logger.debug("Fetch events for repo: " + repo.name);
-      fetchEvents(repo, Optional.empty());
+      if(!repo.name.contains("devbliss-vagrant")) {
+        logger.debug("Fetch events for repo: " + repo.name);
+        fetchEvents(repo, Optional.empty());
+      }
     }
 
     logger.info("Finished fetching events from GitHub.");

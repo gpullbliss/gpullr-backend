@@ -1,10 +1,13 @@
 package com.devbliss.gpullr.util;
 
+import org.springframework.context.annotation.Primary;
+
 import com.jcabi.github.Github;
 import com.jcabi.github.RtGithub;
 import com.jcabi.github.mock.MkGithub;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -17,10 +20,13 @@ public class GithubFactory {
   private String oauthToken;
 
   @Autowired
+  @Qualifier("githubClientImpl")
   private GithubClientImpl githClientImpl;
 
   @Bean
-  @Profile({"prod", "dev"})
+  @Profile({
+      "prod", "dev"
+  })
   public Github createJCabiClient() {
     return new RtGithub(oauthToken);
   }
@@ -37,13 +43,17 @@ public class GithubFactory {
   }
 
   @Bean
-  @Profile({"prod", "dev"})
+  @Profile({
+      "prod", "dev"
+  })
+  @Primary
   public GithubClient createClient() {
     return githClientImpl;
   }
 
   @Bean
   @Profile("test")
+  @Primary
   public GithubClient createTestClient() {
     return new GithubClientImplNoop();
   }

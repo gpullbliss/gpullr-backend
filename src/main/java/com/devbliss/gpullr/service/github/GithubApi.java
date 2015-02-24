@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonException;
 import javax.json.JsonObject;
@@ -26,7 +27,6 @@ import javax.json.JsonReaderFactory;
 import javax.json.JsonValue.ValueType;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -85,36 +85,15 @@ public class GithubApi {
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
 
     try {
-      String uri = "https://api.github.com/repos/devbliss/" + repo.name + "/events";
-      HttpGet request = new HttpGet(uri);
-
-      if (etagHeader.isPresent()) {
-        logger.debug("******** ETAG HEADER PRESENT: " + etagHeader.get());
-        request.setHeader(HEADER_ETAG, etagHeader.get());
-      } else {
-        logger.debug("******** ETAG HEADER __NOT__ PRESENT!");
-      }
-
-      HttpResponse response = githubClient.execute(request);
-      int statusCode = response.getStatusLine().getStatusCode();
-
-      if (statusCode == org.apache.http.HttpStatus.SC_OK) {
-
-      }
-
-      else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
-        logger.debug("got 304 NOT MODIFIED for " + uri);
-      }
-
-      String path = "repos/devbliss/" + repo.name + "/events";
-      Request req = client.entry().uri().path(path).back();
-
-      if (etagHeader.isPresent()) {
-        req.header(HEADER_ETAG, etagHeader.get());
-      }
-
-      final JsonResponse resp = req.fetch().as(JsonResponse.class);
-      return handleGithubEventsResponse(resp, jo -> parseEvent(jo, repo), path, 1);
+      GetGithubEventsRequest req = new GetGithubEventsRequest(repo, etagHeader, 0);
+      HttpResponse resp = githubClient.execute(req);
+      List<PullRequestEvent> events = new ArrayList<>();
+      Optional<String> etag = getEtag(resp);
+      int nextRequestAfterSeconds = getPollInterval(resp);
+      GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+      handleResponse(resp, jo -> parseEvent(jo, repo), req.nextPage()).forEach(
+          ope -> ope.ifPresent(result.pullRequestEvents::add));
+      return result;
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -184,31 +163,33 @@ public class GithubApi {
     return handleResponse(resp, mapper, path, 1);
   }
 
-  private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-      Function<JsonObject, Optional<PullRequestEvent>> mapper,
-      String path, int page)
-      throws IOException {
-
-    List<PullRequestEvent> events = new ArrayList<>();
-    Optional<String> etag = getEtag(resp);
-    int nextRequestAfterSeconds = getPollInterval(resp);
-    GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
-    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullRequestEvents::add));
-    return result;
-  }
-
-  private GithubEventsResponse handleGithubEventsResponse(HttpResponse resp,
-      Function<JsonObject, Optional<PullRequestEvent>> mapper,
-      String path, int page)
-      throws IOException {
-
-    List<PullRequestEvent> events = new ArrayList<>();
-    Optional<String> etag = getEtag(resp);
-    int nextRequestAfterSeconds = getPollInterval(resp);
-    GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
-    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullRequestEvents::add));
-    return result;
-  }
+  // private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
+  // Function<JsonObject, Optional<PullRequestEvent>> mapper,
+  // String path, int page)
+  // throws IOException {
+  //
+  // List<PullRequestEvent> events = new ArrayList<>();
+  // Optional<String> etag = getEtag(resp);
+  // int nextRequestAfterSeconds = getPollInterval(resp);
+  // GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+  // handleResponse(resp, mapper, path, page + 1).forEach(ope ->
+  // ope.ifPresent(result.pullRequestEvents::add));
+  // return result;
+  // }
+  //
+  // private GithubEventsResponse handleGithubEventsResponse(HttpResponse resp,
+  // Function<JsonObject, Optional<PullRequestEvent>> mapper,
+  // GetGithubEventsRequest followUpRequest)
+  // throws IOException {
+  //
+  // List<PullRequestEvent> events = new ArrayList<>();
+  // Optional<String> etag = getEtag(resp);
+  // int nextRequestAfterSeconds = getPollInterval(resp);
+  // GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+  // handleResponse(resp, mapper, followUpRequest.nextPage()).forEach(
+  // ope -> ope.ifPresent(result.pullRequestEvents::add));
+  // return result;
+  // }
 
   private Optional<String> getEtag(JsonResponse resp) {
     if (resp.headers().containsKey(HEADER_ETAG)) {
@@ -248,6 +229,32 @@ public class GithubApi {
     return Integer.parseInt(pollIntervalHeaders[0].getValue());
   }
 
+  private <T> List<T> handleResponse(HttpResponse resp, Function<JsonObject, T> mapper,
+      GetGithubEventsRequest nextRequest) throws IOException {
+
+    List<T> result = responseToList(resp, mapper);
+
+    int statusCode = resp.getStatusLine().getStatusCode();
+
+    if (statusCode == org.apache.http.HttpStatus.SC_OK) {
+      if (hasMorePage(resp)) {
+        logger.debug("******* has more pages");
+        resp = githubClient.execute(nextRequest);
+        result.addAll(handleResponse(resp, mapper, nextRequest.nextPage()));
+      }
+    }
+
+    else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
+      logger.debug("got 304 NOT MODIFIED for " + resp);
+    }
+
+    else {
+      throw new UnexpectedException("Fetching events from GitHub returned status code " + statusCode);
+    }
+
+    return result;
+  }
+
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
       throws IOException {
 
@@ -263,6 +270,37 @@ public class GithubApi {
   private boolean hasMorePage(JsonResponse resp) {
     return resp.headers().keySet().contains(HEADER_LINK)
         && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains("next"));
+  }
+
+  private boolean hasMorePage(HttpResponse resp) {
+    Header[] linkHeader = resp.getHeaders(HEADER_LINK);
+
+    if (linkHeader != null && linkHeader.length > 0) {
+      return Stream.of(linkHeader).filter(h -> h.getValue().contains("next")).findAny().isPresent();
+    }
+
+    return false;
+  }
+
+  private <T> List<T> responseToList(HttpResponse resp, Function<JsonObject, T> mapper) {
+    JsonReaderFactory jrf = Json.createReaderFactory(null);
+
+    try {
+      return jrf.createReader(resp.getEntity().getContent())
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    } catch (JsonException e) {
+      logger.error("Error reading response json: " + e.getMessage());
+      logger.error("raw response:");
+      logger.error(resp.toString());
+      throw new UnexpectedException(e);
+    }
   }
 
   private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
