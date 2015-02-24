@@ -29,10 +29,14 @@ public class User {
   public User() {}
 
   public User(Integer id, String username, String avatarUrl) {
+    this(id, username, avatarUrl, false);
+  }
+
+  public User(Integer id, String username, String avatarUrl, boolean canLogin) {
     this.id = id;
     this.username = username;
     this.avatarUrl = avatarUrl;
-    this.canLogin = false;
+    this.canLogin = canLogin;
   }
 
   @Override
