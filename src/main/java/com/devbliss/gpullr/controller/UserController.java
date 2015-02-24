@@ -38,9 +38,7 @@ public class UserController {
         .collect(Collectors.toList());
   }
 
-  @RequestMapping(
-      value = "/login/{id}",
-      method = RequestMethod.POST)
+  @RequestMapping(value = "/login/{id}",method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
   public void login(@PathVariable("id") int id) {
     userService.login(id);
