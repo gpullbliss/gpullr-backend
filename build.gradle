@@ -52,7 +52,14 @@ dependencies {
 
 checkstyle {
   toolVersion = "6.3"
+}
+
+checkstyleMain {
   configFile = new File(rootDir, 'checkstyle.xml')
+}
+
+checkstyleTest {
+  configFile = new File(rootDir, 'checkstyle-test.xml')
 }
 
 test {
