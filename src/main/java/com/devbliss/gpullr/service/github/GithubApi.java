@@ -58,7 +58,7 @@ public class GithubApi {
   private static final String FIELD_KEY_TYPE = "type";
 
   private static final String FIELD_KEY_ACTION = "action";
-  
+
   private static final int DEFAULT_POLL_INTERVAL = 60;
 
   @Log
@@ -165,83 +165,36 @@ public class GithubApi {
     return handleResponse(resp, mapper, path, 1);
   }
 
-  // private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-  // Function<JsonObject, Optional<PullRequestEvent>> mapper,
-  // String path, int page)
-  // throws IOException {
-  //
-  // List<PullRequestEvent> events = new ArrayList<>();
-  // Optional<String> etag = getEtag(resp);
-  // int nextRequestAfterSeconds = getPollInterval(resp);
-  // GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
-  // handleResponse(resp, mapper, path, page + 1).forEach(ope ->
-  // ope.ifPresent(result.pullRequestEvents::add));
-  // return result;
-  // }
-  //
-  // private GithubEventsResponse handleGithubEventsResponse(HttpResponse resp,
-  // Function<JsonObject, Optional<PullRequestEvent>> mapper,
-  // GetGithubEventsRequest followUpRequest)
-  // throws IOException {
-  //
-  // List<PullRequestEvent> events = new ArrayList<>();
-  // Optional<String> etag = getEtag(resp);
-  // int nextRequestAfterSeconds = getPollInterval(resp);
-  // GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
-  // handleResponse(resp, mapper, followUpRequest.nextPage()).forEach(
-  // ope -> ope.ifPresent(result.pullRequestEvents::add));
-  // return result;
-  // }
-
-  private Optional<String> getEtag(JsonResponse resp) {
-    if (resp.headers().containsKey(HEADER_ETAG)) {
-      return Optional.of(resp.headers().get(HEADER_ETAG).get(0));
-    } else {
-      return Optional.empty();
-    }
-  }
-
   private Optional<String> getEtag(HttpResponse resp) {
-    Header[] etagHeaders = resp.getHeaders(HEADER_ETAG);
+    Header etagHeader = resp.getLastHeader(HEADER_ETAG);
 
-    if (etagHeaders != null && etagHeaders.length > 0) {
-      return Optional.of(etagHeaders[0].getValue());
+    if (etagHeader != null) {
+      return Optional.of(etagHeader.getValue());
     } else {
       return Optional.empty();
     }
-  }
-
-  private int getPollInterval(JsonResponse resp) {
-    if (resp.headers().get(HEADER_POLL_INTERVAL) == null) {
-      logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
-      return DEFAULT_POLL_INTERVAL;
-    }
-
-    return Integer.parseInt(resp.headers().get(HEADER_POLL_INTERVAL).get(0));
   }
 
   private int getPollInterval(HttpResponse resp) {
-    Header[] pollIntervalHeaders = resp.getHeaders(HEADER_POLL_INTERVAL);
+    Header pollIntervalHeader = resp.getLastHeader(HEADER_POLL_INTERVAL);
 
-    if (pollIntervalHeaders == null || pollIntervalHeaders.length == 0) {
+    if (pollIntervalHeader == null) {
       logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
       return DEFAULT_POLL_INTERVAL;
     }
 
-    return Integer.parseInt(pollIntervalHeaders[0].getValue());
+    return Integer.parseInt(pollIntervalHeader.getValue());
   }
 
   private <T> List<T> handleResponse(HttpResponse resp, Function<JsonObject, T> mapper,
       GetGithubEventsRequest nextRequest) throws IOException {
 
     int statusCode = resp.getStatusLine().getStatusCode();
-    logger.debug("*** got http status: " + statusCode);
 
     if (statusCode == org.apache.http.HttpStatus.SC_OK) {
       List<T> result = responseToList(resp, mapper);
 
       if (hasMorePage(resp)) {
-        logger.debug("******* has more pages");
         resp = githubClient.execute(nextRequest);
         result.addAll(handleResponse(resp, mapper, nextRequest.nextPage()));
       }

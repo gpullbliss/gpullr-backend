@@ -6,13 +6,14 @@ import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
 import com.devbliss.gpullr.service.github.PullRequestEventHandler;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class GithubEventFetcher {
 
   private static final Logger logger = LoggerFactory.getLogger(GithubEventFetcher.class);
@@ -43,38 +45,19 @@ public class GithubEventFetcher {
   public GithubEventFetcher() {
     executor = new ThreadPoolTaskScheduler();
     executor.initialize();
+    executor.setPoolSize(600);
   }
 
   public void startFetchEventsLoop() {
+    List<Repo> allRepos = repoService.findAll();
+    logger.info("Start fetching events from GitHub for all " + allRepos.size() + " repos...");
+    int i = 1;
 
-    List<String> tmpBlacklist = Arrays.asList("gwtbliss", "risotto", "idpool-domainmodels", "devblissdemoproject",
-        "juanitor");
-
-    logger.info("Start fetching events from GitHub...");
-    int i = 0;
-
-    for (Repo repo : repoService.findAll()) {
-      // if(!tmpBlacklist.contains(repo.name)) {
-      // if (repo.name.equals("epubli-autorencockpit") || repo.name.equals("gwtbliss") || i < 5) {
-      // if(repo.name.equals("coporate_design")) {
-      System.err.println("Fetched events for " + i + ". repo: " + repo.name);
+    for (Repo repo : allRepos) {
+      logger.debug("Fetching events for repo: " + repo.name + " ( " + i + " )");
       fetchEvents(repo, Optional.empty());
       i++;
-
-      if (i == 5) {
-        try {
-          Thread.sleep(10 * 1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        i = 0;
-      }
-
-      // }
-
     }
-
-    logger.info("Finished fetching events from GitHub.");
   }
 
   private void fetchEvents(Repo repo, Optional<String> etagHeader) {
@@ -83,8 +66,11 @@ public class GithubEventFetcher {
 
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
     response.pullRequestEvents.forEach(pullRequestEventHandler::handlePullRequestEvent);
-    logger.debug("Fetched " + response.pullRequestEvents.size() + " PR events for " + repo.name);
     Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
     executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
+    logger.debug("Fetched " + response.pullRequestEvents.size() + " PR events for " + repo.name
+        + " / active threads in executeur=" + executor.getActiveCount() + ", queue="
+        + executor.getScheduledThreadPoolExecutor().getQueue().size());
+
   }
 }
