@@ -12,6 +12,7 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -86,15 +87,26 @@ public class UserServiceTest {
 
   @Test
   public void findAllOrgaMembers() {
+    // create one user that is NOT allowed to login:
     userService.insertOrUpdate(new User(ID, USERNAME, AVATAR_URL));
     User user = userRepository.findOne(ID);
-    // ensure that user is no organization member
     assertFalse(user.canLogin);
 
+    // create three users that are allowed - with unsorted usernames:
+    final List<String> usernames = Arrays.asList("lalala", "bla", "blubb");
+    usernames.forEach(u -> userService.insertOrUpdate(new User(u.length(), u, "", true)));
+
+    // verify the three allowed users are returned:
     List<User> orgaMembers = userService.findAllOrgaMembers();
     orgaMembers.forEach(mem -> assertTrue(mem.canLogin));
     orgaMembers.forEach(mem -> assertFalse(mem.id == ID));
-    orgaMembers.forEach(mem -> assertFalse(mem.username == USERNAME));
+    orgaMembers.forEach(mem -> assertFalse(mem.username.equals(USERNAME)));
+    assertEquals(3, orgaMembers.size());
+
+    // verify alphabetical sort order:
+    assertEquals(usernames.get(0), orgaMembers.get(2).username);
+    assertEquals(usernames.get(1), orgaMembers.get(0).username);
+    assertEquals(usernames.get(2), orgaMembers.get(1).username);
   }
 
   @Test
