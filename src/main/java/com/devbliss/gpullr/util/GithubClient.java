@@ -1,6 +1,5 @@
 package com.devbliss.gpullr.util;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 
 /**
@@ -12,5 +11,5 @@ import org.apache.http.client.methods.HttpUriRequest;
  */
 public interface GithubClient {
 
-  HttpResponse execute(HttpUriRequest request);
+  GithubHttpResponse execute(HttpUriRequest request);
 }

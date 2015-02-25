@@ -7,6 +7,7 @@ import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.GithubClient;
+import com.devbliss.gpullr.util.GithubHttpResponse;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
 import com.jcabi.http.Request;
@@ -19,14 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonValue.ValueType;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,7 +86,7 @@ public class GithubApi {
 
     try {
       GetGithubEventsRequest req = new GetGithubEventsRequest(repo, etagHeader, 0);
-      HttpResponse resp = githubClient.execute(req);
+      GithubHttpResponse resp = githubClient.execute(req);
       List<PullRequestEvent> events = new ArrayList<>();
       Optional<String> etag = getEtag(resp);
       int nextRequestAfterSeconds = getPollInterval(resp);
@@ -165,31 +163,25 @@ public class GithubApi {
     return handleResponse(resp, mapper, path, 1);
   }
 
-  private Optional<String> getEtag(HttpResponse resp) {
-    Header etagHeader = resp.getLastHeader(HEADER_ETAG);
-
-    if (etagHeader != null) {
-      return Optional.of(etagHeader.getValue());
-    } else {
-      return Optional.empty();
-    }
+  private Optional<String> getEtag(GithubHttpResponse resp) {
+    return Optional.of(resp.headers.get(HEADER_ETAG));
   }
 
-  private int getPollInterval(HttpResponse resp) {
-    Header pollIntervalHeader = resp.getLastHeader(HEADER_POLL_INTERVAL);
+  private int getPollInterval(GithubHttpResponse resp) {
+    String pollIntervalHeader = resp.headers.get(HEADER_POLL_INTERVAL);
 
     if (pollIntervalHeader == null) {
       logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
       return DEFAULT_POLL_INTERVAL;
     }
 
-    return Integer.parseInt(pollIntervalHeader.getValue());
+    return Integer.parseInt(pollIntervalHeader);
   }
 
-  private <T> List<T> handleResponse(HttpResponse resp, Function<JsonObject, T> mapper,
+  private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
       GetGithubEventsRequest nextRequest) throws IOException {
 
-    int statusCode = resp.getStatusLine().getStatusCode();
+    int statusCode = resp.statusCode;
 
     if (statusCode == org.apache.http.HttpStatus.SC_OK) {
       List<T> result = responseToList(resp, mapper);
@@ -228,29 +220,18 @@ public class GithubApi {
         && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains("next"));
   }
 
-  private boolean hasMorePage(HttpResponse resp) {
-    Header[] linkHeader = resp.getHeaders(HEADER_LINK);
-
-    if (linkHeader != null && linkHeader.length > 0) {
-      return Stream.of(linkHeader).filter(h -> h.getValue().contains("next")).findAny().isPresent();
-    }
-
-    return false;
+  private boolean hasMorePage(GithubHttpResponse resp) {
+    String linkHeader = resp.headers.get(HEADER_LINK);
+    return linkHeader != null && linkHeader.contains("next");
   }
 
-  private <T> List<T> responseToList(HttpResponse resp, Function<JsonObject, T> mapper) {
-    JsonReaderFactory jrf = Json.createReaderFactory(null);
+  private <T> List<T> responseToList(GithubHttpResponse resp, Function<JsonObject, T> mapper) {
 
     try {
-      return jrf.createReader(resp.getEntity().getContent())
-        .readArray()
+      return resp.jsonObjects
         .stream()
-        .filter(v -> v.getValueType() == ValueType.OBJECT)
-        .map(v -> (JsonObject) v)
         .map(mapper)
         .collect(Collectors.toList());
-    } catch (IOException e) {
-      throw new UnexpectedException(e);
     } catch (JsonException e) {
       logger.error("Error reading response json: " + e.getMessage());
       logger.error("raw response:");

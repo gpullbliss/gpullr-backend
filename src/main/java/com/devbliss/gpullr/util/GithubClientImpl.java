@@ -1,10 +1,10 @@
 package com.devbliss.gpullr.util;
 
 import com.devbliss.gpullr.exception.UnexpectedException;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class GithubClientImpl implements GithubClient {
   @Value("${github.oauthtoken}")
   private String oauthToken;
 
-  private HttpClient httpClient;
+  private CloseableHttpClient httpClient;
 
   public GithubClientImpl() {
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
@@ -48,14 +48,14 @@ public class GithubClientImpl implements GithubClient {
   }
 
   @Override
-  public HttpResponse execute(HttpUriRequest req) {
+  public GithubHttpResponse execute(HttpUriRequest req) {
     try {
       req.setHeader(AUTHORIZATION_HEADER_KEY, "token " + oauthToken);
       logger.debug("HTTP request against GitHub: " + req.getURI());
-      HttpResponse resp = httpClient.execute(req);
+      CloseableHttpResponse resp = httpClient.execute(req);
       logger.debug("HTTP response from GitHub: " + resp.getStatusLine().getStatusCode() + ", remaining rate limit: "
           + resp.getLastHeader(REMAINING_RATE_LIMIT_HEADER_KEY).getValue());
-      return resp;
+      return new GithubHttpResponse(resp);
     } catch (Exception e) {
       e.printStackTrace();
       throw new UnexpectedException(e);
