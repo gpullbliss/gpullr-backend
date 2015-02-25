@@ -58,6 +58,8 @@ public class GithubApi {
   private static final String FIELD_KEY_TYPE = "type";
 
   private static final String FIELD_KEY_ACTION = "action";
+  
+  private static final int DEFAULT_POLL_INTERVAL = 60;
 
   @Log
   private Logger logger;
@@ -211,8 +213,8 @@ public class GithubApi {
 
   private int getPollInterval(JsonResponse resp) {
     if (resp.headers().get(HEADER_POLL_INTERVAL) == null) {
-      throw new UnexpectedException("No poll interval header set in response, response state was: "
-          + resp.status() + " / " + resp.reason());
+      logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
+      return DEFAULT_POLL_INTERVAL;
     }
 
     return Integer.parseInt(resp.headers().get(HEADER_POLL_INTERVAL).get(0));
@@ -221,9 +223,9 @@ public class GithubApi {
   private int getPollInterval(HttpResponse resp) {
     Header[] pollIntervalHeaders = resp.getHeaders(HEADER_POLL_INTERVAL);
 
-    if (pollIntervalHeaders == null) {
-      throw new UnexpectedException("No poll interval header set in response, response state was: "
-          + resp.getStatusLine().getStatusCode());
+    if (pollIntervalHeaders == null || pollIntervalHeaders.length == 0) {
+      logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
+      return DEFAULT_POLL_INTERVAL;
     }
 
     return Integer.parseInt(pollIntervalHeaders[0].getValue());
@@ -232,27 +234,28 @@ public class GithubApi {
   private <T> List<T> handleResponse(HttpResponse resp, Function<JsonObject, T> mapper,
       GetGithubEventsRequest nextRequest) throws IOException {
 
-    List<T> result = responseToList(resp, mapper);
-
     int statusCode = resp.getStatusLine().getStatusCode();
+    logger.debug("*** got http status: " + statusCode);
 
     if (statusCode == org.apache.http.HttpStatus.SC_OK) {
+      List<T> result = responseToList(resp, mapper);
+
       if (hasMorePage(resp)) {
         logger.debug("******* has more pages");
         resp = githubClient.execute(nextRequest);
         result.addAll(handleResponse(resp, mapper, nextRequest.nextPage()));
       }
+
+      return result;
     }
 
     else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
-      logger.debug("got 304 NOT MODIFIED for " + resp);
+      return new ArrayList<>();
     }
 
     else {
       throw new UnexpectedException("Fetching events from GitHub returned status code " + statusCode);
     }
-
-    return result;
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
