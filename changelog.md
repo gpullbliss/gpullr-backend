@@ -1,5 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
+ - [feature] created extra checkstyle-test.xml to exclude string duplication check from tests
  - [bug] orgamembers sorted by username; pull requests sorted by creation date latest first
  - [feature] endpoint for self-assigning PRs; bug-fixes for fetching PR events from GitHub
  - [feature] user session upon login
@@ -12,4 +13,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Tue Feb 24 10:51:44 CET 2015
+-- Last change by: Philipp Karstedt <philipp.karstedt@devbliss.com> Wed Feb 25 09:38:34 CET 2015
