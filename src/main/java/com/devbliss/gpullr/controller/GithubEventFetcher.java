@@ -6,12 +6,12 @@ import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
 import com.devbliss.gpullr.service.github.PullRequestEventHandler;
+import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationListener;
@@ -31,7 +31,8 @@ import org.springframework.stereotype.Component;
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent> {
 
-  private static final Logger logger = LoggerFactory.getLogger(GithubEventFetcher.class);
+  @Log
+  private Logger logger;
 
   @Autowired
   private GithubApi githubApi;

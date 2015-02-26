@@ -7,6 +7,7 @@ import com.devbliss.gpullr.util.Log;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -20,8 +21,6 @@ import org.springframework.stereotype.Component;
 public class GithubUserFetcher extends AbstractFixedScheduleFetcher {
 
   private static final int HOURS_OF_DAY = 24;
-
-  private static final int SECONDS_PER_HOUR = 3600;
 
   @Log
   private Logger logger;
@@ -58,6 +57,6 @@ public class GithubUserFetcher extends AbstractFixedScheduleFetcher {
     int diff = HOURS_OF_DAY - LocalTime.now().getHour();
     logger.debug("Still " + diff + " hours until midnight.");
     diff++;
-    return Date.from(Instant.now().plusSeconds(diff * SECONDS_PER_HOUR));
+    return Date.from(Instant.now().plus(diff, ChronoUnit.HOURS));
   }
 }
