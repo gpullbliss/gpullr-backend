@@ -54,12 +54,12 @@ public class GithubEventFetcher {
   public void startFetchEventsLoop() {
     List<Repo> allRepos = repoService.findAll();
     logger.info("Start fetching events from GitHub for all " + allRepos.size() + " repos...");
-    int i = 1;
+    int counter = 1;
 
     for (Repo repo : allRepos) {
-      logger.debug("Fetching events for repo: " + repo.name + " ( " + i + ". in list )");
+      logger.debug("Fetching events for repo: " + repo.name + " ( " + counter + ". in list )");
       fetchEvents(repo, Optional.empty());
-      i++;
+      counter++;
     }
   }
 

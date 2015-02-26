@@ -1,8 +1,5 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.util.http.GithubHttpClient;
-import com.devbliss.gpullr.util.http.GithubHttpResponse;
-
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
@@ -10,6 +7,8 @@ import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
+import com.devbliss.gpullr.util.http.GithubHttpClient;
+import com.devbliss.gpullr.util.http.GithubHttpResponse;
 import com.jcabi.github.Github;
 import com.jcabi.http.Request;
 import com.jcabi.http.response.JsonResponse;
@@ -47,6 +46,8 @@ public class GithubApi {
   private static final String HEADER_LINK = "Link";
 
   private static final String FIELD_KEY_ID = "id";
+
+  private static final String HEADER_MARKER_MORE_PAGES = "next";
 
   private static final String FIELD_KEY_NAME = "name";
 
@@ -92,7 +93,7 @@ public class GithubApi {
       Optional<String> etag = getEtag(resp);
       int nextRequestAfterSeconds = getPollInterval(resp);
       GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
-      handleResponse(resp, jo -> parseEvent(jo, repo), req.nextPage()).forEach(
+      handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
           ope -> ope.ifPresent(result.pullRequestEvents::add));
       return result;
     } catch (IOException e) {
@@ -187,19 +188,15 @@ public class GithubApi {
     if (statusCode == org.apache.http.HttpStatus.SC_OK) {
       List<T> result = responseToList(resp, mapper);
 
-      if (hasMorePage(resp)) {
+      if (hasMorePages(resp)) {
         resp = githubClient.execute(nextRequest);
-        result.addAll(handleResponse(resp, mapper, nextRequest.nextPage()));
+        result.addAll(handleResponse(resp, mapper, nextRequest.requestForNextPage()));
       }
 
       return result;
-    }
-
-    else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
+    } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
       return new ArrayList<>();
-    }
-
-    else {
+    } else {
       throw new UnexpectedException("Fetching events from GitHub returned status code " + statusCode);
     }
   }
@@ -209,21 +206,21 @@ public class GithubApi {
 
     List<T> result = responseToList(resp, mapper);
 
-    if (hasMorePage(resp)) {
+    if (hasMorePages(resp)) {
       resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
       result.addAll(handleResponse(resp, mapper, path, page + 1));
     }
     return result;
   }
 
-  private boolean hasMorePage(JsonResponse resp) {
+  private boolean hasMorePages(JsonResponse resp) {
     return resp.headers().keySet().contains(HEADER_LINK)
-        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains("next"));
+        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains(HEADER_MARKER_MORE_PAGES));
   }
 
-  private boolean hasMorePage(GithubHttpResponse resp) {
+  private boolean hasMorePages(GithubHttpResponse resp) {
     String linkHeader = resp.headers.get(HEADER_LINK);
-    return linkHeader != null && linkHeader.contains("next");
+    return linkHeader != null && linkHeader.contains(HEADER_MARKER_MORE_PAGES);
   }
 
   private <T> List<T> responseToList(GithubHttpResponse resp, Function<JsonObject, T> mapper) {
@@ -234,9 +231,6 @@ public class GithubApi {
         .map(mapper)
         .collect(Collectors.toList());
     } catch (JsonException e) {
-      logger.error("Error reading response json: " + e.getMessage());
-      logger.error("raw response:");
-      logger.error(resp.toString());
       throw new UnexpectedException(e);
     }
   }
@@ -254,10 +248,7 @@ public class GithubApi {
         .map(mapper)
         .collect(Collectors.toList());
     } catch (JsonException e) {
-      logger.error("Error reading response json: " + e.getMessage());
-      logger.error("raw response:");
-      logger.error(resp.toString());
-      throw e;
+      throw new UnexpectedException(e);
     }
   }
 }

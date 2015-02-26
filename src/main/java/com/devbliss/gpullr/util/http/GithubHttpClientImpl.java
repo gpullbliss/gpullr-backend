@@ -35,6 +35,7 @@ public class GithubHttpClientImpl implements GithubHttpClient {
   private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
 
   private static final String REMAINING_RATE_LIMIT_HEADER_KEY = "X-RateLimit-Remaining";
+
   private static final String REMAINING_RATE_RESET_HEADER_KEY = "X-RateLimit-Reset";
 
   @Log
@@ -49,9 +50,12 @@ public class GithubHttpClientImpl implements GithubHttpClient {
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
     connectionManager.setDefaultMaxPerRoute(5);
     connectionManager.setMaxTotal(600);
-    RequestConfig config = RequestConfig.custom().setSocketTimeout(4000).setConnectTimeout(4001).setRedirectsEnabled(
-        true).build();
-    httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).setConnectionManager(connectionManager).build();
+    RequestConfig config = RequestConfig.custom().setRedirectsEnabled(true).build();
+    httpClient = HttpClientBuilder
+      .create()
+      .setDefaultRequestConfig(config)
+      .setConnectionManager(connectionManager)
+      .build();
   }
 
   @Override

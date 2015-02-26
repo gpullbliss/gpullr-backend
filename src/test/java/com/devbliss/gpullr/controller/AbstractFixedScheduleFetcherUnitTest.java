@@ -44,7 +44,7 @@ public class AbstractFixedScheduleFetcherUnitTest {
     public int getFetchCallCounter() {
       return fetchCallCounter;
     }
-  };
+  }
   
   private static final Date NEXT_FETCH = Date
       .from(LocalDateTime.of(2100, Month.APRIL, 1, 18, 9).atZone(ZoneId.systemDefault()).toInstant());

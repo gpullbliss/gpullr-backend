@@ -32,7 +32,12 @@ public class GetGithubEventsRequest extends HttpGet {
     configure();
   }
 
-  public GetGithubEventsRequest nextPage() {
+  /**
+   * Returns a new instance with same values as this one but with page parameter incremented by one.
+   * 
+   * @return
+   */
+  public GetGithubEventsRequest requestForNextPage() {
     return new GetGithubEventsRequest(repo, etagHeader, page + 1);
   }
 

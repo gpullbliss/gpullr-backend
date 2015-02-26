@@ -17,8 +17,18 @@ public abstract class AbstractFixedScheduleFetcher {
 
   private static final String NEXT_FETCH_PATTERN = "dd.MM.yyyy HH:mm:ss";
 
+  /**
+   * Calculates the date of the next fetch call.
+   * 
+   * @return date in future.
+   */
   protected abstract Date nextFetch();
 
+  /**
+   * Actual fetch method to be implemented by concrete class. Do not call this directly - call 
+   * {@link #startFetchLoop()} instead!
+   * 
+   */
   protected abstract void fetch();
 
   private TaskScheduler taskScheduler;
