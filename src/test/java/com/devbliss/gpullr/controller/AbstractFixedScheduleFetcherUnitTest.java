@@ -1,11 +1,9 @@
 package com.devbliss.gpullr.controller;
 
-import org.mockito.ArgumentCaptor;
-
-import org.mockito.Captor;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.eq;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
@@ -13,6 +11,8 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class AbstractFixedScheduleFetcherUnitTest {
   @Before
   public void setup() {
     fetcher = new MockAbstractFixedScheduleFetcher();
-    fetcher.setThreadPoolTaskScheduler(executor);
+    fetcher.setTaskScheduler(executor);
     fetcher.logger = logger;
   }
 
