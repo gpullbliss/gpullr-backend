@@ -3,6 +3,7 @@ package com.devbliss.gpullr.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.Repo;
@@ -14,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -37,7 +39,8 @@ public class RepoServiceTest {
 
   @Before
   public void setup() {
-    repoService = new RepoService(repoRepository);
+    ApplicationContext applicationContext = mock(ApplicationContext.class);
+    repoService = new RepoService(repoRepository, applicationContext);
   }
 
   @Test

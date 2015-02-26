@@ -1,5 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
+ - [refactor] Apache HTTP client for repo events requests, paying attention to ETag / 304 NOT MODIFIED
  - [feature] return error dto / json on forbidden (403) error
  - [feature] created extra checkstyle-test.xml to exclude string duplication check from tests
  - [bug] orgamembers sorted by username; pull requests sorted by creation date latest first
@@ -14,4 +15,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Alexander Bluem <alexander.bluem@devbliss.com> Thu Feb 26 11:29:02 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Feb 26 15:04:47 CET 2015

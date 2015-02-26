@@ -37,8 +37,8 @@ public class GithubFetchScheduler {
   @PostConstruct
   public void startExecution() {
     Date startEventsLoop = Date.from(Instant.now().plusSeconds(START_EVENTSLOOP_AFTER_SECONDS));
-    executor.execute(() -> githubReposRefresher.fetchRepos());
-    executor.execute(() -> githubUserFetcher.fetchUsers());
+    executor.execute(() -> githubReposRefresher.startFetchLoop());
+    executor.execute(() -> githubUserFetcher.startFetchLoop());
     executor.schedule(() -> startFetchEventsLoop(), startEventsLoop);
   }
 

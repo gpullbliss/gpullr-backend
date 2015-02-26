@@ -43,6 +43,7 @@ dependencies {
   compile "com.h2database:h2"
   
   compile 'com.jcabi:jcabi-github:0.20'
+  compile 'org.apache.httpcomponents:httpclient:4.3.6'
 
   testCompile "org.mockito:mockito-core:1.+"
   testCompile "org.springframework:spring-test:4.1.4.RELEASE"

@@ -7,6 +7,8 @@ import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
+import com.devbliss.gpullr.util.http.GithubHttpClient;
+import com.devbliss.gpullr.util.http.GithubHttpResponse;
 import com.jcabi.github.Github;
 import com.jcabi.http.Request;
 import com.jcabi.http.response.JsonResponse;
@@ -45,6 +47,8 @@ public class GithubApi {
 
   private static final String FIELD_KEY_ID = "id";
 
+  private static final String HEADER_MARKER_MORE_PAGES = "next";
+
   private static final String FIELD_KEY_NAME = "name";
 
   private static final String FIELD_KEY_DESCRIPTION = "description";
@@ -55,11 +59,16 @@ public class GithubApi {
 
   private static final String FIELD_KEY_ACTION = "action";
 
+  private static final int DEFAULT_POLL_INTERVAL = 60;
+
   @Log
   private Logger logger;
 
   @Autowired
   private Github client;
+
+  @Autowired
+  private GithubHttpClient githubClient;
 
   /**
    * Retrieves all repositories (public, private, forked, etc.) belonging to our organization, from GitHub.
@@ -78,18 +87,15 @@ public class GithubApi {
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
 
     try {
-      String path = "repos/devbliss/" + repo.name + "/events";
-      Request req = client.entry().uri().path(path).back();
-
-      if (etagHeader.isPresent()) {
-        req.header(HEADER_ETAG, etagHeader.get());
-        logger.debug("******** ETAG HEADER PRESENT: " + etagHeader.get());
-      } else {
-        logger.debug("******** ETAG HEADER __NOT__ PRESENT!");
-      }
-
-      final JsonResponse resp = req.fetch().as(JsonResponse.class);
-      return handleGithubEventsResponse(resp, jo -> parseEvent(jo, repo), path, 1);
+      GetGithubEventsRequest req = new GetGithubEventsRequest(repo, etagHeader, 0);
+      GithubHttpResponse resp = githubClient.execute(req);
+      List<PullRequestEvent> events = new ArrayList<>();
+      Optional<String> etag = getEtag(resp);
+      int nextRequestAfterSeconds = getPollInterval(resp);
+      GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+      handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
+          ope -> ope.ifPresent(result.pullRequestEvents::add));
+      return result;
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -159,34 +165,40 @@ public class GithubApi {
     return handleResponse(resp, mapper, path, 1);
   }
 
-  private GithubEventsResponse handleGithubEventsResponse(JsonResponse resp,
-      Function<JsonObject, Optional<PullRequestEvent>> mapper,
-      String path, int page)
-      throws IOException {
-
-    List<PullRequestEvent> events = new ArrayList<>();
-    Optional<String> etag = getEtag(resp);
-    int nextRequestAfterSeconds = getPollInterval(resp);
-    GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
-    handleResponse(resp, mapper, path, page + 1).forEach(ope -> ope.ifPresent(result.pullRequestEvents::add));
-    return result;
+  private Optional<String> getEtag(GithubHttpResponse resp) {
+    return Optional.of(resp.headers.get(HEADER_ETAG));
   }
 
-  private Optional<String> getEtag(JsonResponse resp) {
-    if (resp.headers().containsKey(HEADER_ETAG)) {
-      return Optional.of(resp.headers().get(HEADER_ETAG).get(0));
+  private int getPollInterval(GithubHttpResponse resp) {
+    String pollIntervalHeader = resp.headers.get(HEADER_POLL_INTERVAL);
+
+    if (pollIntervalHeader == null) {
+      logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
+      return DEFAULT_POLL_INTERVAL;
+    }
+
+    return Integer.parseInt(pollIntervalHeader);
+  }
+
+  private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
+      GetGithubEventsRequest nextRequest) throws IOException {
+
+    int statusCode = resp.statusCode;
+
+    if (statusCode == org.apache.http.HttpStatus.SC_OK) {
+      List<T> result = responseToList(resp, mapper);
+
+      if (hasMorePages(resp)) {
+        resp = githubClient.execute(nextRequest);
+        result.addAll(handleResponse(resp, mapper, nextRequest.requestForNextPage()));
+      }
+
+      return result;
+    } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
+      return new ArrayList<>();
     } else {
-      return Optional.empty();
+      throw new UnexpectedException("Fetching events from GitHub returned status code " + statusCode);
     }
-  }
-
-  private int getPollInterval(JsonResponse resp) {
-    if (resp.headers().get(HEADER_POLL_INTERVAL) == null) {
-      throw new UnexpectedException("No poll interval header set in response, response state was: "
-          + resp.status() + " / " + resp.reason());
-    }
-
-    return Integer.parseInt(resp.headers().get(HEADER_POLL_INTERVAL).get(0));
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
@@ -194,16 +206,33 @@ public class GithubApi {
 
     List<T> result = responseToList(resp, mapper);
 
-    if (hasMorePage(resp)) {
+    if (hasMorePages(resp)) {
       resp = client.entry().uri().path(path).queryParam("page", page).back().fetch().as(JsonResponse.class);
       result.addAll(handleResponse(resp, mapper, path, page + 1));
     }
     return result;
   }
 
-  private boolean hasMorePage(JsonResponse resp) {
+  private boolean hasMorePages(JsonResponse resp) {
     return resp.headers().keySet().contains(HEADER_LINK)
-        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains("next"));
+        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains(HEADER_MARKER_MORE_PAGES));
+  }
+
+  private boolean hasMorePages(GithubHttpResponse resp) {
+    String linkHeader = resp.headers.get(HEADER_LINK);
+    return linkHeader != null && linkHeader.contains(HEADER_MARKER_MORE_PAGES);
+  }
+
+  private <T> List<T> responseToList(GithubHttpResponse resp, Function<JsonObject, T> mapper) {
+
+    try {
+      return resp.jsonObjects
+        .stream()
+        .map(mapper)
+        .collect(Collectors.toList());
+    } catch (JsonException e) {
+      throw new UnexpectedException(e);
+    }
   }
 
   private <T> List<T> responseToList(JsonResponse resp, Function<JsonObject, T> mapper) {
@@ -219,10 +248,7 @@ public class GithubApi {
         .map(mapper)
         .collect(Collectors.toList());
     } catch (JsonException e) {
-      logger.error("Error reading response json: " + e.getMessage());
-      logger.error("raw response:");
-      logger.error(resp.toString());
-      throw e;
+      throw new UnexpectedException(e);
     }
   }
 }
