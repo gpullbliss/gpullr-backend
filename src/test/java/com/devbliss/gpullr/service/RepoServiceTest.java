@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.devbliss.gpullr.Application;
-import com.devbliss.gpullr.controller.GithubEventFetcher;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.repository.RepoRepository;
 import java.util.List;
@@ -16,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -39,8 +39,8 @@ public class RepoServiceTest {
 
   @Before
   public void setup() {
-    GithubEventFetcher githubEventFetcher = mock(GithubEventFetcher.class);
-    repoService = new RepoService(repoRepository, githubEventFetcher);
+    ApplicationContext applicationContext = mock(ApplicationContext.class);
+    repoService = new RepoService(repoRepository, applicationContext);
   }
 
   @Test

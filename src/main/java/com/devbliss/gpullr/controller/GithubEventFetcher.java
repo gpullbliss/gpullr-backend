@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.domain.RepoCreatedEvent;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
@@ -27,7 +29,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class GithubEventFetcher {
+public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent> {
 
   private static final Logger logger = LoggerFactory.getLogger(GithubEventFetcher.class);
 
@@ -64,13 +66,14 @@ public class GithubEventFetcher {
   }
 
   /**
-   * Must be called when a new repo has been created in order to add it to the fetching loop.
+   * Adds new repo to the fetching loop.
    * 
    * @param repo
    */
-  public void addRepoToFetchEventsLooop(Repo repo) {
-    logger.debug("Added new repo to fetch events loop: " + repo.name);
-    fetchEvents(repo, Optional.empty());
+  @Override
+  public void onApplicationEvent(RepoCreatedEvent event) {
+    logger.debug("Added new repo to fetch events loop: " + event.createdRepo.name);
+    fetchEvents(event.createdRepo, Optional.empty());
   }
 
   private void fetchEvents(Repo repo, Optional<String> etagHeader) {

@@ -1,13 +1,14 @@
 package com.devbliss.gpullr.service;
 
-import com.devbliss.gpullr.controller.GithubEventFetcher;
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.domain.RepoCreatedEvent;
 import com.devbliss.gpullr.repository.RepoRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,12 +21,12 @@ public class RepoService {
 
   private final RepoRepository repoRepository;
 
-  private final GithubEventFetcher githubEventFetcher;
+  private final ApplicationContext applicationContext;
 
   @Autowired
-  public RepoService(RepoRepository repoRepository, GithubEventFetcher githubEventFetcher) {
+  public RepoService(RepoRepository repoRepository, ApplicationContext applicationContext) {
     this.repoRepository = repoRepository;
-    this.githubEventFetcher = githubEventFetcher;
+    this.applicationContext = applicationContext;
   }
 
   public Optional<Repo> findByName(String name) {
@@ -37,7 +38,7 @@ public class RepoService {
     repoRepository.save(repo);
 
     if (!existing.isPresent()) {
-      githubEventFetcher.addRepoToFetchEventsLooop(repo);
+      applicationContext.publishEvent(new RepoCreatedEvent(this, repo));
     }
   }
 
