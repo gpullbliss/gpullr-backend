@@ -5,7 +5,6 @@ import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.util.Log;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.Date;
@@ -42,7 +41,7 @@ public class GithubUserFetcher extends AbstractFixedScheduleFetcher {
       logger.error("Error fetching users from GitHub: " + e.getMessage(), e);
     }
   }
-  
+
   private void handleUser(User user) {
     logger.debug("fetched user: " + user.username);
     user.canLogin = true;

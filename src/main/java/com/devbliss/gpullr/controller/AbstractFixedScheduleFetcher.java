@@ -1,12 +1,19 @@
 package com.devbliss.gpullr.controller;
 
-import java.text.SimpleDateFormat;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.SimpleDateFormat;
 import com.devbliss.gpullr.util.Log;
 import org.slf4j.Logger;
 import java.util.Date;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+/**
+ * Abstract superclass for fetcher that fetch in a fixed interval, e.g. every two hours.
+ *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 public abstract class AbstractFixedScheduleFetcher {
 
   private static final String NEXT_FETCH_PATTERN = "dd.MM.yyyy HH:mm:ss";
@@ -15,24 +22,25 @@ public abstract class AbstractFixedScheduleFetcher {
 
   protected abstract void fetch();
 
-  private final ThreadPoolTaskScheduler executor;
+  private ThreadPoolTaskScheduler executor;
 
   @Log
-  private Logger logger;
+  Logger logger;
 
-  protected AbstractFixedScheduleFetcher() {
-    executor = new ThreadPoolTaskScheduler();
-    executor.initialize();
+  @Autowired
+  public void setThreadPoolTaskScheduler(ThreadPoolTaskScheduler executor) {
+    this.executor = executor;
+    this.executor.initialize();
   }
 
   public void startFetchLoop() {
     logger.info(getClass().getSimpleName() + " starts fetching from GitHub...");
     fetch();
     Date nextFetch = nextFetch();
+    executor.schedule(() -> startFetchLoop(), nextFetch);
     logger.info(getClass().getSimpleName()
         + " finished fetching from GitHub, next fetch scheduled for "
         + formatNextFetch(nextFetch));
-    executor.schedule(() -> fetch(), nextFetch);
   }
 
   private String formatNextFetch(Date nextFetch) {
