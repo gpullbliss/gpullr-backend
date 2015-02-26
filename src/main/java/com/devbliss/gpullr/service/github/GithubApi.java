@@ -1,13 +1,14 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.util.http.GithubHttpClient;
+import com.devbliss.gpullr.util.http.GithubHttpResponse;
+
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
-import com.devbliss.gpullr.util.GithubClient;
-import com.devbliss.gpullr.util.GithubHttpResponse;
 import com.devbliss.gpullr.util.Log;
 import com.jcabi.github.Github;
 import com.jcabi.http.Request;
@@ -66,7 +67,7 @@ public class GithubApi {
   private Github client;
 
   @Autowired
-  private GithubClient githubClient;
+  private GithubHttpClient githubClient;
 
   /**
    * Retrieves all repositories (public, private, forked, etc.) belonging to our organization, from GitHub.

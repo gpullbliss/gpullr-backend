@@ -1,4 +1,4 @@
-package com.devbliss.gpullr.util;
+package com.devbliss.gpullr.util.http;
 
 import com.devbliss.gpullr.exception.UnexpectedException;
 import java.io.IOException;
@@ -15,6 +15,13 @@ import javax.json.JsonValue.ValueType;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
+/**
+ * Wraps a HTTP response received from GitHub API. Contains headers, statuscode and the response body (if any) parsed
+ * to a list of {@link JsonObject}s.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 public class GithubHttpResponse {
 
   public final List<JsonObject> jsonObjects;
@@ -23,7 +30,18 @@ public class GithubHttpResponse {
 
   public final int statusCode;
 
-  public GithubHttpResponse(CloseableHttpResponse resp) {
+  /**
+   * Creates an instance of {@link GithubHttpResponse} from a HttpResponse. Makes sure the http response is closed
+   * after processing.
+   * 
+   * @param resp
+   * @return
+   */
+  public static GithubHttpResponse create(CloseableHttpResponse resp) {
+    return new GithubHttpResponse(resp);
+  }
+
+  private GithubHttpResponse(CloseableHttpResponse resp) {
     headers = parseHeaders(resp);
     statusCode = resp.getStatusLine().getStatusCode();
 

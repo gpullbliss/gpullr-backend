@@ -1,6 +1,13 @@
-package com.devbliss.gpullr.util;
+package com.devbliss.gpullr.util.http;
+
+import com.devbliss.gpullr.util.Log;
 
 import com.devbliss.gpullr.exception.UnexpectedException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -24,11 +31,12 @@ import org.springframework.stereotype.Component;
 @Component
 @Qualifier("githubClientImpl")
 @Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class GithubClientImpl implements GithubClient {
+public class GithubHttpClientImpl implements GithubHttpClient {
 
   private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
 
   private static final String REMAINING_RATE_LIMIT_HEADER_KEY = "X-RateLimit-Remaining";
+  private static final String REMAINING_RATE_RESET_HEADER_KEY = "X-RateLimit-Reset";
 
   @Log
   private Logger logger;
@@ -38,7 +46,7 @@ public class GithubClientImpl implements GithubClient {
 
   private CloseableHttpClient httpClient;
 
-  public GithubClientImpl() {
+  public GithubHttpClientImpl() {
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
     connectionManager.setDefaultMaxPerRoute(5);
     connectionManager.setMaxTotal(600);
@@ -53,12 +61,27 @@ public class GithubClientImpl implements GithubClient {
       req.setHeader(AUTHORIZATION_HEADER_KEY, "token " + oauthToken);
       logger.debug("HTTP request against GitHub: " + req.getURI());
       CloseableHttpResponse resp = httpClient.execute(req);
-      logger.debug("HTTP response from GitHub: " + resp.getStatusLine().getStatusCode() + ", remaining rate limit: "
-          + resp.getLastHeader(REMAINING_RATE_LIMIT_HEADER_KEY).getValue());
-      return new GithubHttpResponse(resp);
+      logResponse(resp);
+      return GithubHttpResponse.create(resp);
     } catch (Exception e) {
-      e.printStackTrace();
       throw new UnexpectedException(e);
     }
+  }
+
+  private void logResponse(HttpResponse resp) {
+    logger.debug("HTTP response from GitHub: "
+        + resp.getStatusLine().getStatusCode()
+        + ", remaining rate limit: "
+        + resp.getLastHeader(REMAINING_RATE_LIMIT_HEADER_KEY).getValue()
+        + ", reset at: "
+        + parseRateLimitResetTime(resp));
+  }
+
+  private String parseRateLimitResetTime(HttpResponse resp) {
+    long epoch = Long.valueOf(resp.getLastHeader(REMAINING_RATE_RESET_HEADER_KEY).getValue());
+    ZonedDateTime ts = ZonedDateTime
+      .ofInstant(Instant.ofEpochSecond(epoch), ZoneId.of("UTC"))
+      .withZoneSameInstant(ZoneId.systemDefault());
+    return ts.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
   }
 }

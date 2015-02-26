@@ -1,4 +1,4 @@
-package com.devbliss.gpullr.util;
+package com.devbliss.gpullr.util.http;
 
 import org.apache.http.client.methods.HttpUriRequest;
 
@@ -8,11 +8,10 @@ import org.apache.http.client.methods.HttpUriRequest;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
-public class GithubClientImplNoop implements GithubClient {
+public class GithubHttpClientImplNoop implements GithubHttpClient {
 
   @Override
   public GithubHttpResponse execute(HttpUriRequest request) {
     return null;
   }
-
 }
