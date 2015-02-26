@@ -3,8 +3,10 @@ package com.devbliss.gpullr.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.devbliss.gpullr.Application;
+import com.devbliss.gpullr.controller.GithubEventFetcher;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.repository.RepoRepository;
 import java.util.List;
@@ -37,7 +39,8 @@ public class RepoServiceTest {
 
   @Before
   public void setup() {
-    repoService = new RepoService(repoRepository);
+    GithubEventFetcher githubEventFetcher = mock(GithubEventFetcher.class);
+    repoService = new RepoService(repoRepository, githubEventFetcher);
   }
 
   @Test

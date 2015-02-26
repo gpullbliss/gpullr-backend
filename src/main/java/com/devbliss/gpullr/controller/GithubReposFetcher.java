@@ -1,23 +1,24 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.util.Log;
-import java.util.List;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * Since the events endpoint of GitHub does *not* deliver the event that a new repository has been created
- * (unlike the documentation tells), this class fetches the full list of repositories and store
+ * (unlike the documentation tells), this class fetches the full list of repositories and stores
  * changes in our persistence layer.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
-public class GithubReposFetcher {
+public class GithubReposFetcher extends AbstractFixedScheduleFetcher {
 
   @Log
   private Logger logger;
@@ -28,17 +29,19 @@ public class GithubReposFetcher {
   @Autowired
   private RepoService repoService;
 
-  public void fetchRepos() {
-    logger.info("Fetching repos from GitHub...");
+  @Override
+  protected void fetch() {
+    githubApi.fetchAllGithubRepos().forEach(r -> {
+      logger.debug(String.format("fetched repo: %d %s", r.id, r.name));
+      repoService.insertOrUpdate(r);
+    });
+  }
 
-    List<Repo> repos = githubApi.fetchAllGithubRepos();
-
-    repos.forEach(r -> {
-          logger.debug(String.format("fetched repo: [%d][%s]", r.id, r.name));
-          repoService.insertOrUpdate(r);
-        }
-    );
-
-    logger.info("Finished fetching repos from GitHub.");
+  /**
+   * 
+   */
+  @Override
+  protected Date nextFetch() {
+    return Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
   }
 }

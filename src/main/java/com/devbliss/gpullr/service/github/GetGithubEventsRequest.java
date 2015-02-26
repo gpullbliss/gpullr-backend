@@ -5,9 +5,14 @@ import java.net.URI;
 import java.util.Optional;
 import org.apache.http.client.methods.HttpGet;
 
+/**
+ * Request against GitHub API for fetching all events of a certain repository.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 public class GetGithubEventsRequest extends HttpGet {
 
-  // private static final String HEADER_ETAG = "ETag";
   private static final String HEADER_ETAG = "If-None-Match";
 
   private static final String URI_TEMPLATE = "https://api.github.com/repos/devbliss/%s/events";

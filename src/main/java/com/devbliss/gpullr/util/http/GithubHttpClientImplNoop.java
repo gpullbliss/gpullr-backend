@@ -1,6 +1,6 @@
 package com.devbliss.gpullr.util.http;
 
-import org.apache.http.client.methods.HttpUriRequest;
+import com.devbliss.gpullr.service.github.GetGithubEventsRequest;
 
 /**
  * Implementation that does no real calls. To be used as mock, for tests etc.
@@ -11,7 +11,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 public class GithubHttpClientImplNoop implements GithubHttpClient {
 
   @Override
-  public GithubHttpResponse execute(HttpUriRequest request) {
+  public GithubHttpResponse execute(GetGithubEventsRequest request) {
     return null;
   }
 }

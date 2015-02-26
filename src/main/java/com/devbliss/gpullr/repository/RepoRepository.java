@@ -13,4 +13,5 @@ public interface RepoRepository extends CrudRepository<Repo, Integer> {
 
   Optional<Repo> findByName(String name);
 
+  Optional<Repo> findById(Integer id);
 }

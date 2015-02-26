@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.util.http;
 
-import com.devbliss.gpullr.util.Log;
-
 import com.devbliss.gpullr.exception.UnexpectedException;
+import com.devbliss.gpullr.service.github.GetGithubEventsRequest;
+import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -56,7 +55,7 @@ public class GithubHttpClientImpl implements GithubHttpClient {
   }
 
   @Override
-  public GithubHttpResponse execute(HttpUriRequest req) {
+  public GithubHttpResponse execute(GetGithubEventsRequest req) {
     try {
       req.setHeader(AUTHORIZATION_HEADER_KEY, "token " + oauthToken);
       logger.debug("HTTP request against GitHub: " + req.getURI());

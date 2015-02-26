@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.controller.GithubEventFetcher;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.repository.RepoRepository;
 import java.util.List;
@@ -19,9 +20,12 @@ public class RepoService {
 
   private final RepoRepository repoRepository;
 
+  private final GithubEventFetcher githubEventFetcher;
+
   @Autowired
-  public RepoService(RepoRepository repoRepository) {
+  public RepoService(RepoRepository repoRepository, GithubEventFetcher githubEventFetcher) {
     this.repoRepository = repoRepository;
+    this.githubEventFetcher = githubEventFetcher;
   }
 
   public Optional<Repo> findByName(String name) {
@@ -29,7 +33,12 @@ public class RepoService {
   }
 
   public void insertOrUpdate(Repo repo) {
+    Optional<Repo> existing = repoRepository.findById(repo.id);
     repoRepository.save(repo);
+
+    if (!existing.isPresent()) {
+      githubEventFetcher.addRepoToFetchEventsLooop(repo);
+    }
   }
 
   public List<Repo> findAll() {

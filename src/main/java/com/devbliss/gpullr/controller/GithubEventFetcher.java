@@ -48,16 +48,29 @@ public class GithubEventFetcher {
     executor.setPoolSize(600);
   }
 
+  /**
+   * Starts the fetching loop. Must be called once at application start.
+   */
   public void startFetchEventsLoop() {
     List<Repo> allRepos = repoService.findAll();
     logger.info("Start fetching events from GitHub for all " + allRepos.size() + " repos...");
     int i = 1;
 
     for (Repo repo : allRepos) {
-      logger.debug("Fetching events for repo: " + repo.name + " ( " + i + " )");
+      logger.debug("Fetching events for repo: " + repo.name + " ( " + i + ". in list )");
       fetchEvents(repo, Optional.empty());
       i++;
     }
+  }
+
+  /**
+   * Must be called when a new repo has been created in order to add it to the fetching loop.
+   * 
+   * @param repo
+   */
+  public void addRepoToFetchEventsLooop(Repo repo) {
+    logger.debug("Added new repo to fetch events loop: " + repo.name);
+    fetchEvents(repo, Optional.empty());
   }
 
   private void fetchEvents(Repo repo, Optional<String> etagHeader) {
@@ -68,8 +81,11 @@ public class GithubEventFetcher {
     response.pullRequestEvents.forEach(pullRequestEventHandler::handlePullRequestEvent);
     Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
     executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
-    logger.debug("Fetched " + response.pullRequestEvents.size() + " PR events for " + repo.name
-        + " / active threads in executeur=" + executor.getActiveCount() + ", queue="
+    logger.debug("Fetched "
+        + response.pullRequestEvents.size()
+        + " PR events for " + repo.name
+        + " / active threads in executor="
+        + executor.getActiveCount() + ", queueSize="
         + executor.getScheduledThreadPoolExecutor().getQueue().size());
 
   }
