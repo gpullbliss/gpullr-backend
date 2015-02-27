@@ -24,6 +24,7 @@ import javax.json.Json;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
+import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,7 +154,12 @@ public class GithubApi {
     pullRequest.linesRemoved = pullRequestJson.getInt("deletions");
     pullRequest.filesChanged = pullRequestJson.getInt("changed_files");
     pullRequest.number = pullRequestJson.getInt("number");
-    pullRequest.assignee = parseUser(pullRequestJson.getJsonObject("assignee"));
+    JsonValue assigneeValue = pullRequestJson.get("assignee");
+
+    if (assigneeValue.getValueType() == ValueType.OBJECT) {
+      pullRequest.assignee = parseUser((JsonObject) assigneeValue);
+    }
+
     return pullRequest;
   }
 
