@@ -24,6 +24,7 @@ public class PullRequestConverter {
     dto.linesRemoved = entity.deletions;
     dto.status = entity.state.toString();
     dto.assignee = entity.assignee;
+    dto.number = entity.number;
     return dto;
   }
 }

@@ -25,4 +25,6 @@ public class PullRequestDto {
   public String status;
   
   public User assignee;
+  
+  public Integer number;
 }

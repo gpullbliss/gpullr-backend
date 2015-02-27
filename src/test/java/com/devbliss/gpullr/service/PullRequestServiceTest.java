@@ -66,7 +66,6 @@ public class PullRequestServiceTest {
   @Autowired
   private RepoRepository repoRepository;
 
-  // @Autowired
   private GithubApi githubApi;
 
   private PullRequestService prService;
