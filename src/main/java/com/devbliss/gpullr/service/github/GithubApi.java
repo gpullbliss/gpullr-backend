@@ -60,6 +60,8 @@ public class GithubApi {
 
   private static final String FIELD_KEY_ACTION = "action";
 
+  private static final String FIELD_KEY_ASSIGNEE = "assignee";
+
   private static final int DEFAULT_POLL_INTERVAL = 60;
 
   @Log
@@ -107,7 +109,7 @@ public class GithubApi {
   }
 
   public void assignUserToPullRequest(User user, PullRequest pull) {
-    JsonObject json = Json.createObjectBuilder().add("assignee", user.username).build();
+    JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, user.username).build();
     final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
 
     try {
@@ -154,7 +156,7 @@ public class GithubApi {
     pullRequest.linesRemoved = pullRequestJson.getInt("deletions");
     pullRequest.filesChanged = pullRequestJson.getInt("changed_files");
     pullRequest.number = pullRequestJson.getInt("number");
-    JsonValue assigneeValue = pullRequestJson.get("assignee");
+    JsonValue assigneeValue = pullRequestJson.get(FIELD_KEY_ASSIGNEE);
 
     if (assigneeValue.getValueType() == ValueType.OBJECT) {
       pullRequest.assignee = parseUser((JsonObject) assigneeValue);
