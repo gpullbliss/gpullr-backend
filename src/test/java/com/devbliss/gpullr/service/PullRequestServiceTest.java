@@ -66,7 +66,6 @@ public class PullRequestServiceTest {
   @Autowired
   private RepoRepository repoRepository;
 
-  // @Autowired
   private GithubApi githubApi;
 
   private PullRequestService prService;
@@ -79,7 +78,7 @@ public class PullRequestServiceTest {
     prService = new PullRequestService(prRepository, userRepository, githubApi);
     testPr = new PullRequest();
     testPr.id = PR_ID;
-    testPr.owner = initUser();
+    testPr.author = initUser();
     testPr.repo = initRepo();
     testPr.state = PullRequest.State.OPEN;
     testPr.createdAt = ZonedDateTime.now();
@@ -102,7 +101,7 @@ public class PullRequestServiceTest {
     prs = prService.findAll();
     assertEquals(1, prs.size());
     int fetchedPrId = prs.get(0).id;
-    int fetchedPrUserId = prs.get(0).owner.id;
+    int fetchedPrUserId = prs.get(0).author.id;
     int fetchedPrRepoId = prs.get(0).repo.id;
     State fetchedState = prs.get(0).state;
 
@@ -121,7 +120,7 @@ public class PullRequestServiceTest {
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = PR_ID + 1;
     pullRequest.repo = testPr.repo;
-    pullRequest.owner = testPr.owner;
+    pullRequest.author = testPr.author;
     pullRequest.state = State.CLOSED;
     pullRequest.createdAt = ZonedDateTime.now();
     prService.insertOrUpdate(pullRequest);
@@ -140,7 +139,7 @@ public class PullRequestServiceTest {
     pullRequest.id = PR_ID + 1;
     pullRequest.repo = testPr.repo;
     pullRequest.state = State.OPEN;
-    pullRequest.owner = testPr.owner;
+    pullRequest.author = testPr.author;
     pullRequest.createdAt = ZonedDateTime.now();
     prService.insertOrUpdate(pullRequest);
 
@@ -163,7 +162,7 @@ public class PullRequestServiceTest {
     pullRequest.id = PR_ID + 1;
     pullRequest.repo = testPr.repo;
     pullRequest.state = State.OPEN;
-    pullRequest.owner = testPr.owner;
+    pullRequest.author = testPr.author;
     pullRequest.createdAt = ZonedDateTime.now();
     prService.insertOrUpdate(pullRequest);
 
@@ -179,7 +178,7 @@ public class PullRequestServiceTest {
     pullRequest.id = PR_ID + 1;
     pullRequest.repo = testPr.repo;
     pullRequest.state = State.CLOSED;
-    pullRequest.owner = testPr.owner;
+    pullRequest.author = testPr.author;
     pullRequest.createdAt = ZonedDateTime.now();
     prService.insertOrUpdate(pullRequest);
 

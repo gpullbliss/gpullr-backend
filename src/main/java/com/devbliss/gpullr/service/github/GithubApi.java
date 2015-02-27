@@ -24,6 +24,7 @@ import javax.json.Json;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
+import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,8 @@ public class GithubApi {
   private static final String FIELD_KEY_TYPE = "type";
 
   private static final String FIELD_KEY_ACTION = "action";
+
+  private static final String FIELD_KEY_ASSIGNEE = "assignee";
 
   private static final int DEFAULT_POLL_INTERVAL = 60;
 
@@ -106,7 +109,7 @@ public class GithubApi {
   }
 
   public void assignUserToPullRequest(User user, PullRequest pull) {
-    JsonObject json = Json.createObjectBuilder().add("assignee", user.username).build();
+    JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, user.username).build();
     final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
 
     try {
@@ -148,11 +151,17 @@ public class GithubApi {
     pullRequest.url = pullRequestJson.getString("html_url");
     pullRequest.title = pullRequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullRequestJson.getString("created_at"));
-    pullRequest.owner = parseUser(pullRequestJson.getJsonObject("user"));
-    pullRequest.additions = pullRequestJson.getInt("additions");
-    pullRequest.deletions = pullRequestJson.getInt("deletions");
-    pullRequest.changedFiles = pullRequestJson.getInt("changed_files");
+    pullRequest.author = parseUser(pullRequestJson.getJsonObject("user"));
+    pullRequest.linesAdded = pullRequestJson.getInt("additions");
+    pullRequest.linesRemoved = pullRequestJson.getInt("deletions");
+    pullRequest.filesChanged = pullRequestJson.getInt("changed_files");
     pullRequest.number = pullRequestJson.getInt("number");
+    JsonValue assigneeValue = pullRequestJson.get(FIELD_KEY_ASSIGNEE);
+
+    if (assigneeValue.getValueType() == ValueType.OBJECT) {
+      pullRequest.assignee = parseUser((JsonObject) assigneeValue);
+    }
+
     return pullRequest;
   }
 

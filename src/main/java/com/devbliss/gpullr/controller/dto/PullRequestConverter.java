@@ -16,14 +16,15 @@ public class PullRequestConverter {
     dto.id = entity.id;
     dto.title = entity.title;
     dto.url = entity.url;
-    dto.repository = entity.repo.name;
-    dto.author = entity.owner;
-    dto.creationDate = entity.createdAt.toString();
-    dto.filesChanged = entity.changedFiles;
-    dto.linesAdded = entity.additions;
-    dto.linesRemoved = entity.deletions;
+    dto.repoName = entity.repo.name;
+    dto.author = entity.author;
+    dto.createdAt = entity.createdAt.toString();
+    dto.filesChanged = entity.filesChanged;
+    dto.linesAdded = entity.linesAdded;
+    dto.linesRemoved = entity.linesRemoved;
     dto.status = entity.state.toString();
     dto.assignee = entity.assignee;
+    dto.number = entity.number;
     return dto;
   }
 }
