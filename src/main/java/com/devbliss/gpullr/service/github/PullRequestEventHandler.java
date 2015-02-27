@@ -50,7 +50,7 @@ public class PullRequestEventHandler {
 
     if (pullRequestFromEvent.assignee != null) {
       logger.debug("2assigned_assignee_to_pullrequest: " + pullRequestFromEvent.title + " // "
-          + pullRequestFromEvent.assignee);
+          + pullRequestFromEvent.assignee + " // " + pullRequestFromEvent.state);
     }
     pullRequestService.insertOrUpdate(pullRequestFromEvent);
   }
