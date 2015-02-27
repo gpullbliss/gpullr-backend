@@ -160,7 +160,6 @@ public class GithubApi {
 
     if (assigneeValue.getValueType() == ValueType.OBJECT) {
       pullRequest.assignee = parseUser((JsonObject) assigneeValue);
-      logger.debug("assigned_assignee_to_pullrequest: " + pullRequest.assignee);
     }
 
     return pullRequest;

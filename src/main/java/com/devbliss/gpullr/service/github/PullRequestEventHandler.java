@@ -46,7 +46,12 @@ public class PullRequestEventHandler {
       pullRequestFromEvent.state = State.OPEN;
     }
 
-    logger.debug("handling pr ev: " + event.pullRequest.title + " / " + event.pullRequest.state);
+    logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
+
+    if (pullRequestFromEvent.assignee != null) {
+      logger.debug("assigned_assignee_to_pullrequest: " + pullRequestFromEvent.title + " // "
+          + pullRequestFromEvent.assignee);
+    }
     pullRequestService.insertOrUpdate(pullRequestFromEvent);
   }
 }
