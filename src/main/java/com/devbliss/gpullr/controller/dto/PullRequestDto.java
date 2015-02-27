@@ -10,11 +10,11 @@ public class PullRequestDto {
   
   public String url;
   
-  public String repository;
+  public String repoName;
   
   public User author;
   
-  public String creationDate;
+  public String createdAt;
   
   public Integer filesChanged;
   

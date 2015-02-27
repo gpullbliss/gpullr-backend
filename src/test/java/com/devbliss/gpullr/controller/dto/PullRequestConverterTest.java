@@ -70,14 +70,14 @@ public class PullRequestConverterTest {
   public void setup() {
     pullRequestConverter = new PullRequestConverter();
     entity = new PullRequest();
-    entity.additions = LINES_ADDED;
+    entity.linesAdded = LINES_ADDED;
     entity.assignee = ASSIGNEE;
-    entity.changedFiles = FILES_CHANGED;
+    entity.filesChanged = FILES_CHANGED;
     entity.createdAt = CREATED_AT;
-    entity.deletions = LINES_REMOVED;
+    entity.linesRemoved = LINES_REMOVED;
     entity.id = ID;
     entity.number = NUMBER;
-    entity.owner = OWNER;
+    entity.author = OWNER;
     entity.repo = REPO;
     entity.state = STATE;
     entity.title = TITLE;
@@ -92,14 +92,14 @@ public class PullRequestConverterTest {
     assertEquals(ASSIGNEE_ID, dto.assignee.id);
     assertEquals(ASSIGNEE_USERNAME, dto.assignee.username);
     assertEquals(FILES_CHANGED, dto.filesChanged);
-    assertEquals(CREATED_AT_STRING, dto.creationDate);
+    assertEquals(CREATED_AT_STRING, dto.createdAt);
     assertEquals(LINES_REMOVED, dto.linesRemoved);
     assertEquals(ID, dto.id);
     assertEquals(NUMBER, dto.number);
     assertEquals(OWNER_AVATAR_URL, dto.author.avatarUrl);
     assertEquals(OWNER_ID, dto.author.id);
     assertEquals(OWNER_USERNAME, dto.author.username);
-    assertEquals(REPO_NAME, dto.repository);
+    assertEquals(REPO_NAME, dto.repoName);
     assertEquals(STATE.name(), dto.status);
     assertEquals(TITLE, dto.title);
     assertEquals(URL, dto.url);

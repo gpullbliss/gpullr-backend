@@ -30,7 +30,7 @@ public class PullRequest {
   public Repo repo;
 
   @ManyToOne(optional = false)
-  public User owner;
+  public User author;
 
   @ManyToOne(optional = true)
   public User assignee;
@@ -50,11 +50,11 @@ public class PullRequest {
    */
   public Integer number;
 
-  public Integer additions;
+  public Integer linesAdded;
 
-  public Integer deletions;
+  public Integer linesRemoved;
 
-  public Integer changedFiles;
+  public Integer filesChanged;
 
   @Override
   public int hashCode() {

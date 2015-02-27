@@ -148,11 +148,12 @@ public class GithubApi {
     pullRequest.url = pullRequestJson.getString("html_url");
     pullRequest.title = pullRequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullRequestJson.getString("created_at"));
-    pullRequest.owner = parseUser(pullRequestJson.getJsonObject("user"));
-    pullRequest.additions = pullRequestJson.getInt("additions");
-    pullRequest.deletions = pullRequestJson.getInt("deletions");
-    pullRequest.changedFiles = pullRequestJson.getInt("changed_files");
+    pullRequest.author = parseUser(pullRequestJson.getJsonObject("user"));
+    pullRequest.linesAdded = pullRequestJson.getInt("additions");
+    pullRequest.linesRemoved = pullRequestJson.getInt("deletions");
+    pullRequest.filesChanged = pullRequestJson.getInt("changed_files");
     pullRequest.number = pullRequestJson.getInt("number");
+    pullRequest.assignee = parseUser(pullRequestJson.getJsonObject("assignee"));
     return pullRequest;
   }
 

@@ -82,8 +82,8 @@ public class PullRequestService {
   }
 
   public void insertOrUpdate(PullRequest pullRequest) {
-    if (isUserUnknown(pullRequest.owner)) {
-      userRepository.save(pullRequest.owner);
+    if (isUserUnknown(pullRequest.author)) {
+      userRepository.save(pullRequest.author);
     }
     pullRequestRepository.save(pullRequest);
   }
