@@ -47,11 +47,6 @@ public class PullRequestEventHandler {
     }
 
     logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
-
-    if (pullRequestFromEvent.assignee != null) {
-      logger.debug("3assigned_assignee_to_pullrequest: " + pullRequestFromEvent.title + " // "
-          + pullRequestFromEvent.assignee + " /-/ " + pullRequestFromEvent.state);
-    }
     pullRequestService.insertOrUpdate(pullRequestFromEvent);
   }
 }
