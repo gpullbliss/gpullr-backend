@@ -85,6 +85,13 @@ public class PullRequestService {
     if (isUserUnknown(pullRequest.author)) {
       userRepository.save(pullRequest.author);
     }
+
+    // assignee is null in GitHub response => save assignee if assigned via gpullr: 
+    pullRequestRepository.findById(pullRequest.id).ifPresent(existing -> {
+      if (pullRequest.assignee == null) {
+        pullRequest.assignee = existing.assignee;
+      };
+    });
     pullRequestRepository.save(pullRequest);
   }
 
