@@ -45,6 +45,8 @@ public class PullRequestEventHandler {
     } else if (event.action == Action.REOPENED) {
       pullRequestFromEvent.state = State.OPEN;
     }
+    
+    // unfortunately, the event-action ASSIGNED never occurs and thus an assignee is never set from GitHub response!
 
     logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
     pullRequestService.insertOrUpdate(pullRequestFromEvent);

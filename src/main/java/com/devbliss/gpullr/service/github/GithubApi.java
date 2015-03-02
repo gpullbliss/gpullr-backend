@@ -158,6 +158,7 @@ public class GithubApi {
     pullRequest.number = pullRequestJson.getInt("number");
     JsonValue assigneeValue = pullRequestJson.get(FIELD_KEY_ASSIGNEE);
 
+    // unfortunately, assignee is only set when PR is CLOSED - so it's useless for us! 
     if (assigneeValue.getValueType() == ValueType.OBJECT) {
       pullRequest.assignee = parseUser((JsonObject) assigneeValue);
     }
