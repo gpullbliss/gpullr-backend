@@ -92,6 +92,6 @@ public class PullRequest {
 
   @Override
   public String toString() {
-    return "[" + repo.name + " / " + number + "]";
+    return "[id=" + repo.id + " / " + repo.name + " / " + number + "]";
   }
 }

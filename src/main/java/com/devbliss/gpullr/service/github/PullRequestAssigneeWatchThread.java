@@ -19,14 +19,15 @@ public class PullRequestAssigneeWatchThread extends Thread {
 
   private final GithubApi githubApi;
 
-  private PullRequestService pullRequestService;
+  private final PullRequestService pullRequestService;
 
   private boolean stopped = false;
 
-  public PullRequestAssigneeWatchThread(PullRequest pullRequest, TaskScheduler taskScheduler, GithubApi githubApi) {
+  public PullRequestAssigneeWatchThread(PullRequest pullRequest, TaskScheduler taskScheduler, GithubApi githubApi, PullRequestService pullRequestService) {
     this.pullRequest = pullRequest;
     this.taskScheduler = taskScheduler;
     this.githubApi = githubApi;
+    this.pullRequestService = pullRequestService;
   }
 
   @Override
@@ -34,6 +35,10 @@ public class PullRequestAssigneeWatchThread extends Thread {
     fetch(Optional.empty());
   }
 
+  private void fetch(Optional<String> etagHeader) {
+    handleResponse(githubApi.fetchPullRequest(pullRequest, etagHeader));
+  }
+  
   private void handleResponse(GithubPullrequestResponse resp) {
     resp.payload.ifPresent(this::handlePullRequest);
 
@@ -41,10 +46,6 @@ public class PullRequestAssigneeWatchThread extends Thread {
       Date nextFetch = Date.from(Instant.now().plusSeconds(resp.nextRequestAfterSeconds));
       taskScheduler.schedule(() -> fetch(resp.etagHeader), nextFetch);
     }
-  }
-
-  private void fetch(Optional<String> etagHeader) {
-    handleResponse(githubApi.fetchPullRequest(pullRequest, etagHeader));
   }
 
   private void handlePullRequest(PullRequest fetchedPullRequest) {
