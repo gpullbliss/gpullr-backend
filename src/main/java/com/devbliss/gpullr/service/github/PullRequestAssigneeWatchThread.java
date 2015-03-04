@@ -9,6 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 
+/**
+ * Watcher for assignee for a certain pull requests. 
+ * Once started, it runs forever until {@link #pleaseStop()} has been called.
+ * 
+ * When running, it periodically fetches the details of its pull request from GitHub API. 
+ * It uses the ETAG header in order not to waste the request quota.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 public class PullRequestAssigneeWatchThread extends Thread {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestAssigneeWatchThread.class);
@@ -23,7 +33,11 @@ public class PullRequestAssigneeWatchThread extends Thread {
 
   private boolean stopped = false;
 
-  public PullRequestAssigneeWatchThread(PullRequest pullRequest, TaskScheduler taskScheduler, GithubApi githubApi, PullRequestService pullRequestService) {
+  public PullRequestAssigneeWatchThread(
+      PullRequest pullRequest,
+      TaskScheduler taskScheduler,
+      GithubApi githubApi,
+      PullRequestService pullRequestService) {
     this.pullRequest = pullRequest;
     this.taskScheduler = taskScheduler;
     this.githubApi = githubApi;
@@ -35,10 +49,18 @@ public class PullRequestAssigneeWatchThread extends Thread {
     fetch(Optional.empty());
   }
 
+  /**
+   * Call this to stop the infinite loop of fetching. Will not cancel a request that is currently running but make
+   * sure there is no follow up request.
+   */
+  public void pleaseStop() {
+    stopped = true;
+  }
+
   private void fetch(Optional<String> etagHeader) {
     handleResponse(githubApi.fetchPullRequest(pullRequest, etagHeader));
   }
-  
+
   private void handleResponse(GithubPullrequestResponse resp) {
     resp.payload.ifPresent(this::handlePullRequest);
 
@@ -54,9 +76,5 @@ public class PullRequestAssigneeWatchThread extends Thread {
       pullRequestService.insertOrUpdate(pullRequest);
       LOGGER.debug("stored assignee " + pullRequest.assignee.username + " for pullrequest " + pullRequest);
     }
-  }
-
-  public void pleaseStop() {
-    stopped = true;
   }
 }

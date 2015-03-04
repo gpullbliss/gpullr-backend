@@ -25,14 +25,15 @@ public abstract class AbstractGithubRequest extends HttpGet {
   protected AbstractGithubRequest(Optional<String> etagHeader, int page) {
     this.etagHeader = etagHeader;
     this.page = page;
+    etagHeader.ifPresent(s -> setHeader(HEADER_ETAG, s));
   }
 
   protected AbstractGithubRequest(Optional<String> etagHeader) {
     this(etagHeader, 0);
   }
 
-  protected void configure() {
-    setURI(URI.create(createUri(page)));
-    etagHeader.ifPresent(s -> setHeader(HEADER_ETAG, s));
+  @Override
+  public URI getURI() {
+    return URI.create(createUri(page));
   }
 }

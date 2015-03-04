@@ -20,7 +20,6 @@ public class GetGithubEventsRequest extends AbstractGithubRequest {
   public GetGithubEventsRequest(Repo repo, Optional<String> etagHeader, int page) {
     super(etagHeader, page);
     this.repo = repo;
-    configure();
   }
 
   /**

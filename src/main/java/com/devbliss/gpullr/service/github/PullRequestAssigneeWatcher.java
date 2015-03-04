@@ -14,6 +14,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
+/**
+ * Holds threads refreshing the assignee for each open pull request.
+ * Reason: pull request events returned by GitHub API do NOT contain the assignee in all cases.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class PullRequestAssigneeWatcher {
@@ -42,6 +49,14 @@ public class PullRequestAssigneeWatcher {
     this.pullRequestService = pullRequestService;
   }
 
+  /**
+   * Starts an assignee watcher for the given pull request which periodically fetches
+   * the current assignee for the PR from GitHub API.
+   * 
+   * Does nothing in case there is already such a watcher for the given pull request
+   *   
+   * @param pullRequest pull request to watch the assignee for
+   */
   public void startWatching(PullRequest pullRequest) {
     PullRequestAssigneeWatchThread thread = activeWatchers.get(pullRequest.id);
 
@@ -50,7 +65,7 @@ public class PullRequestAssigneeWatcher {
         thread = activeWatchers.get(pullRequest.id);
 
         if (thread == null) {
-          thread = createThread(pullRequest);
+          thread = new PullRequestAssigneeWatchThread(pullRequest, taskScheduler, githubApi, pullRequestService);
           activeWatchers.put(pullRequest.id, thread);
           taskScheduler.schedule(thread, Date.from(Instant.now()));
           logger.debug("started assignee watcher for pullrequest " + pullRequest + " thread: " + this);
@@ -59,6 +74,12 @@ public class PullRequestAssigneeWatcher {
     }
   }
 
+  /**
+   * Stops the assignee watcher for the given pull request (started with {@link #startWatching(PullRequest)}) in 
+   * case there is one, or does nothing there isn't.
+   * 
+   * @param pullRequest pull request to stop the watcher for
+   */
   public void stopWatching(PullRequest pullRequest) {
     PullRequestAssigneeWatchThread watcherToStop = activeWatchers.remove(pullRequest.id);
 
@@ -66,9 +87,5 @@ public class PullRequestAssigneeWatcher {
       watcherToStop.pleaseStop();
       logger.debug("stopped assignee watcher for pullrequest " + pullRequest);
     }
-  }
-
-  private PullRequestAssigneeWatchThread createThread(PullRequest pullRequest) {
-    return new PullRequestAssigneeWatchThread(pullRequest, taskScheduler, githubApi, pullRequestService);
   }
 }

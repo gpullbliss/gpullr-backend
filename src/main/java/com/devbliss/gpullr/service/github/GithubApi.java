@@ -81,6 +81,13 @@ public class GithubApi {
     }
   }
 
+  /**
+   * Fetches data of an existing pull request.
+   * 
+   * @param pullRequest
+   * @param etagHeader
+   * @return response object containing the actual pull request plus response meta data required for next request
+   */
   public GithubPullrequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestDetailsRequest req = new GetPullRequestDetailsRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
