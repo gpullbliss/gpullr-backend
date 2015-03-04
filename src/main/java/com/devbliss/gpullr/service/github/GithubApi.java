@@ -40,10 +40,6 @@ public class GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
 
-  private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
-
-  private static final String HEADER_ETAG = "ETag";
-
   private static final String HEADER_LINK = "Link";
 
   private static final String FIELD_KEY_ID = "id";
@@ -61,8 +57,6 @@ public class GithubApi {
   private static final String FIELD_KEY_ACTION = "action";
 
   private static final String FIELD_KEY_ASSIGNEE = "assignee";
-
-  private static final int DEFAULT_POLL_INTERVAL = 60;
 
   @Log
   private Logger logger;
@@ -87,14 +81,25 @@ public class GithubApi {
     }
   }
 
+  public Optional<PullRequest> refreshPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
+    GetPullRequestDetailsRequest req = new GetPullRequestDetailsRequest(pullRequest, etagHeader);
+    GithubHttpResponse resp = githubClient.execute(req);
+
+    try {
+      return handleResponse(resp, jo -> parsePullRequestPayload(jo));
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    }
+  }
+
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
 
     try {
       GetGithubEventsRequest req = new GetGithubEventsRequest(repo, etagHeader, 0);
       GithubHttpResponse resp = githubClient.execute(req);
       List<PullRequestEvent> events = new ArrayList<>();
-      Optional<String> etag = getEtag(resp);
-      int nextRequestAfterSeconds = getPollInterval(resp);
+      Optional<String> etag = resp.getEtag();
+      int nextRequestAfterSeconds = resp.getPollInterval();
       GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
           ope -> ope.ifPresent(result.pullRequestEvents::add));
@@ -158,7 +163,7 @@ public class GithubApi {
     pullRequest.number = pullRequestJson.getInt("number");
     JsonValue assigneeValue = pullRequestJson.get(FIELD_KEY_ASSIGNEE);
 
-    // unfortunately, assignee is only set when PR is CLOSED - so it's useless for us! 
+    // unfortunately, assignee is only set when PR is CLOSED - so it's useless for us!
     if (assigneeValue.getValueType() == ValueType.OBJECT) {
       pullRequest.assignee = parseUser((JsonObject) assigneeValue);
     }
@@ -173,21 +178,6 @@ public class GithubApi {
   private <T> List<T> loadAllPages(String path, Function<JsonObject, T> mapper) throws IOException {
     final JsonResponse resp = client.entry().uri().path(path).back().fetch().as(JsonResponse.class);
     return handleResponse(resp, mapper, path, 1);
-  }
-
-  private Optional<String> getEtag(GithubHttpResponse resp) {
-    return Optional.of(resp.headers.get(HEADER_ETAG));
-  }
-
-  private int getPollInterval(GithubHttpResponse resp) {
-    String pollIntervalHeader = resp.headers.get(HEADER_POLL_INTERVAL);
-
-    if (pollIntervalHeader == null) {
-      logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
-      return DEFAULT_POLL_INTERVAL;
-    }
-
-    return Integer.parseInt(pollIntervalHeader);
   }
 
   private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
@@ -206,6 +196,19 @@ public class GithubApi {
       return result;
     } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
       return new ArrayList<>();
+    } else {
+      throw new UnexpectedException("Fetching events from GitHub returned status code " + statusCode);
+    }
+  }
+
+  private <T> Optional<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper) throws IOException {
+
+    int statusCode = resp.statusCode;
+
+    if (statusCode == org.apache.http.HttpStatus.SC_OK) {
+      return Optional.of(mapper.apply(resp.jsonObject.get()));
+    } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
+      return Optional.empty();
     } else {
       throw new UnexpectedException("Fetching events from GitHub returned status code " + statusCode);
     }
@@ -236,11 +239,11 @@ public class GithubApi {
   private <T> List<T> responseToList(GithubHttpResponse resp, Function<JsonObject, T> mapper) {
 
     try {
-      return resp.jsonObjects
+      return resp.jsonObjects.get()
         .stream()
         .map(mapper)
         .collect(Collectors.toList());
-    } catch (JsonException e) {
+    } catch (Exception e) {
       throw new UnexpectedException(e);
     }
   }

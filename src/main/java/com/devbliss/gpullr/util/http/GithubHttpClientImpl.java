@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.util.http;
 
+import com.devbliss.gpullr.service.github.AbstractGithubRequest;
+
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.service.github.GetGithubEventsRequest;
 import com.devbliss.gpullr.util.Log;
@@ -59,7 +61,7 @@ public class GithubHttpClientImpl implements GithubHttpClient {
   }
 
   @Override
-  public GithubHttpResponse execute(GetGithubEventsRequest req) {
+  public GithubHttpResponse execute(AbstractGithubRequest req) {
     try {
       req.setHeader(AUTHORIZATION_HEADER_KEY, "token " + oauthToken);
       logger.debug("HTTP request against GitHub: " + req.getURI());
