@@ -90,7 +90,7 @@ public class PullRequestService {
     pullRequestRepository.findById(pullRequest.id).ifPresent(existing -> {
       if (pullRequest.assignee == null) {
         pullRequest.assignee = existing.assignee;
-      };
+      }
     });
     pullRequestRepository.save(pullRequest);
   }
