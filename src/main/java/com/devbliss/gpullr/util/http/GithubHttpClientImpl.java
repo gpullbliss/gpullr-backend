@@ -1,9 +1,7 @@
 package com.devbliss.gpullr.util.http;
 
-import com.devbliss.gpullr.service.github.AbstractGithubRequest;
-
 import com.devbliss.gpullr.exception.UnexpectedException;
-import com.devbliss.gpullr.service.github.GetGithubEventsRequest;
+import com.devbliss.gpullr.service.github.AbstractGithubRequest;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.time.ZoneId;

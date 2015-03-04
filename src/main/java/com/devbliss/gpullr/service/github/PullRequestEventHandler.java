@@ -25,9 +25,14 @@ public class PullRequestEventHandler {
 
   private final PullRequestService pullRequestService;
 
+  private final PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
+
   @Autowired
-  public PullRequestEventHandler(PullRequestService pullRequestService) {
+  public PullRequestEventHandler(
+      PullRequestService pullRequestService,
+      PullRequestAssigneeWatcher pullRequestAssigneeWatcher) {
     this.pullRequestService = pullRequestService;
+    this.pullRequestAssigneeWatcher = pullRequestAssigneeWatcher;
   }
 
   public void handlePullRequestEvent(PullRequestEvent event) {
@@ -45,10 +50,15 @@ public class PullRequestEventHandler {
     } else if (event.action == Action.REOPENED) {
       pullRequestFromEvent.state = State.OPEN;
     }
-    
-    // unfortunately, the event-action ASSIGNED never occurs and thus an assignee is never set from GitHub response!
 
     logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
     pullRequestService.insertOrUpdate(pullRequestFromEvent);
+    
+    // unfortunately, the assignee is not set in GitHub PR event if state is OPEN, so we have to fetch it manually:
+    if(pullRequestFromEvent.state == State.OPEN) {
+      pullRequestAssigneeWatcher.startWatching(pullRequestFromEvent);
+    } else if(pullRequestFromEvent.state == State.CLOSED) {
+      pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
+    }
   }
 }

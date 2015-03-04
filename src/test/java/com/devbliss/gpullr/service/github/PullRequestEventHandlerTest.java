@@ -32,6 +32,9 @@ public class PullRequestEventHandlerTest {
 
   @Mock
   private PullRequestService pullRequestService;
+  
+  @Mock
+  private PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
 
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
@@ -42,7 +45,7 @@ public class PullRequestEventHandlerTest {
 
   @Before
   public void setup() {
-    pullRequestEventHandler = new PullRequestEventHandler(pullRequestService);
+    pullRequestEventHandler = new PullRequestEventHandler(pullRequestService, pullRequestAssigneeWatcher);
     pullRequestEventHandler.logger = LoggerFactory.getLogger(PullRequestEventHandler.class);
     existingPullRequest = new PullRequest();
     existingPullRequest.id = PR_ID;

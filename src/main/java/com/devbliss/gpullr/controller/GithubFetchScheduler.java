@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.service.github.PullRequestAssigneeWatcher;
 import java.time.Instant;
 import java.util.Date;
 import javax.annotation.PostConstruct;
@@ -9,14 +10,14 @@ import org.springframework.stereotype.Component;
 
 /**
  * Starts / coordinates the fetching of data from GithubAPI. Starts fetching repos and users first, and after (
- * {@link #START_EVENTSLOOP_AFTER_SECONDS}) seconds fetching the pull requests for the repos.
+ * {@link #DELAYED_TASK_START_AFTER_SECONDS}) seconds fetching the pull requests for the repos.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
 public class GithubFetchScheduler {
 
-  private static final int START_EVENTSLOOP_AFTER_SECONDS = 60;
+  private static final int DELAYED_TASK_START_AFTER_SECONDS = 60;
 
   private ThreadPoolTaskScheduler executor;
 
@@ -29,6 +30,9 @@ public class GithubFetchScheduler {
   @Autowired
   private GithubUserFetcher githubUserFetcher;
 
+  @Autowired
+  private PullRequestAssigneeWatcher pullrequestAssigneeWatcher;
+
   public GithubFetchScheduler() {
     executor = new ThreadPoolTaskScheduler();
     executor.initialize();
@@ -36,10 +40,10 @@ public class GithubFetchScheduler {
 
   @PostConstruct
   public void startExecution() {
-    Date startEventsLoop = Date.from(Instant.now().plusSeconds(START_EVENTSLOOP_AFTER_SECONDS));
+    Date delayedTaskStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS));
     executor.execute(() -> githubReposRefresher.startFetchLoop());
     executor.execute(() -> githubUserFetcher.startFetchLoop());
-    executor.schedule(() -> startFetchEventsLoop(), startEventsLoop);
+    executor.schedule(() -> startFetchEventsLoop(), delayedTaskStart);
   }
 
   private void startFetchEventsLoop() {

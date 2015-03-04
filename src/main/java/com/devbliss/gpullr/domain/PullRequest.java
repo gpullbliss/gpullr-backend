@@ -89,4 +89,9 @@ public class PullRequest {
 
     return true;
   }
+
+  @Override
+  public String toString() {
+    return "[" + repo.name + " / " + number + "]";
+  }
 }
