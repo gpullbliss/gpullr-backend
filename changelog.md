@@ -1,5 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
+ - [bug] save assignee when null from GitHub response
  - [bug] missing data in pullrequest
  - [refactor] Apache HTTP client for repo events requests, paying attention to ETag / 304 NOT MODIFIED
  - [feature] return error dto / json on forbidden (403) error
@@ -16,4 +17,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Fri Feb 27 11:22:14 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 02 10:04:35 CET 2015
