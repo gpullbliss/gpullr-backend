@@ -1,9 +1,8 @@
 package com.devbliss.gpullr.service;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import static org.junit.Assert.assertEquals;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.User;
