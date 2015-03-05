@@ -12,7 +12,9 @@ import java.util.Optional;
 public abstract class AbstractGithubResponse<PAYLOAD> {
 
   public final int nextRequestAfterSeconds;
+  
   public final Optional<String> etagHeader;
+  
   public final PAYLOAD payload;
 
   protected AbstractGithubResponse(PAYLOAD payload, final int nextRequestAfterSeconds, Optional<String> etagHeader) {

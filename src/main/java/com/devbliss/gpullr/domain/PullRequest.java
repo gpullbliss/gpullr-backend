@@ -17,6 +17,8 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class PullRequest {
 
+  private static final String SEPARATOR = " / ";
+  
   public enum State {
     OPEN, CLOSED
   }
@@ -92,6 +94,6 @@ public class PullRequest {
 
   @Override
   public String toString() {
-    return "[id=" + repo.id + " / " + repo.name + " / " + number + "]";
+    return "[id=" + repo.id + SEPARATOR + repo.name + SEPARATOR + number + "]";
   }
 }

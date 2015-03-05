@@ -57,6 +57,8 @@ public class GithubApi {
   private static final String FIELD_KEY_ACTION = "action";
 
   private static final String FIELD_KEY_ASSIGNEE = "assignee";
+  
+  private static final String ERR_MSG_RESPONSE = "Request to '%s' returned unexpected status code: %d.";
 
   @Log
   private Logger logger;
@@ -205,7 +207,7 @@ public class GithubApi {
     } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
       return new ArrayList<>();
     } else {
-      throw new UnexpectedException("Fetching events from GitHub returned status code " + statusCode);
+      throw new UnexpectedException(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
     }
   }
 
@@ -218,7 +220,7 @@ public class GithubApi {
     } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
       return Optional.empty();
     } else {
-      throw new UnexpectedException("Fetching events from GitHub returned status code " + statusCode);
+      throw new UnexpectedException(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
     }
   }
 

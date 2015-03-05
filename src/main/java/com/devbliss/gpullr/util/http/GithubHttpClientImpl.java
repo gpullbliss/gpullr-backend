@@ -65,7 +65,7 @@ public class GithubHttpClientImpl implements GithubHttpClient {
       logger.debug("HTTP request against GitHub: " + req.getURI());
       CloseableHttpResponse resp = httpClient.execute(req);
       logResponse(resp);
-      return GithubHttpResponse.create(resp);
+      return GithubHttpResponse.create(resp, req.getURI());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }

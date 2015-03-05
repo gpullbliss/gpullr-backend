@@ -2,6 +2,7 @@ package com.devbliss.gpullr.util.http;
 
 import com.devbliss.gpullr.exception.UnexpectedException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ public class GithubHttpResponse {
 
   public final int statusCode;
 
+  public final String uri;
+
   /**
    * Creates an instance of {@link GithubHttpResponse} from a HttpResponse. Makes sure the http response is closed
    * after processing.
@@ -51,13 +54,14 @@ public class GithubHttpResponse {
    * @param resp
    * @return
    */
-  public static GithubHttpResponse create(CloseableHttpResponse resp) {
-    return new GithubHttpResponse(resp);
+  public static GithubHttpResponse create(CloseableHttpResponse resp, URI uri) {
+    return new GithubHttpResponse(resp, uri);
   }
 
-  private GithubHttpResponse(CloseableHttpResponse resp) {
+  private GithubHttpResponse(CloseableHttpResponse resp, URI uri) {
     headers = parseHeaders(resp);
     statusCode = resp.getStatusLine().getStatusCode();
+    this.uri = uri.toString();
 
     try {
       Optional<JsonStructure> json = parseJson(resp);
