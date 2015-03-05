@@ -176,12 +176,6 @@ public class GithubApi {
     // unfortunately, assignee is only set when PR is CLOSED - so it's useless for us!
     if (assigneeValue.getValueType() == ValueType.OBJECT) {
       pullRequest.assignee = parseUser((JsonObject) assigneeValue);
-      String updatedAt = pullRequestJson.getString("updated_at");
-      if (updatedAt != null) {
-        pullRequest.assignedAt = ZonedDateTime.parse(updatedAt);
-      } else {
-        pullRequest.assignedAt = null;
-      }
     }
 
     return pullRequest;

@@ -95,6 +95,8 @@ public class PullRequestService {
     pullRequestRepository.findById(pullRequest.id).ifPresent(existing -> {
       if (pullRequest.assignee == null) {
         pullRequest.assignee = existing.assignee;
+      } else if (pullRequest.assignee.id != existing.assignee.id) {
+        pullRequest.assignedAt = ZonedDateTime.now();
       }
     });
     pullRequestRepository.save(pullRequest);
