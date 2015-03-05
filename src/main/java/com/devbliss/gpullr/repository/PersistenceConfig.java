@@ -50,7 +50,7 @@ public class PersistenceConfig {
     LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
     emfb.setDataSource(dataSource);
     emfb.setPackagesToScan("com.devbliss.gpullr");
-    emfb.setJpaVendorAdapter(jpaVendorAdapter);
+    emfb.setJpaVendorAdapter(jpaVendorAdapter);    
     return emfb;
   }
 
@@ -59,7 +59,7 @@ public class PersistenceConfig {
     HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
     adapter.setDatabase(Database.H2);
     adapter.setShowSql(false);
-    adapter.setGenerateDdl(true);
+    adapter.setGenerateDdl(false);
     adapter.setDatabasePlatform("org.hibernate.dialect.H2Dialect");
     return adapter;
   }
