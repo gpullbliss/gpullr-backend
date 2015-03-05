@@ -32,7 +32,7 @@ public class PullRequestEventHandlerTest {
 
   @Mock
   private PullRequestService pullRequestService;
-  
+
   @Mock
   private PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
 
@@ -40,6 +40,8 @@ public class PullRequestEventHandlerTest {
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
 
   private PullRequest existingPullRequest;
+
+  private PullRequest pullRequestFromResponse;
 
   private PullRequestEventHandler pullRequestEventHandler;
 
@@ -49,6 +51,8 @@ public class PullRequestEventHandlerTest {
     pullRequestEventHandler.logger = LoggerFactory.getLogger(PullRequestEventHandler.class);
     existingPullRequest = new PullRequest();
     existingPullRequest.id = PR_ID;
+    pullRequestFromResponse = new PullRequest();
+    pullRequestFromResponse.id = PR_ID;
   }
 
   @Test
@@ -57,15 +61,16 @@ public class PullRequestEventHandlerTest {
     when(pullRequestService.findById(PR_ID)).thenReturn(Optional.empty());
 
     // handle event:
-    PullRequest pullRequest = new PullRequest();
-    pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequestFromResponse));
 
     // verify PR is stored with state OPEN and correct id:
     verify(pullRequestService).findById(PR_ID);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
     assertEquals(State.OPEN, pullRequestCaptor.getValue().state);
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
+
+    // verify watcher is started for the pull request:
+    verify(pullRequestAssigneeWatcher).startWatching(pullRequestFromResponse);
   }
 
   @Test
@@ -73,70 +78,74 @@ public class PullRequestEventHandlerTest {
     // assume the PR exists and has state OPEN:
     existingPullRequest.state = State.OPEN;
     when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullRequest));
-    
+
     // handle event:
-    PullRequest pullRequest = new PullRequest();
-    pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequestFromResponse));
 
     // verify PR is stored with state OPEN and correct id:
     verify(pullRequestService).findById(PR_ID);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
     assertEquals(State.OPEN, pullRequestCaptor.getValue().state);
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
+
+    // verify watcher is started for the pull request:
+    verify(pullRequestAssigneeWatcher).startWatching(pullRequestFromResponse);
   }
-  
+
   @Test
   public void handleOpenedEventWithExistingClosedPullRequest() {
     // assume the PR exists and has state CLOSED:
     existingPullRequest.state = State.CLOSED;
     when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullRequest));
-    
+
     // handle event:
-    PullRequest pullRequest = new PullRequest();
-    pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.OPENED, pullRequestFromResponse));
 
     // verify PR is stored with state CLOSED and correct id:
     verify(pullRequestService).findById(PR_ID);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
     assertEquals(State.CLOSED, pullRequestCaptor.getValue().state);
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
+
+    // verify watcher is stopped for the pull request:
+    verify(pullRequestAssigneeWatcher).stopWatching(pullRequestFromResponse);
   }
-  
+
   @Test
   public void handleReopenedEventWithExistingOpenPullRequest() {
     // assume the PR exists and has state OPEN:
     existingPullRequest.state = State.OPEN;
     when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullRequest));
-    
+
     // handle event:
-    PullRequest pullRequest = new PullRequest();
-    pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.REOPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.REOPENED, pullRequestFromResponse));
 
     // verify PR is stored with state OPENED and correct id:
     verify(pullRequestService).findById(PR_ID);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
     assertEquals(State.OPEN, pullRequestCaptor.getValue().state);
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
+
+    // verify watcher is started for the pull request:
+    verify(pullRequestAssigneeWatcher).startWatching(pullRequestFromResponse);
   }
-  
+
   @Test
   public void handleReopenedEventWithExistingClosedPullRequest() {
     // assume the PR exists and has state CLOSED:
     existingPullRequest.state = State.CLOSED;
     when(pullRequestService.findById(PR_ID)).thenReturn(Optional.of(existingPullRequest));
-    
+
     // handle event:
-    PullRequest pullRequest = new PullRequest();
-    pullRequest.id = PR_ID;
-    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.REOPENED, pullRequest));
+    pullRequestEventHandler.handlePullRequestEvent(new PullRequestEvent(Action.REOPENED, pullRequestFromResponse));
 
     // verify PR is stored with state OPENED and correct id:
     verify(pullRequestService).findById(PR_ID);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
     assertEquals(State.OPEN, pullRequestCaptor.getValue().state);
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
+
+    // verify watcher is started for the pull request:
+    verify(pullRequestAssigneeWatcher).startWatching(pullRequestFromResponse);
   }
 }
