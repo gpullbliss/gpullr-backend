@@ -82,11 +82,11 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   }
 
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
-    response.pullRequestEvents.forEach(pullRequestEventHandler::handlePullRequestEvent);
+    response.payload.forEach(pullRequestEventHandler::handlePullRequestEvent);
     Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
     executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
     logger.debug("Fetched "
-        + response.pullRequestEvents.size()
+        + response.payload.size()
         + " PR events for " + repo.name
         + " / active threads in executor="
         + executor.getActiveCount() + ", queueSize="

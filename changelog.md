@@ -1,5 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
+ - [bug] assignee for open PR was not fetched when assignment took place at GitHub web
  - [bug] save assignee when null from GitHub response
  - [bug] missing data in pullrequest
  - [refactor] Apache HTTP client for repo events requests, paying attention to ETag / 304 NOT MODIFIED
@@ -17,4 +18,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 02 10:04:35 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Mar 05 13:38:18 CET 2015

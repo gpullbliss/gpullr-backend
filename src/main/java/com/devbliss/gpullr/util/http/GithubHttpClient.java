@@ -1,6 +1,6 @@
 package com.devbliss.gpullr.util.http;
 
-import com.devbliss.gpullr.service.github.GetGithubEventsRequest;
+import com.devbliss.gpullr.service.github.AbstractGithubRequest;
 
 /**
  * Performs HTTP calls against the GitHub API.
@@ -10,6 +10,5 @@ import com.devbliss.gpullr.service.github.GetGithubEventsRequest;
  */
 public interface GithubHttpClient {
 
-  
-  GithubHttpResponse execute(GetGithubEventsRequest request);
+  GithubHttpResponse execute(AbstractGithubRequest request);
 }
