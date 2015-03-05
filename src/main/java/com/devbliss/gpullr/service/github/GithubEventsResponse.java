@@ -12,20 +12,12 @@ import java.util.Optional;
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
-public class GithubEventsResponse {
-
-  public final List<PullRequestEvent> pullRequestEvents;
-
-  public final int nextRequestAfterSeconds;
-
-  public final Optional<String> etagHeader;
+public class GithubEventsResponse extends AbstractGithubResponse<List<PullRequestEvent>> {
 
   public GithubEventsResponse(
       List<PullRequestEvent> pullRequestEvents,
       int nextRequestAfterSeconds,
       Optional<String> etagHeader) {
-    this.pullRequestEvents = pullRequestEvents;
-    this.nextRequestAfterSeconds = nextRequestAfterSeconds;
-    this.etagHeader = etagHeader;
+    super(pullRequestEvents, nextRequestAfterSeconds, etagHeader);
   }
 }

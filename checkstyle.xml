@@ -139,7 +139,7 @@
     <module name="RedundantModifier"/>
 
     <!-- Checks for imports that are redundant. -->
-    <module name="RedundantImport"/>
+    <module name="RedundantImport" />
 
     <!-- Checks that string literals are not used with == or != -->
     <module name="StringLiteralEquality"/>
@@ -156,7 +156,9 @@
     <module name="UpperEll"/>
 
     <!-- Checks for unused import statements. -->
-    <module name="UnusedImports"/>
+    <module name="UnusedImports">
+      <property name="processJavadoc" value="true" />
+    </module>
 
     <!-- Checks for empty blocks. -->
     <module name="EmptyBlock">
