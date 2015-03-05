@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
-import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.util.Date;
@@ -26,13 +25,11 @@ import org.springframework.stereotype.Component;
 public class PullRequestAssigneeWatcher {
 
   @Log
-  private Logger logger;
+  Logger logger;
 
   private final TaskScheduler taskScheduler;
 
-  private final GithubApi githubApi;
-
-  private final PullRequestService pullRequestService;
+  private final PullRequestAssigneeWatchThreadProducer pullRequestAssigneeWatchThreadProducer;
 
   /**
    * Map with pullRequest-id as key and the watcher thread as value
@@ -42,11 +39,9 @@ public class PullRequestAssigneeWatcher {
   @Autowired
   public PullRequestAssigneeWatcher(
       TaskScheduler taskScheduler,
-      GithubApi githubApi,
-      PullRequestService pullRequestService) {
+      PullRequestAssigneeWatchThreadProducer pullRequestAssigneeWatchThreadProducer) {
     this.taskScheduler = taskScheduler;
-    this.githubApi = githubApi;
-    this.pullRequestService = pullRequestService;
+    this.pullRequestAssigneeWatchThreadProducer = pullRequestAssigneeWatchThreadProducer;
   }
 
   /**
@@ -65,7 +60,7 @@ public class PullRequestAssigneeWatcher {
         thread = activeWatchers.get(pullRequest.id);
 
         if (thread == null) {
-          thread = new PullRequestAssigneeWatchThread(pullRequest, taskScheduler, githubApi, pullRequestService);
+          thread = pullRequestAssigneeWatchThreadProducer.createThread(pullRequest);
           activeWatchers.put(pullRequest.id, thread);
           taskScheduler.schedule(thread, Date.from(Instant.now()));
           logger.debug("started assignee watcher for pullrequest " + pullRequest + " thread: " + this);
