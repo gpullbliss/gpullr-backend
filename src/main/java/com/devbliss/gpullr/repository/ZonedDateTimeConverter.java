@@ -19,6 +19,10 @@ public class ZonedDateTimeConverter implements AttributeConverter<ZonedDateTime,
 
   @Override
   public ZonedDateTime convertToEntityAttribute(String dbData) {
-    return ZonedDateTime.parse(dbData);
+    if (dbData != null) {
+      return ZonedDateTime.parse(dbData);
+    } else {
+      return null;
+    }
   }
 }
