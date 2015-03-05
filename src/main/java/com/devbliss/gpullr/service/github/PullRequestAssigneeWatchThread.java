@@ -52,7 +52,7 @@ public class PullRequestAssigneeWatchThread extends Thread {
   /**
    * Call this to stop the infinite loop of fetching. Will not cancel a request that is currently running but make
    * sure there is no follow up request.
-   */
+   */      
   public void pleaseStop() {
     stopped = true;
   }
