@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.domain;
 
 import java.time.ZonedDateTime;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -18,7 +19,7 @@ import javax.validation.constraints.NotNull;
 public class PullRequest {
 
   private static final String SEPARATOR = " / ";
-  
+
   public enum State {
     OPEN, CLOSED
   }
@@ -57,6 +58,17 @@ public class PullRequest {
   public Integer linesRemoved;
 
   public Integer filesChanged;
+
+  @Column(nullable = true)
+  public ZonedDateTime assignedAt;
+
+  public String getAssignedAt() {
+    if (this.assignedAt != null) {
+      return this.assignedAt.toString();
+    } else {
+      return null;
+    }
+  }
 
   @Override
   public int hashCode() {

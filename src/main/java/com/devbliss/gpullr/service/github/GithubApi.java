@@ -57,7 +57,7 @@ public class GithubApi {
   private static final String FIELD_KEY_ACTION = "action";
 
   private static final String FIELD_KEY_ASSIGNEE = "assignee";
-  
+
   private static final String ERR_MSG_RESPONSE = "Request to '%s' returned unexpected status code: %d.";
 
   @Log
@@ -85,7 +85,7 @@ public class GithubApi {
 
   /**
    * Fetches data of an existing pull request.
-   * 
+   *
    * @param pullRequest
    * @param etagHeader
    * @return response object containing the actual pull request plus response meta data required for next request
@@ -176,6 +176,12 @@ public class GithubApi {
     // unfortunately, assignee is only set when PR is CLOSED - so it's useless for us!
     if (assigneeValue.getValueType() == ValueType.OBJECT) {
       pullRequest.assignee = parseUser((JsonObject) assigneeValue);
+      String updatedAt = pullRequestJson.getString("updated_at");
+      if (updatedAt != null) {
+        pullRequest.assignedAt = ZonedDateTime.parse(updatedAt);
+      } else {
+        pullRequest.assignedAt = null;
+      }
     }
 
     return pullRequest;

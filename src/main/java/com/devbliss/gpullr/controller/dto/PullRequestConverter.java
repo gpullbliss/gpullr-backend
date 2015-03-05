@@ -4,7 +4,7 @@ import com.devbliss.gpullr.domain.PullRequest;
 import org.springframework.stereotype.Component;
 
 /**
- * Converter for {@link com.devbliss.gpullr.domain.PullRequest} and 
+ * Converter for {@link com.devbliss.gpullr.domain.PullRequest} and
  * {@link com.devbliss.gpullr.controller.dto.PullRequestDto} objects.
  */
 @Component
@@ -25,6 +25,7 @@ public class PullRequestConverter {
     dto.status = entity.state.toString();
     dto.assignee = entity.assignee;
     dto.number = entity.number;
+    dto.assignedAt = entity.getAssignedAt();
     return dto;
   }
 }
