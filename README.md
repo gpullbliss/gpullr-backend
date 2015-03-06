@@ -29,10 +29,13 @@ Thus, all commands adding things to the database schema must use the `IF NOT EXI
 
 If you have to add, change or remove a field in an entity, simply add the respective `ALTER TABLE` statement to `schema.sql`.
 If you are not familiar enough with SQL DDL, you may temporarily switch on the generate-ddl-feature on your local machine, remove the database file, start the application, stop it after the gpullrDb.mv.db has been recreated and connect to the database using the H2 web console.
+
 Run the `h2.jar` (obtainable via http://www.h2database.com/html/download.html -> Jar File) and connect with Generic H2 (Embedded), JDBC URL "jdbc:h2:/path/to/gpullr-backend/gpullrDb" and blank user name and password.
 
 Then dump the schema with the following SQL command:
 `SCRIPT NODATA NOPASSWORDS NOSETTINGS TO '/tmp/schema-export-h2.sql' CHARSET 'UTF-8';`
  and copy-paste the relevant parts to `schema.sql`.
+ 
  Don't use the export directly as it is missing important stuff like `IF NOT EXISTS`.
+ 
  Don't forget to deactivate generate-ddl afterwards again!
