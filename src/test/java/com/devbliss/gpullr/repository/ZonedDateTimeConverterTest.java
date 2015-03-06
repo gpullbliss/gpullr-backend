@@ -31,12 +31,17 @@ public class ZonedDateTimeConverterTest {
   }
 
   @Test
-  public void convertToEntityAttributeFails() {
+  public void convertFromNullStringReturnsNull() {
     assertNull(zdtConverter.convertToEntityAttribute(null));
   }
 
   @Test
   public void convertToDatabaseColumnSucceeds() {
     assertEquals(ZONED_DATE_TIME_STRING, zdtConverter.convertToDatabaseColumn(ZONED_DATE_TIME));
+  }
+  
+  @Test
+  public void convertFromNullEntityReturnsNull() {
+    assertNull(zdtConverter.convertToDatabaseColumn(null));
   }
 }
