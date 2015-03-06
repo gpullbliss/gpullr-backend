@@ -78,9 +78,6 @@ public class PullRequestService {
     }
 
     githubApi.assignUserToPullRequest(user, pullRequest);
-    /**
-     * @ToDo pkarstedt add assignmentDate by assign via gpullrApp
-     */
     pullRequest.assignedAt = ZonedDateTime.now();
     pullRequest.assignee = user;
     pullRequestRepository.save(pullRequest);
