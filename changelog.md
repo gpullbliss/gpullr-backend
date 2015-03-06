@@ -1,8 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
 
- - [feature] st
- - [feature] storing assignment date when assignee changes
  - [feature] added assignedAt property to PullRequest Entity and Dto
  - [refactor] implemented simple database migration strategy
  - [bug] assignee for open PR was not fetched when assignment took place at GitHub web
