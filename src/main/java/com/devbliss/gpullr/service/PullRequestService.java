@@ -93,7 +93,7 @@ public class PullRequestService {
       if (pullRequest.assignee == null) {
         pullRequest.assignee = existing.assignee;
         pullRequest.assignedAt = existing.assignedAt;
-      } else if (pullRequest.assignee.id != existing.assignee.id) {
+      } else if (pullRequest.assignee.id.intValue() != existing.assignee.id.intValue()) {
         pullRequest.assignedAt = ZonedDateTime.now();
       }
     });

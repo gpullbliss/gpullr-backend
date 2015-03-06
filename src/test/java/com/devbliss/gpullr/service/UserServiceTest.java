@@ -31,7 +31,7 @@ import org.springframework.transaction.TransactionSystemException;
 @ActiveProfiles("test")
 public class UserServiceTest {
 
-  private static final Integer ID = 1981;
+  private static final int ID = 1981;
 
   private static final String AVATAR_URL = "http://jira.de";
 
@@ -67,7 +67,7 @@ public class UserServiceTest {
     List<User> users = userService.findAll();
     assertEquals(1, users.size());
     User loaded = users.get(0);
-    assertEquals(ID, loaded.id);
+    assertEquals(ID, loaded.id.intValue());
     assertEquals(AVATAR_URL, loaded.avatarUrl);
     assertEquals(USERNAME, loaded.username);
 
@@ -80,7 +80,7 @@ public class UserServiceTest {
     users = userService.findAll();
     assertEquals(1, users.size());
     loaded = users.get(0);
-    assertEquals(ID, loaded.id);
+    assertEquals(ID, loaded.id.intValue());
     assertEquals(updatedAvatarUrl, loaded.avatarUrl);
     assertEquals(updatedUsername, loaded.username);
   }
@@ -99,7 +99,7 @@ public class UserServiceTest {
     // verify the three allowed users are returned:
     List<User> orgaMembers = userService.findAllOrgaMembers();
     orgaMembers.forEach(mem -> assertTrue(mem.canLogin));
-    orgaMembers.forEach(mem -> assertFalse(mem.id == ID));
+    orgaMembers.forEach(mem -> assertFalse(mem.id.intValue() == ID));
     orgaMembers.forEach(mem -> assertFalse(mem.username.equals(USERNAME)));
     assertEquals(3, orgaMembers.size());
 
@@ -128,7 +128,7 @@ public class UserServiceTest {
 
     User iam = userService.whoAmI();
     assertNotNull(iam);
-    assertEquals(ID, iam.id);
+    assertEquals(ID, iam.id.intValue());
   }
 
   @Test(expected = LoginRequiredException.class)
