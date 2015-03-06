@@ -19,8 +19,8 @@ public class UserHasClosedPullRequest {
 
   public UserHasClosedPullRequest() {}
 
-  public UserHasClosedPullRequest(PullRequest closedPullRequest) {
+  public UserHasClosedPullRequest(PullRequest closedPullRequest, ZonedDateTime closeDate) {
     this.closedPullRequest = closedPullRequest;
-    closeDate = ZonedDateTime.now();
+    this.closeDate = closeDate;
   }
 }

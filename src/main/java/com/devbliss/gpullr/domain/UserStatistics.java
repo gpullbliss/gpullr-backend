@@ -3,7 +3,6 @@ package com.devbliss.gpullr.domain;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,7 +13,10 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 /**
- * Statistical data about how many pull requests a certain user has merged.
+ * Statistical data about how many pull requests a certain user has merged. These data are not meant to be 
+ * used to respond to a ranking request on the fly but serve as an archive. 
+ * 
+ * The performance optimized ranking is pre-calculated based on this.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
@@ -26,7 +28,7 @@ public class UserStatistics {
   @GeneratedValue(strategy = GenerationType.AUTO)
   public int id;
 
-  @OneToOne(optional = false, fetch = FetchType.EAGER)
+  @OneToOne(optional = false, fetch = FetchType.LAZY)
   @NotNull
   private User user;
 
@@ -34,14 +36,14 @@ public class UserStatistics {
   @NotNull
   private List<UserHasClosedPullRequest> closedPullRequests = new ArrayList<>();
 
-  public void userHasClosedPullRequest(PullRequest pullRequest) {
-    closedPullRequests.add(new UserHasClosedPullRequest(pullRequest));
+  public void userHasClosedPullRequest(PullRequest pullRequest, ZonedDateTime closeDate) {
+    closedPullRequests.add(new UserHasClosedPullRequest(pullRequest, closeDate));
   }
 
-  public long getNumberOfClosedPullRequests(Optional<Integer> daysInPast) {
+  public long getNumberOfClosedPullRequests(RankingScope rankingScope) {
 
-    if (daysInPast.isPresent()) {
-      ZonedDateTime boarder = ZonedDateTime.now().minusDays(daysInPast.get());
+    if (rankingScope.daysInPast.isPresent()) {
+      ZonedDateTime boarder = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
       return closedPullRequests.stream().filter(uhcp -> !uhcp.closeDate.isBefore(boarder)).count();
     } else {
       return closedPullRequests.size();
