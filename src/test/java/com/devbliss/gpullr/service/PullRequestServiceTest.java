@@ -92,7 +92,7 @@ public class PullRequestServiceTest {
   }
 
   @Test
-  public void insertOrupdatePullRequest() {
+  public void insertOrUpdatePullRequest() {
     // first of all check that no pullRequest exists
     List<PullRequest> prs = prService.findAll();
     assertEquals(0, prs.size());

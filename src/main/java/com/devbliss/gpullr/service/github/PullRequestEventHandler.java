@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Handles pullRequest events fetched from GitHub and triggers the appropriate action in business layer. 
- * 
+ * Handles pullRequest events fetched from GitHub and triggers the appropriate action in business layer.
+ *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
@@ -53,11 +53,11 @@ public class PullRequestEventHandler {
 
     logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
     pullRequestService.insertOrUpdate(pullRequestFromEvent);
-    
+
     // unfortunately, the assignee is not set in GitHub PR event if state is OPEN, so we have to fetch it manually:
-    if(pullRequestFromEvent.state == State.OPEN) {
+    if (pullRequestFromEvent.state == State.OPEN) {
       pullRequestAssigneeWatcher.startWatching(pullRequestFromEvent);
-    } else if(pullRequestFromEvent.state == State.CLOSED) {
+    } else if (pullRequestFromEvent.state == State.CLOSED) {
       pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
     }
   }

@@ -6,6 +6,7 @@ import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,8 +49,8 @@ public class PullRequestService {
 
   /**
    * Finds all open pull requests sorted by creation date, latest first.
-   * 
-   * @return possibly empty list of pull requests 
+   *
+   * @return possibly empty list of pull requests
    */
   public List<PullRequest> findAllOpen() {
     return pullRequestRepository
@@ -77,6 +78,7 @@ public class PullRequestService {
     }
 
     githubApi.assignUserToPullRequest(user, pullRequest);
+    pullRequest.assignedAt = ZonedDateTime.now();
     pullRequest.assignee = user;
     pullRequestRepository.save(pullRequest);
   }
@@ -86,10 +88,13 @@ public class PullRequestService {
       userRepository.save(pullRequest.author);
     }
 
-    // assignee is null in GitHub response => save assignee if assigned via gpullr: 
+    // assignee is null in GitHub response => save assignee if assigned via gpullr:
     pullRequestRepository.findById(pullRequest.id).ifPresent(existing -> {
       if (pullRequest.assignee == null) {
         pullRequest.assignee = existing.assignee;
+        pullRequest.assignedAt = existing.assignedAt;
+      } else if (pullRequest.assignee.id.intValue() != existing.assignee.id.intValue()) {
+        pullRequest.assignedAt = ZonedDateTime.now();
       }
     });
     pullRequestRepository.save(pullRequest);

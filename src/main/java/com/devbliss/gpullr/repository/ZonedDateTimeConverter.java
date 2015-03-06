@@ -13,12 +13,20 @@ import javax.persistence.Converter;
 public class ZonedDateTimeConverter implements AttributeConverter<ZonedDateTime, String> {
 
   @Override
-  public String convertToDatabaseColumn(ZonedDateTime entityAttibute) {
-    return entityAttibute.toString();
+  public String convertToDatabaseColumn(ZonedDateTime entityAttribute) {
+    if(entityAttribute != null) {
+      return entityAttribute.toString();
+    } else {
+      return null;
+    }
   }
 
   @Override
   public ZonedDateTime convertToEntityAttribute(String dbData) {
-    return ZonedDateTime.parse(dbData);
+    if (dbData != null) {
+      return ZonedDateTime.parse(dbData);
+    } else {
+      return null;
+    }
   }
 }
