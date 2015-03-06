@@ -1,6 +1,7 @@
 
 ### Version 0.1.0-SNAPSHOT
 
+ - [feature] st
  - [feature] storing assignment date when assignee changes
  - [feature] added assignedAt property to PullRequest Entity and Dto
  - [refactor] implemented simple database migration strategy
@@ -22,5 +23,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Fri Mar 06 14:46:29 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Fri Mar 06 14:47:21 CET 2015
 
