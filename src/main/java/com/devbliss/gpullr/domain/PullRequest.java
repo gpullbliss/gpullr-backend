@@ -62,14 +62,6 @@ public class PullRequest {
   @Column(nullable = true)
   public ZonedDateTime assignedAt;
 
-  public String getAssignedAt() {
-    if (this.assignedAt != null) {
-      return this.assignedAt.toString();
-    } else {
-      return null;
-    }
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
