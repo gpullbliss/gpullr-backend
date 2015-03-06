@@ -1,5 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
+ - [refactor] implemented simple database migration strategy
  - [bug] assignee for open PR was not fetched when assignment took place at GitHub web
  - [bug] save assignee when null from GitHub response
  - [bug] missing data in pullrequest
@@ -18,4 +19,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Mar 05 13:38:18 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Mar 05 17:59:44 CET 2015
