@@ -1,15 +1,16 @@
 package com.devbliss.gpullr.service;
 
-import java.time.ZonedDateTime;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,8 +30,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class PullRequestServiceUnitTest {
 
   private static final Integer ID = 1981;
-  
+
   private static final ZonedDateTime IN_THE_PAST = ZonedDateTime.now().minusDays(1);
+
+  private static final Integer ASSIGNEE_ID = 12;
+
+  private static final Integer ANOTHER_ASSIGNEE_ID = 18;
 
   @Mock
   private GithubApi githubApi;
@@ -41,10 +46,8 @@ public class PullRequestServiceUnitTest {
   @Mock
   private UserRepository userRepository;
 
-  @Mock
   private User assignee;
-  
-  @Mock
+
   private User anotherAssignee;
 
   @Mock
@@ -61,6 +64,10 @@ public class PullRequestServiceUnitTest {
 
   @Before
   public void setup() {
+    assignee = new User();
+    assignee.id = ASSIGNEE_ID;
+    anotherAssignee = new User();
+    anotherAssignee.id = ANOTHER_ASSIGNEE_ID;
     pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi);
     pullRequestFromLocalStorage = new PullRequest();
     pullRequestFromLocalStorage.id = ID;
@@ -72,14 +79,16 @@ public class PullRequestServiceUnitTest {
   @Test
   public void keepLocallyStoredAssigneeWhenAssigneeFromEventIsNull() {
     pullRequestFromLocalStorage.assignee = assignee;
+    pullRequestFromLocalStorage.assignedAt = IN_THE_PAST;
     when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
     pullRequestService.insertOrUpdate(pullRequestFromGitHub);
     verify(pullRequestRepository).save(pullRequestCaptor.capture());
     assertEquals(assignee, pullRequestCaptor.getValue().assignee);
+    assertEquals(IN_THE_PAST, pullRequestCaptor.getValue().assignedAt);
   }
-  
+
   @Test
-  public void overwriteLocallyStoredAssigneeWhenAssigneeFromEventIsNull() {
+  public void overwriteLocallyStoredAssigneeWhenAssigneeFromEventIsNotNull() {
     pullRequestFromLocalStorage.assignee = assignee;
     pullRequestFromLocalStorage.assignedAt = IN_THE_PAST;
     pullRequestFromGitHub.assignee = anotherAssignee;
@@ -87,6 +96,6 @@ public class PullRequestServiceUnitTest {
     pullRequestService.insertOrUpdate(pullRequestFromGitHub);
     verify(pullRequestRepository).save(pullRequestCaptor.capture());
     assertEquals(anotherAssignee, pullRequestCaptor.getValue().assignee);
-    assertEquals(IN_THE_PAST, pullRequestCaptor.getValue().assignedAt);
+    assertTrue(IN_THE_PAST.isBefore(pullRequestCaptor.getValue().assignedAt));
   }
 }
