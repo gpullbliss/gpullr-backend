@@ -57,7 +57,7 @@ public class GithubApi {
   private static final String FIELD_KEY_ACTION = "action";
 
   private static final String FIELD_KEY_ASSIGNEE = "assignee";
-  
+
   private static final String ERR_MSG_RESPONSE = "Request to '%s' returned unexpected status code: %d.";
 
   @Log
@@ -85,7 +85,7 @@ public class GithubApi {
 
   /**
    * Fetches data of an existing pull request.
-   * 
+   *
    * @param pullRequest
    * @param etagHeader
    * @return response object containing the actual pull request plus response meta data required for next request
