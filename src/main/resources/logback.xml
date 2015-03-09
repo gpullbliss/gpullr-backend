@@ -9,8 +9,8 @@
         class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         <maxFileSize>50MB</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
-  <!-- keep 15 days of history -->
-      <maxHistory>15</maxHistory>
+      <!-- assuming 500MB log size per day, and we want to keep 15 days: -->
+      <maxHistory>150</maxHistory>
     </rollingPolicy>
     <encoder>
       <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
