@@ -3,6 +3,7 @@ package com.devbliss.gpullr.domain;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,27 +27,40 @@ public class UserStatistics {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  public int id;
+  public long id;
 
-  @OneToOne(optional = false, fetch = FetchType.LAZY)
+  @OneToOne(optional = false, fetch = FetchType.EAGER)
   @NotNull
-  private User user;
+  @Column(unique = true)
+  public User user;
 
   @ElementCollection
   @NotNull
   private List<UserHasClosedPullRequest> closedPullRequests = new ArrayList<>();
 
+  public UserStatistics() {}
+
+  public UserStatistics(User user) {
+    this.user = user;
+  }
+
   public void userHasClosedPullRequest(PullRequest pullRequest, ZonedDateTime closeDate) {
     closedPullRequests.add(new UserHasClosedPullRequest(pullRequest, closeDate));
   }
 
-  public long getNumberOfClosedPullRequests(RankingScope rankingScope) {
+  public Ranking getNumberOfClosedPullRequests(RankingScope rankingScope) {
+    long numberOfMergedPullRequests;
 
     if (rankingScope.daysInPast.isPresent()) {
       ZonedDateTime boarder = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
-      return closedPullRequests.stream().filter(uhcp -> !uhcp.closeDate.isBefore(boarder)).count();
+      numberOfMergedPullRequests = closedPullRequests
+        .stream()
+        .filter(uhcp -> !uhcp.closeDate.isBefore(boarder))
+        .count();
     } else {
-      return closedPullRequests.size();
+      numberOfMergedPullRequests = Long.valueOf(closedPullRequests.size());
     }
+
+    return new Ranking(user.username, numberOfMergedPullRequests, rankingScope);
   }
 }

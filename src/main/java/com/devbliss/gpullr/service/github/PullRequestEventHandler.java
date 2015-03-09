@@ -1,5 +1,11 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.service.UserStatisticsService;
+
+import java.time.Instant;
+import java.util.Date;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.core.task.TaskExecutor;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.PullRequestEvent;
@@ -23,16 +29,23 @@ public class PullRequestEventHandler {
   @Log
   Logger logger;
 
+  @Autowired
+  private TaskScheduler taskScheduler;
+
   private final PullRequestService pullRequestService;
 
   private final PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
 
+  private final UserStatisticsService userStatisticsService;
+
   @Autowired
   public PullRequestEventHandler(
       PullRequestService pullRequestService,
-      PullRequestAssigneeWatcher pullRequestAssigneeWatcher) {
+      PullRequestAssigneeWatcher pullRequestAssigneeWatcher,
+      UserStatisticsService userStatisticsService) {
     this.pullRequestService = pullRequestService;
     this.pullRequestAssigneeWatcher = pullRequestAssigneeWatcher;
+    this.userStatisticsService = userStatisticsService;
   }
 
   public void handlePullRequestEvent(PullRequestEvent event) {
@@ -54,11 +67,26 @@ public class PullRequestEventHandler {
     logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
     pullRequestService.insertOrUpdate(pullRequestFromEvent);
 
-    // unfortunately, the assignee is not set in GitHub PR event if state is OPEN, so we have to fetch it manually:
+    // unfortunately, the assignee is not set in GitHub PR event if state is OPEN, so we have to
+    // fetch it manually:
     if (pullRequestFromEvent.state == State.OPEN) {
       pullRequestAssigneeWatcher.startWatching(pullRequestFromEvent);
     } else if (pullRequestFromEvent.state == State.CLOSED) {
       pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
+
+      if (wasPullRequestNotClosedBefore(pullRequestFromDb)) {
+        taskScheduler.schedule(() -> userStatisticsService.pullRequestWasClosed(pullRequestFromEvent),
+            Date.from(Instant.now()));
+      }
     }
+  }
+
+  private boolean wasPullRequestNotClosedBefore(Optional<PullRequest> pullRequestFromDb) {
+
+    if (pullRequestFromDb.isPresent()) {
+      return pullRequestFromDb.get().state != State.CLOSED;
+    }
+
+    return false;
   }
 }
