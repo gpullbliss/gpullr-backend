@@ -23,7 +23,7 @@ build/
 .project
 /bin/
 
-/gpullr.log
+/gpullr*.log
 
 /gpullr.mv.db
 

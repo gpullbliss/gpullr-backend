@@ -26,6 +26,14 @@ public class RankingService {
     this.rankingRepository = rankingRepository;
   }
 
+  /**
+   * Removes ALL rankings from storage and inserts given rankings.
+   * For simplicity and performance reasons, this method is NOT really thread-safe.
+   * 
+   * That means, for a short period
+   * 
+   * @param rankings
+   */
   public void replace(List<Ranking> rankings) {
     rankingRepository.deleteAll();
     rankingRepository.save(rankings);
@@ -34,7 +42,8 @@ public class RankingService {
   public List<Ranking> findAllWithRankingScope(RankingScope rankingScope) {
     List<Ranking> rankings = rankingRepository.findByRankingScopeOrderByNumberOfMergedPullRequests(rankingScope);
 
-    // dirty but should do: if this is called while replace() is working - let's just wait and try again:
+    // dirty but should do: if this is called while replace() is working - let's just wait and try
+    // again:
     if (rankings.isEmpty()) {
       try {
         Thread.sleep(RETRY_AFTER_MILLIS_IF_EMPTY);
