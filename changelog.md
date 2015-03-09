@@ -1,6 +1,7 @@
 
 ### Version 0.1.0-SNAPSHOT
 
+ - [refactor] rolling logfiles per day and after 50MB
  - [feature] added assignedAt property to PullRequest Entity and Dto
  - [refactor] implemented simple database migration strategy
  - [bug] assignee for open PR was not fetched when assignment took place at GitHub web
@@ -21,5 +22,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Fri Mar 06 14:47:21 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 09 12:43:56 CET 2015
 
