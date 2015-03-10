@@ -2,7 +2,10 @@ package com.devbliss.gpullr.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -26,7 +29,13 @@ public class User {
 
   public Boolean canLogin = false;
 
-  public User() {}
+  @OneToOne(fetch = FetchType.EAGER, targetEntity = UserSettings.class)
+  @JoinColumn(name = "user_settings_id")
+  public UserSettings userSettings;
+
+  public User() {
+    this.userSettings = new UserSettings(UserSettings.OrderOption.DESC);
+  }
 
   public User(Integer id, String username, String avatarUrl) {
     this(id, username, avatarUrl, false);
@@ -42,11 +51,11 @@ public class User {
   @Override
   public String toString() {
     return "User{" +
-        "id=" + id +
-        ", username='" + username + '\'' +
-        ", avatarUrl='" + avatarUrl + '\'' +
-        ", canLogin=" + canLogin +
-        '}';
+      "id=" + id +
+      ", username='" + username + '\'' +
+      ", avatarUrl='" + avatarUrl + '\'' +
+      ", canLogin=" + canLogin +
+      '}';
   }
 
   @Override
