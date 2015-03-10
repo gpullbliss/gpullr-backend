@@ -41,12 +41,17 @@ public class UserStatistics {
   public UserStatistics(User user) {
     this.user = user;
   }
+  
+  public UserStatistics(User user, List<UserHasClosedPullRequest> closedPullRequests) {
+    this(user);
+    this.closedPullRequests = closedPullRequests;
+  }
 
   public void userHasClosedPullRequest(PullRequest pullRequest, ZonedDateTime closeDate) {
     closedPullRequests.add(new UserHasClosedPullRequest(closeDate, pullRequest.url));
   }
 
-  public Ranking getNumberOfClosedPullRequests(RankingScope rankingScope) {
+  public Ranking getRanking(RankingScope rankingScope) {
     long numberOfMergedPullRequests;
 
     if (rankingScope.daysInPast.isPresent()) {

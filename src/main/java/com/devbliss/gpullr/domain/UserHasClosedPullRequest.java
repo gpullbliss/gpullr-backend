@@ -3,8 +3,6 @@ package com.devbliss.gpullr.domain;
 import java.time.ZonedDateTime;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 @Embeddable
