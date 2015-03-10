@@ -3,6 +3,7 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.controller.dto.ListDto;
 import com.devbliss.gpullr.controller.dto.RankingConverter;
 import com.devbliss.gpullr.controller.dto.RankingDto;
+import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.service.RankingService;
 import java.util.stream.Collectors;
@@ -31,6 +32,8 @@ public class RankingController {
     RankingScope rankingScope = RankingScope.parse(rankingScopeString);
     return new ListDto<>(rankingService
       .findAllWithRankingScope(rankingScope)
+      .orElse(new RankingList())
+      .getRankings()
       .stream()
       .map(r -> rankingConverter.toDto(r))
       .collect(Collectors.toList()));

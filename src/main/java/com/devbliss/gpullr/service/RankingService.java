@@ -7,8 +7,8 @@ import com.devbliss.gpullr.domain.UserStatistics;
 import com.devbliss.gpullr.repository.RankingListRepository;
 import com.devbliss.gpullr.repository.UserStatisticsRepository;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,17 +36,18 @@ public class RankingService {
     this.userStatisticsRepository = userStatisticsRepository;
   }
 
-  public List<Ranking> findAllWithRankingScope(RankingScope rankingScope) {
+  public Optional<RankingList> findAllWithRankingScope(RankingScope rankingScope) {
     List<RankingList> rankingLists = rankingListRepository.findByRankingScopeOrderByCalculationDateDesc(rankingScope);
 
     if (!rankingLists.isEmpty()) {
       RankingList rankingList = rankingLists.get(0);
-      LOGGER.debug("Returning rankings calculated at " + rankingList.calculationDate.toString());
-      return rankingList.getRankings();
+      LOGGER.debug("Returning rankings calculated at " + rankingList.calculationDate.toString() + ": ");
+      LOGGER.debug("" + rankingList.getRankings());
+      return Optional.of(rankingList);
     }
 
     LOGGER.debug("No ranking list found for scope " + rankingScope + " - no rankings found.");
-    return new ArrayList<>();
+    return Optional.empty();
   }
 
   public void recalculateRankings() {

@@ -12,7 +12,7 @@ public class Ranking {
 
   @NotBlank
   public String username;
-  
+
   @NotBlank
   public String avatarUrl;
 
@@ -24,5 +24,10 @@ public class Ranking {
   public Ranking(String username, Long closedCount) {
     this.username = username;
     this.closedCount = closedCount;
+  }
+
+  @Override
+  public String toString() {
+    return "Ranking {rank=" + rank + ", username=" + username + ", closedCount=" + closedCount + "}";
   }
 }

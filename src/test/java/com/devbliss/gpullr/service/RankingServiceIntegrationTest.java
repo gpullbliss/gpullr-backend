@@ -1,12 +1,14 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Ranking;
+import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserStatistics;
@@ -15,6 +17,7 @@ import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.repository.UserStatisticsRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,14 +108,15 @@ public class RankingServiceIntegrationTest {
   public void teardown() {
     userStatisticsRepository.deleteAll();
     userRepository.deleteAll();
+    rankingListRepository.deleteAll();
   }
 
   @Test
   public void noRankingsWithoutCalculation() {
-    assertTrue(rankingService.findAllWithRankingScope(RankingScope.TODAY).isEmpty());
-    assertTrue(rankingService.findAllWithRankingScope(RankingScope.LAST_7_DAYS).isEmpty());
-    assertTrue(rankingService.findAllWithRankingScope(RankingScope.LAST_30_DAYS).isEmpty());
-    assertTrue(rankingService.findAllWithRankingScope(RankingScope.ALL_TIME).isEmpty());
+    assertFalse(rankingService.findAllWithRankingScope(RankingScope.TODAY).isPresent());
+    assertFalse(rankingService.findAllWithRankingScope(RankingScope.LAST_7_DAYS).isPresent());
+    assertFalse(rankingService.findAllWithRankingScope(RankingScope.LAST_30_DAYS).isPresent());
+    assertFalse(rankingService.findAllWithRankingScope(RankingScope.ALL_TIME).isPresent());
   }
 
   @Test
@@ -121,7 +125,9 @@ public class RankingServiceIntegrationTest {
     rankingService.recalculateRankings();
 
     // fetch calculated rankings:
-    List<Ranking> rankings = rankingService.findAllWithRankingScope(RankingScope.TODAY);
+    Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.TODAY); 
+    assertTrue(rankingList.isPresent());
+    List<Ranking> rankings = rankingList.get().getRankings();
     assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [alpha, beta, gamma]:
@@ -146,7 +152,9 @@ public class RankingServiceIntegrationTest {
     rankingService.recalculateRankings();
 
     // fetch calculated rankings:
-    List<Ranking> rankings = rankingService.findAllWithRankingScope(RankingScope.LAST_7_DAYS);
+    Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.LAST_7_DAYS); 
+    assertTrue(rankingList.isPresent());
+    List<Ranking> rankings = rankingList.get().getRankings();
     assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [beta, alpha, gamma]:
@@ -164,17 +172,20 @@ public class RankingServiceIntegrationTest {
     assertEquals(2, rankings.get(1).rank.intValue());
     assertEquals(3, rankings.get(2).rank.intValue());
   }
-  
+
   @Test
   public void rankingsForLast30Days() {
     // trigger ranking calculation:
     rankingService.recalculateRankings();
 
     // fetch calculated rankings:
-    List<Ranking> rankings = rankingService.findAllWithRankingScope(RankingScope.LAST_30_DAYS);
+    Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.LAST_30_DAYS); 
+    assertTrue(rankingList.isPresent());
+    List<Ranking> rankings = rankingList.get().getRankings();
     assertEquals(3, rankings.size());
 
-    // according to the user statistics setup, the ranking should be: [alpha, beta, gamma] (alphabetical if same rank):
+    // according to the user statistics setup, the ranking should be: [alpha, beta, gamma]
+    // (alphabetical if same rank):
     assertEquals(userAlpha.username, rankings.get(0).username);
     assertEquals(userBeta.username, rankings.get(1).username);
     assertEquals(userGamma.username, rankings.get(2).username);
@@ -189,17 +200,20 @@ public class RankingServiceIntegrationTest {
     assertEquals(2, rankings.get(1).rank.intValue());
     assertEquals(3, rankings.get(2).rank.intValue());
   }
-  
+
   @Test
   public void rankingsForLastAllTime() {
     // trigger ranking calculation:
     rankingService.recalculateRankings();
 
     // fetch calculated rankings:
-    List<Ranking> rankings = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME); 
+    assertTrue(rankingList.isPresent());
+    List<Ranking> rankings = rankingList.get().getRankings();
     assertEquals(3, rankings.size());
 
-    // according to the user statistics setup, the ranking should be: [alpha, beta, gamma] (alphabetical if same rank):
+    // according to the user statistics setup, the ranking should be: [alpha, beta, gamma]
+    // (alphabetical if same rank):
     assertEquals(userGamma.username, rankings.get(0).username);
     assertEquals(userAlpha.username, rankings.get(1).username);
     assertEquals(userBeta.username, rankings.get(2).username);
@@ -213,5 +227,12 @@ public class RankingServiceIntegrationTest {
     assertEquals(1, rankings.get(0).rank.intValue());
     assertEquals(2, rankings.get(1).rank.intValue());
     assertEquals(3, rankings.get(2).rank.intValue());
+  }
+
+  @Test
+  public void alwaysLatestRanking() {
+    // trigger ranking calculation:
+    rankingService.recalculateRankings();
+    rankingService.findAllWithRankingScope(RankingScope.ALL_TIME).get();
   }
 }
