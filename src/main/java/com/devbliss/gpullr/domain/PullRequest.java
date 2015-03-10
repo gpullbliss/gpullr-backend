@@ -40,6 +40,7 @@ public class PullRequest {
 
   public String title;
 
+  @Column(unique = true)
   public String url;
 
   public ZonedDateTime createdAt;
