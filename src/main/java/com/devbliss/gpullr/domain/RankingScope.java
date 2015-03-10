@@ -26,5 +26,4 @@ public enum RankingScope {
   private RankingScope(Optional<Integer> daysInPast) {
     this.daysInPast = daysInPast;
   }
-
 }
