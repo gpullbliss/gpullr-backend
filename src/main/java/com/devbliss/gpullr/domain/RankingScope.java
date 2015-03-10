@@ -17,7 +17,7 @@ public enum RankingScope {
 
   public static RankingScope parse(String stringRepresentation) {
     try {
-      return valueOf(stringRepresentation.toLowerCase());
+      return RankingScope.valueOf(stringRepresentation.toUpperCase());
     } catch (IllegalArgumentException e) {
       throw new InvalidInputException("No RankingScope found for value " + stringRepresentation);
     }
