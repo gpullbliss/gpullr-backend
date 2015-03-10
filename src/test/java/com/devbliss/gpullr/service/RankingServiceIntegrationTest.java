@@ -125,14 +125,14 @@ public class RankingServiceIntegrationTest {
     assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [alpha, beta, gamma]:
-    assertEquals(userAlpha.username, rankings.get(0).fullName);
-    assertEquals(userBeta.username, rankings.get(1).fullName);
-    assertEquals(userGamma.username, rankings.get(2).fullName);
+    assertEquals(userAlpha.username, rankings.get(0).username);
+    assertEquals(userBeta.username, rankings.get(1).username);
+    assertEquals(userGamma.username, rankings.get(2).username);
 
     // the number of pull requests for the rankings should be [3, 1, 0]:
-    assertEquals(3, rankings.get(0).numberOfMergedPullRequests.longValue());
-    assertEquals(1, rankings.get(1).numberOfMergedPullRequests.longValue());
-    assertEquals(0, rankings.get(2).numberOfMergedPullRequests.longValue());
+    assertEquals(3, rankings.get(0).closedCount.longValue());
+    assertEquals(1, rankings.get(1).closedCount.longValue());
+    assertEquals(0, rankings.get(2).closedCount.longValue());
 
     // and the numbers of the rankings should be [1, 2, 3], of course:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -150,14 +150,14 @@ public class RankingServiceIntegrationTest {
     assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [beta, alpha, gamma]:
-    assertEquals(userBeta.username, rankings.get(0).fullName);
-    assertEquals(userAlpha.username, rankings.get(1).fullName);
-    assertEquals(userGamma.username, rankings.get(2).fullName);
+    assertEquals(userBeta.username, rankings.get(0).username);
+    assertEquals(userAlpha.username, rankings.get(1).username);
+    assertEquals(userGamma.username, rankings.get(2).username);
 
     // the number of pull requests for the rankings should be [6, 4, 1]:
-    assertEquals(6, rankings.get(0).numberOfMergedPullRequests.longValue());
-    assertEquals(4, rankings.get(1).numberOfMergedPullRequests.longValue());
-    assertEquals(1, rankings.get(2).numberOfMergedPullRequests.longValue());
+    assertEquals(6, rankings.get(0).closedCount.longValue());
+    assertEquals(4, rankings.get(1).closedCount.longValue());
+    assertEquals(1, rankings.get(2).closedCount.longValue());
 
     // and the numbers of the rankings should be [1, 2, 3], of course:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -175,14 +175,14 @@ public class RankingServiceIntegrationTest {
     assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [alpha, beta, gamma] (alphabetical if same rank):
-    assertEquals(userAlpha.username, rankings.get(0).fullName);
-    assertEquals(userBeta.username, rankings.get(1).fullName);
-    assertEquals(userGamma.username, rankings.get(2).fullName);
+    assertEquals(userAlpha.username, rankings.get(0).username);
+    assertEquals(userBeta.username, rankings.get(1).username);
+    assertEquals(userGamma.username, rankings.get(2).username);
 
     // the number of pull requests for the rankings should be [6, 6, 4]:
-    assertEquals(6, rankings.get(0).numberOfMergedPullRequests.longValue());
-    assertEquals(6, rankings.get(1).numberOfMergedPullRequests.longValue());
-    assertEquals(4, rankings.get(2).numberOfMergedPullRequests.longValue());
+    assertEquals(6, rankings.get(0).closedCount.longValue());
+    assertEquals(6, rankings.get(1).closedCount.longValue());
+    assertEquals(4, rankings.get(2).closedCount.longValue());
 
     // and the numbers of the rankings should be [1, 2, 3], of course:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -200,14 +200,14 @@ public class RankingServiceIntegrationTest {
     assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [alpha, beta, gamma] (alphabetical if same rank):
-    assertEquals(userGamma.username, rankings.get(0).fullName);
-    assertEquals(userAlpha.username, rankings.get(1).fullName);
-    assertEquals(userBeta.username, rankings.get(2).fullName);
+    assertEquals(userGamma.username, rankings.get(0).username);
+    assertEquals(userAlpha.username, rankings.get(1).username);
+    assertEquals(userBeta.username, rankings.get(2).username);
 
     // the number of pull requests for the rankings should be [12, 7, 6]:
-    assertEquals(12, rankings.get(0).numberOfMergedPullRequests.longValue());
-    assertEquals(7, rankings.get(1).numberOfMergedPullRequests.longValue());
-    assertEquals(6, rankings.get(2).numberOfMergedPullRequests.longValue());
+    assertEquals(12, rankings.get(0).closedCount.longValue());
+    assertEquals(7, rankings.get(1).closedCount.longValue());
+    assertEquals(6, rankings.get(2).closedCount.longValue());
 
     // and the numbers of the rankings should be [1, 2, 3], of course:
     assertEquals(1, rankings.get(0).rank.intValue());

@@ -47,7 +47,7 @@ public class RankingList {
       .sorted((r1, r2) -> {
         int result = r1.rank.compareTo(r2.rank);
         if (result == 0) {
-          result = r1.fullName.compareTo(r2.fullName);
+          result = r1.username.compareTo(r2.username);
         }
         return result;
       })

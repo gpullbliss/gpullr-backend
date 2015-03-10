@@ -11,15 +11,18 @@ public class Ranking {
   public Integer rank;
 
   @NotBlank
-  public String fullName;
+  public String username;
+  
+  @NotBlank
+  public String avatarUrl;
 
   @NotNull
-  public Long numberOfMergedPullRequests;
+  public Long closedCount;
 
   public Ranking() {}
 
-  public Ranking(String fullName, Long numberOfMergedPullRequests) {
-    this.fullName = fullName;
-    this.numberOfMergedPullRequests = numberOfMergedPullRequests;
+  public Ranking(String username, Long closedCount) {
+    this.username = username;
+    this.closedCount = closedCount;
   }
 }

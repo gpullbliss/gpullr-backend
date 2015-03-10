@@ -39,26 +39,26 @@ public class UserStatisticsUnitTest {
 
     // asking for all should return 4 - rank is not set here:
     Ranking ranking = userStatistics.getRanking(RankingScope.ALL_TIME);
-    assertEquals(4, ranking.numberOfMergedPullRequests.longValue());
+    assertEquals(4, ranking.closedCount.longValue());
     assertNull(ranking.rank);
-    assertEquals(USER_NAME, ranking.fullName);
+    assertEquals(USER_NAME, ranking.username);
 
     // asking for last 30 days should return 3 - rank is not set here:
     ranking = userStatistics.getRanking(RankingScope.LAST_30_DAYS);
-    assertEquals(3, ranking.numberOfMergedPullRequests.longValue());
+    assertEquals(3, ranking.closedCount.longValue());
     assertNull(ranking.rank);
-    assertEquals(USER_NAME, ranking.fullName);
+    assertEquals(USER_NAME, ranking.username);
 
     // asking for last 7 days should return 2 - rank is not set here:
     ranking = userStatistics.getRanking(RankingScope.LAST_7_DAYS);
-    assertEquals(2, ranking.numberOfMergedPullRequests.longValue());
+    assertEquals(2, ranking.closedCount.longValue());
     assertNull(ranking.rank);
-    assertEquals(USER_NAME, ranking.fullName);
+    assertEquals(USER_NAME, ranking.username);
 
     // asking for today should return 1 - rank is not set here:
     ranking = userStatistics.getRanking(RankingScope.TODAY);
-    assertEquals(1, ranking.numberOfMergedPullRequests.longValue());
+    assertEquals(1, ranking.closedCount.longValue());
     assertNull(ranking.rank);
-    assertEquals(USER_NAME, ranking.fullName);
+    assertEquals(USER_NAME, ranking.username);
   }
 }

@@ -74,7 +74,7 @@ public class RankingService {
     List<Ranking> rankingsForScope = userStatistics
       .stream()
       .map(us -> us.getRanking(rankingScope))
-      .sorted((r1, r2) -> r2.numberOfMergedPullRequests.compareTo(r1.numberOfMergedPullRequests))
+      .sorted((r1, r2) -> r2.closedCount.compareTo(r1.closedCount))
       .collect(Collectors.toList());
 
     for (int rank = 0; rank < rankingsForScope.size(); rank++) {

@@ -77,10 +77,10 @@ public class UserStatisticsServiceIntegrationTest {
     assertTrue(userStatistics.isPresent());
     assertEquals(USER_ID, userStatistics.get().user.id);
     assertEquals(0L,
-        userStatistics.get().getRanking(RankingScope.TODAY).numberOfMergedPullRequests.longValue());
+        userStatistics.get().getRanking(RankingScope.TODAY).closedCount.longValue());
     assertEquals(
         1L,
-        userStatistics.get().getRanking(RankingScope.LAST_7_DAYS).numberOfMergedPullRequests.longValue());
+        userStatistics.get().getRanking(RankingScope.LAST_7_DAYS).closedCount.longValue());
     verify(rankingService).recalculateRankings();
 
   }
