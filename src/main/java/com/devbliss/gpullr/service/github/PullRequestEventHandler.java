@@ -74,6 +74,7 @@ public class PullRequestEventHandler {
       pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
 
       if (wasPullRequestNotClosedBefore(pullRequestFromDb)) {
+        logger.debug("Scheduling user statistic PR-closed-call for " + pullRequestFromEvent.url);
         taskScheduler.schedule(
             () -> userStatisticsService.pullRequestWasClosed(pullRequestFromEvent, ZonedDateTime.now()),
             Date.from(Instant.now()));
@@ -87,6 +88,6 @@ public class PullRequestEventHandler {
       return pullRequestFromDb.get().state != State.CLOSED;
     }
 
-    return false;
+    return true;
   }
 }

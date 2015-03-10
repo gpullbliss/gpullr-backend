@@ -231,8 +231,26 @@ public class RankingServiceIntegrationTest {
 
   @Test
   public void alwaysLatestRanking() {
-    // trigger ranking calculation:
+    // trigger ranking calculation and fetch:
     rankingService.recalculateRankings();
-    rankingService.findAllWithRankingScope(RankingScope.ALL_TIME).get();
-  }
+    Optional<RankingList> ranking = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    assertTrue(ranking.isPresent());
+    ZonedDateTime firstCalcDate = ranking.get().calculationDate;
+    
+    // wait a moment:
+    try {
+      Thread.sleep(1250);
+    } catch(InterruptedException e) {
+      
+    }
+    
+    // trigger ranking calculation again and fetch again:
+    rankingService.recalculateRankings();
+    ranking = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    assertTrue(ranking.isPresent());
+    ZonedDateTime secondCalcDate = ranking.get().calculationDate;
+    
+    // second fetch should have returned a newer ranking list:
+    assertTrue(firstCalcDate.isBefore(secondCalcDate));
+  } 
 }
