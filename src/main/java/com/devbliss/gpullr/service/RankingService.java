@@ -1,15 +1,18 @@
 package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.Ranking;
+import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
-import com.devbliss.gpullr.exception.UnexpectedException;
-import com.devbliss.gpullr.repository.RankingRepository;
+import com.devbliss.gpullr.repository.RankingListRepository;
+import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Business logic for {@link Ranking} objects.
+ * Business logic for {@link RankingList} objects.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
@@ -17,43 +20,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class RankingService {
 
-  private static final int RETRY_AFTER_MILLIS_IF_EMPTY = 1000;
+  private static final Logger LOGGER = LoggerFactory.getLogger(RankingService.class);
 
-  private final RankingRepository rankingRepository;
+  private final RankingListRepository rankingRepository;
 
   @Autowired
-  public RankingService(RankingRepository rankingRepository) {
-    this.rankingRepository = rankingRepository;
-  }
-
-  /**
-   * Removes ALL rankings from storage and inserts given rankings.
-   * For simplicity and performance reasons, this method is NOT really thread-safe.
-   * 
-   * That means, for a short period
-   * 
-   * @param rankings
-   */
-  public void replace(List<Ranking> rankings) {
-    rankingRepository.deleteAll();
-    rankingRepository.save(rankings);
+  public RankingService(RankingListRepository rankingListRepository) {
+    this.rankingRepository = rankingListRepository;
   }
 
   public List<Ranking> findAllWithRankingScope(RankingScope rankingScope) {
-    List<Ranking> rankings = rankingRepository.findByRankingScopeOrderByNumberOfMergedPullRequests(rankingScope);
+    List<RankingList> rankingLists = rankingRepository.findByRankingScopeOrderByCalculationDateDesc(rankingScope);
 
-    // dirty but should do: if this is called while replace() is working - let's just wait and try
-    // again:
-    if (rankings.isEmpty()) {
-      try {
-        Thread.sleep(RETRY_AFTER_MILLIS_IF_EMPTY);
-      } catch (InterruptedException e) {
-        throw new UnexpectedException(e);
-      }
-
-      rankings = rankingRepository.findByRankingScopeOrderByNumberOfMergedPullRequests(rankingScope);
+    if (!rankingLists.isEmpty()) {
+      RankingList rankingList = rankingLists.get(0);
+      LOGGER.debug("Returning rankings calculated at " + rankingList.calculationDate.toString());
+      return rankingList.getRankings();
     }
 
-    return rankings;
+    LOGGER.debug("No ranking list found for scope " + rankingScope + " - no rankings found.");
+    return new ArrayList<>();
   }
 }

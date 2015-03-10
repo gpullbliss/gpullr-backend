@@ -1,20 +1,19 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.service.UserStatisticsService;
-
-import java.time.Instant;
-import java.util.Date;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.core.task.TaskExecutor;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.service.PullRequestService;
+import com.devbliss.gpullr.service.UserStatisticsService;
 import com.devbliss.gpullr.util.Log;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 /**
@@ -75,7 +74,8 @@ public class PullRequestEventHandler {
       pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
 
       if (wasPullRequestNotClosedBefore(pullRequestFromDb)) {
-        taskScheduler.schedule(() -> userStatisticsService.pullRequestWasClosed(pullRequestFromEvent),
+        taskScheduler.schedule(
+            () -> userStatisticsService.pullRequestWasClosed(pullRequestFromEvent, ZonedDateTime.now()),
             Date.from(Instant.now()));
       }
     }

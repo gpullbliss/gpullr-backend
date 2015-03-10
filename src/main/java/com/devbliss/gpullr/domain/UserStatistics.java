@@ -3,7 +3,6 @@ package com.devbliss.gpullr.domain;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,10 +30,9 @@ public class UserStatistics {
 
   @OneToOne(optional = false, fetch = FetchType.EAGER)
   @NotNull
-  @Column(unique = true)
   public User user;
 
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @NotNull
   private List<UserHasClosedPullRequest> closedPullRequests = new ArrayList<>();
 
@@ -45,7 +43,7 @@ public class UserStatistics {
   }
 
   public void userHasClosedPullRequest(PullRequest pullRequest, ZonedDateTime closeDate) {
-    closedPullRequests.add(new UserHasClosedPullRequest(pullRequest, closeDate));
+    closedPullRequests.add(new UserHasClosedPullRequest(closeDate, pullRequest.url));
   }
 
   public Ranking getNumberOfClosedPullRequests(RankingScope rankingScope) {
@@ -61,6 +59,6 @@ public class UserStatistics {
       numberOfMergedPullRequests = Long.valueOf(closedPullRequests.size());
     }
 
-    return new Ranking(user.username, numberOfMergedPullRequests, rankingScope);
+    return new Ranking(user.username, numberOfMergedPullRequests);
   }
 }

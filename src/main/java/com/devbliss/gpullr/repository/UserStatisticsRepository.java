@@ -16,5 +16,5 @@ public interface UserStatisticsRepository extends CrudRepository<UserStatistics,
 
   List<UserStatistics> findAll();
 
-  Optional<UserStatistics> findByUser(User user);
+  Optional<UserStatistics> findByUserId(Integer userId);
 }

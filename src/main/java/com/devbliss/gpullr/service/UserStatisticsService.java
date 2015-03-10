@@ -2,11 +2,15 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Ranking;
+import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
+import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserStatistics;
+import com.devbliss.gpullr.exception.NotFoundException;
+import com.devbliss.gpullr.repository.RankingListRepository;
+import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.repository.UserStatisticsRepository;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,57 +32,78 @@ public class UserStatisticsService {
 
   private final UserStatisticsRepository userStatisticsRepository;
 
-  private final RankingService rankingService;
+  private final RankingListRepository rankingListRepository;
+
+  private final UserRepository userRepository;
 
   @Autowired
-  public UserStatisticsService(UserStatisticsRepository userStatisticsRepository, RankingService rankingService) {
+  public UserStatisticsService(
+      UserStatisticsRepository userStatisticsRepository,
+      RankingListRepository rankingListRepository,
+      UserRepository userRepository) {
     this.userStatisticsRepository = userStatisticsRepository;
-    this.rankingService = rankingService;
+    this.rankingListRepository = rankingListRepository;
+    this.userRepository = userRepository;
   }
 
-  public void pullRequestWasClosed(PullRequest pullRequest) {
-    saveClosedPullRequestStatistic(pullRequest);
-    rankingService.replace(calculateRankings());
+  public void pullRequestWasClosed(PullRequest pullRequest, ZonedDateTime closedAt) {
+    saveClosedPullRequestStatistic(pullRequest, closedAt);
+    recalculateRankings();
   }
 
-  private void saveClosedPullRequestStatistic(PullRequest pullRequest) {
+  private void saveClosedPullRequestStatistic(PullRequest pullRequest, ZonedDateTime closedAt) {
     if (pullRequest.assignee == null) {
       LOGGER.warn("Pullrequest " + pullRequest.title + " / " + pullRequest.url + " was closed without assignee.");
       return;
     }
 
-    Optional<UserStatistics> existingUserStatistics = userStatisticsRepository.findByUser(pullRequest.assignee);
+    Optional<UserStatistics> existingUserStatistics = userStatisticsRepository.findByUserId(pullRequest.assignee.id);
     UserStatistics userStatistics;
 
     if (existingUserStatistics.isPresent()) {
       userStatistics = existingUserStatistics.get();
     } else {
-      userStatistics = new UserStatistics(pullRequest.assignee);
+      User assignee = userRepository.findById(pullRequest.assignee.id).orElseThrow(
+          () -> new NotFoundException("Assignee not found in database: " + pullRequest.assignee));
+      userStatistics = new UserStatistics(assignee);
     }
 
-    userStatistics.userHasClosedPullRequest(pullRequest, ZonedDateTime.now());
+    userStatistics.userHasClosedPullRequest(pullRequest, closedAt);
     userStatisticsRepository.save(userStatistics);
   }
 
-  private List<Ranking> calculateRankings() {
+  private void recalculateRankings() {
+    ZonedDateTime now = ZonedDateTime.now();
+
+    for (RankingScope rankingScope : RankingScope.values()) {
+      rankingListRepository.save(new RankingList(
+          calculateRankingsForScope(rankingScope),
+          now,
+          rankingScope));
+      deleteRankingListsOlderThan(now, rankingScope);
+    }
+  }
+
+  private void deleteRankingListsOlderThan(ZonedDateTime calculationDate, RankingScope rankingScope) {
+    List<RankingList> rankingsToDelete = rankingListRepository.findByCalculationDateBeforeAndRankingScope(
+        calculationDate, rankingScope);
+    rankingListRepository.delete(rankingsToDelete);
+  }
+
+  private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
 
     List<UserStatistics> userStatistics = userStatisticsRepository.findAll();
-    List<Ranking> allRankings = new ArrayList<>();
 
-    for (RankingScope scope : RankingScope.values()) {
-      List<Ranking> rankingsForScope = userStatistics
-        .stream()
-        .map(us -> us.getNumberOfClosedPullRequests(scope))
-        .sorted((r1, r2) -> r1.numberOfMergedPullRequests.compareTo(r2.numberOfMergedPullRequests))
-        .collect(Collectors.toList());
+    List<Ranking> rankingsForScope = userStatistics
+      .stream()
+      .map(us -> us.getNumberOfClosedPullRequests(rankingScope))
+      .sorted((r1, r2) -> r1.numberOfMergedPullRequests.compareTo(r2.numberOfMergedPullRequests))
+      .collect(Collectors.toList());
 
-      for (int rank = 0; rank < allRankings.size(); rank++) {
-        allRankings.get(rank).rank = rank + 1;
-      }
-
-      allRankings.addAll(rankingsForScope);
+    for (int rank = 0; rank < rankingsForScope.size(); rank++) {
+      rankingsForScope.get(rank).rank = rank + 1;
     }
 
-    return allRankings;
+    return rankingsForScope;
   }
 }

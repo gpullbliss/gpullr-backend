@@ -14,13 +14,12 @@ public class UserHasClosedPullRequest {
   @Column(nullable = false)
   public ZonedDateTime closeDate;
 
-  @OneToOne(optional = false, fetch = FetchType.LAZY)
-  public PullRequest closedPullRequest;
-
+  public String pullRequestUrl;
+  
   public UserHasClosedPullRequest() {}
 
-  public UserHasClosedPullRequest(PullRequest closedPullRequest, ZonedDateTime closeDate) {
-    this.closedPullRequest = closedPullRequest;
+  public UserHasClosedPullRequest(ZonedDateTime closeDate, String pullRequestUrl) {
     this.closeDate = closeDate;
+    this.pullRequestUrl = pullRequestUrl;
   }
 }
