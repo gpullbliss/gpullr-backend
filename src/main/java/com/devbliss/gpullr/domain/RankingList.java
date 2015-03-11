@@ -45,7 +45,7 @@ public class RankingList {
     return rankings
       .stream()
       .sorted((r1, r2) -> {
-        int result = r1.rank.compareTo(r2.rank);
+        int result = r2.closedCount.compareTo(r1.closedCount);
         if (result == 0) {
           result = r1.username.compareTo(r2.username);
         }

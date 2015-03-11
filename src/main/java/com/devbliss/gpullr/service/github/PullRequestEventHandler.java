@@ -5,11 +5,9 @@ import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.service.PullRequestService;
-import com.devbliss.gpullr.service.UserStatisticsService;
+import com.devbliss.gpullr.service.RankingService;
 import com.devbliss.gpullr.util.Log;
-import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,16 +33,16 @@ public class PullRequestEventHandler {
 
   private final PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
 
-  private final UserStatisticsService userStatisticsService;
+  private final RankingService rankingService;
 
   @Autowired
   public PullRequestEventHandler(
       PullRequestService pullRequestService,
       PullRequestAssigneeWatcher pullRequestAssigneeWatcher,
-      UserStatisticsService userStatisticsService) {
+      RankingService rankingService) {
     this.pullRequestService = pullRequestService;
     this.pullRequestAssigneeWatcher = pullRequestAssigneeWatcher;
-    this.userStatisticsService = userStatisticsService;
+    this.rankingService = rankingService;
   }
 
   public void handlePullRequestEvent(PullRequestEvent event) {
@@ -72,22 +70,7 @@ public class PullRequestEventHandler {
       pullRequestAssigneeWatcher.startWatching(pullRequestFromEvent);
     } else if (pullRequestFromEvent.state == State.CLOSED) {
       pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
-
-      if (wasPullRequestNotClosedBefore(pullRequestFromDb)) {
-        logger.debug("Scheduling user statistic PR-closed-call for " + pullRequestFromEvent.url);
-        taskScheduler.schedule(
-            () -> userStatisticsService.pullRequestWasClosed(pullRequestFromEvent, ZonedDateTime.now()),
-            Date.from(Instant.now()));
-      }
+      rankingService.userHasClosedPullRequest(pullRequestFromEvent, ZonedDateTime.now());
     }
-  }
-
-  private boolean wasPullRequestNotClosedBefore(Optional<PullRequest> pullRequestFromDb) {
-
-    if (pullRequestFromDb.isPresent()) {
-      return pullRequestFromDb.get().state != State.CLOSED;
-    }
-
-    return true;
   }
 }

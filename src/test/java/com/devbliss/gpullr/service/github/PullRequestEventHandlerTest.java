@@ -9,7 +9,7 @@ import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.service.PullRequestService;
-import com.devbliss.gpullr.service.UserStatisticsService;
+import com.devbliss.gpullr.service.RankingService;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class PullRequestEventHandlerTest {
   private PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
 
   @Mock
-  private UserStatisticsService userStatisticsService;
+  private RankingService rankingService;
 
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
@@ -54,7 +54,7 @@ public class PullRequestEventHandlerTest {
     pullRequestEventHandler = new PullRequestEventHandler(
         pullRequestService,
         pullRequestAssigneeWatcher,
-        userStatisticsService);
+        rankingService);
     pullRequestEventHandler.logger = LoggerFactory.getLogger(PullRequestEventHandler.class);
     existingPullRequest = new PullRequest();
     existingPullRequest.id = PR_ID;

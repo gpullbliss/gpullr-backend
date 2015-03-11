@@ -1,11 +1,14 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
-import com.devbliss.gpullr.domain.UserStatistics;
+import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserHasClosedPullRequest;
 import com.devbliss.gpullr.repository.RankingListRepository;
-import com.devbliss.gpullr.repository.UserStatisticsRepository;
+import com.devbliss.gpullr.repository.UserHasClosedPullRequestRepository;
+import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,12 +31,18 @@ public class RankingService {
 
   private final RankingListRepository rankingListRepository;
 
-  private final UserStatisticsRepository userStatisticsRepository;
+  private final UserHasClosedPullRequestRepository userHasClosedPullRequestRepository;
+
+  private final UserRepository userRepository;
 
   @Autowired
-  public RankingService(RankingListRepository rankingListRepository, UserStatisticsRepository userStatisticsRepository) {
+  public RankingService(
+      RankingListRepository rankingListRepository,
+      UserHasClosedPullRequestRepository userHasClosedPullRequestRepository,
+      UserRepository userRepository) {
     this.rankingListRepository = rankingListRepository;
-    this.userStatisticsRepository = userStatisticsRepository;
+    this.userHasClosedPullRequestRepository = userHasClosedPullRequestRepository;
+    this.userRepository = userRepository;
   }
 
   public Optional<RankingList> findAllWithRankingScope(RankingScope rankingScope) {
@@ -62,6 +71,26 @@ public class RankingService {
     }
   }
 
+  public void userHasClosedPullRequest(PullRequest closedPullRequest, ZonedDateTime closeDate) {
+
+    if (closedPullRequest.assignee == null) {
+      LOGGER.warn("Cannot update statistics for closed pull request " + closedPullRequest.url + ": assignee is null.");
+      return;
+    }
+
+    Optional<User> closer = userRepository.findById(closedPullRequest.assignee.id);
+
+    if (!closer.isPresent()) {
+      LOGGER.warn("Cannot update statistics for closed pull request " + closedPullRequest.url + ": assignee with id "
+          + closedPullRequest.assignee.id + " not found in our database.");
+      return;
+    }
+
+    UserHasClosedPullRequest userHasClosedPullRequest = new UserHasClosedPullRequest(closer.get(), closeDate,
+        closedPullRequest.url);
+    userHasClosedPullRequestRepository.save(userHasClosedPullRequest);
+  }
+
   private void deleteRankingListsOlderThan(ZonedDateTime calculationDate, RankingScope rankingScope) {
     List<RankingList> rankingsToDelete = rankingListRepository.findByCalculationDateBeforeAndRankingScope(
         calculationDate, rankingScope);
@@ -70,18 +99,29 @@ public class RankingService {
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
 
-    List<UserStatistics> userStatistics = userStatisticsRepository.findAll();
+    List<User> userStatistics = userRepository.findAll();
 
     List<Ranking> rankingsForScope = userStatistics
       .stream()
-      .map(us -> us.getRanking(rankingScope))
+      .map(u -> getRanking(u, rankingScope))
       .sorted((r1, r2) -> r2.closedCount.compareTo(r1.closedCount))
       .collect(Collectors.toList());
+    return rankingsForScope;
+  }
 
-    for (int rank = 0; rank < rankingsForScope.size(); rank++) {
-      rankingsForScope.get(rank).rank = rank + 1;
+  private Ranking getRanking(User user, RankingScope rankingScope) {
+    long numberOfMergedPullRequests;
+
+    if (rankingScope.daysInPast.isPresent()) {
+      ZonedDateTime boarder = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
+      numberOfMergedPullRequests = userHasClosedPullRequestRepository.findByUser(user)
+        .stream()
+        .filter(uhcp -> !uhcp.closeDate.isBefore(boarder))
+        .count();
+    } else {
+      numberOfMergedPullRequests = Long.valueOf(userHasClosedPullRequestRepository.findByUser(user).size());
     }
 
-    return rankingsForScope;
+    return new Ranking(user.username, numberOfMergedPullRequests);
   }
 }

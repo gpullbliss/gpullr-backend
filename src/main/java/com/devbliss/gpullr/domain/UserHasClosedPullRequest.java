@@ -2,21 +2,37 @@ package com.devbliss.gpullr.domain;
 
 import java.time.ZonedDateTime;
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotBlank;
 
-@Embeddable
+@Entity
 public class UserHasClosedPullRequest {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long id;
 
   @NotNull
   @Column(nullable = false)
   public ZonedDateTime closeDate;
 
+  @NotBlank
+  @Column(unique = true)
   public String pullRequestUrl;
-  
+
+  @ManyToOne(optional = false, fetch = FetchType.EAGER)
+  public User user;
+
   public UserHasClosedPullRequest() {}
 
-  public UserHasClosedPullRequest(ZonedDateTime closeDate, String pullRequestUrl) {
+  public UserHasClosedPullRequest(User user, ZonedDateTime closeDate, String pullRequestUrl) {
+    this.user = user;
     this.closeDate = closeDate;
     this.pullRequestUrl = pullRequestUrl;
   }

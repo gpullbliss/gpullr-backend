@@ -7,9 +7,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @Embeddable
 public class Ranking {
 
-  @NotNull
-  public Integer rank;
-
   @NotBlank
   public String username;
 
@@ -28,6 +25,6 @@ public class Ranking {
 
   @Override
   public String toString() {
-    return "Ranking {rank=" + rank + ", username=" + username + ", closedCount=" + closedCount + "}";
+    return "Ranking {username=" + username + ", closedCount=" + closedCount + "}";
   }
 }
