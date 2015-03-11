@@ -7,7 +7,6 @@ import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.service.RankingService;
 import com.devbliss.gpullr.util.Log;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +69,7 @@ public class PullRequestEventHandler {
       pullRequestAssigneeWatcher.startWatching(pullRequestFromEvent);
     } else if (pullRequestFromEvent.state == State.CLOSED) {
       pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
-      rankingService.userHasClosedPullRequest(pullRequestFromEvent, ZonedDateTime.now());
+      rankingService.userHasClosedPullRequest(pullRequestFromEvent);
     }
   }
 }

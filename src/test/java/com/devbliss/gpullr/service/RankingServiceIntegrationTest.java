@@ -63,7 +63,7 @@ public class RankingServiceIntegrationTest {
 
     // create 3 users:
     userAlpha = userRepository.save(new User(14, "alpha", "http://alpha"));
-    userBeta = userRepository.save(new User(13, "beta", "http://beta"));
+    userBeta = userRepository.save(new User(13, "Beta", "http://beta")); // intentionally upper case username!
     userGamma = userRepository.save(new User(17, "gamma", "http://gamma"));
   }
 
@@ -144,7 +144,7 @@ public class RankingServiceIntegrationTest {
     assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [alpha, beta, gamma]
-    // (alphabetical if same rank):
+    // (alphabetically ordered when same rank):
     assertEquals(userAlpha.username, rankings.get(0).username);
     assertEquals(userBeta.username, rankings.get(1).username);
     assertEquals(userGamma.username, rankings.get(2).username);
@@ -212,8 +212,8 @@ public class RankingServiceIntegrationTest {
     assertFalse(rankingList.isPresent());
 
     // submitting a closed pull request and trigger calculation:
-    PullRequest pullRequest = createPullRequest(userAlpha);
-    rankingService.userHasClosedPullRequest(pullRequest, ZonedDateTime.now().minusHours(1));
+    PullRequest pullRequest = createPullRequest(userAlpha, ZonedDateTime.now().minusHours(2));
+    rankingService.userHasClosedPullRequest(pullRequest);
     rankingService.recalculateRankings();
 
     // fetching rankings - which should reflect the closed pull request:
@@ -228,7 +228,7 @@ public class RankingServiceIntegrationTest {
     assertEquals(userAlpha.avatarUrl, rankings.get(0).avatarUrl);
 
     // submitting same pull request again and trigger calculation:
-    rankingService.userHasClosedPullRequest(pullRequest, ZonedDateTime.now().minusHours(1));
+    rankingService.userHasClosedPullRequest(pullRequest);
     rankingService.recalculateRankings();
 
     // fetching rankings - result should not have changed:
@@ -245,7 +245,7 @@ public class RankingServiceIntegrationTest {
     // submitting same pull request again - this time with different assignee - and trigger
     // calculation:
     pullRequest.assignee = userBeta;
-    rankingService.userHasClosedPullRequest(pullRequest, ZonedDateTime.now().minusHours(1));
+    rankingService.userHasClosedPullRequest(pullRequest);
     rankingService.recalculateRankings();
 
     // fetching rankings - result should not have changed:
@@ -260,9 +260,10 @@ public class RankingServiceIntegrationTest {
     assertEquals(userAlpha.avatarUrl, rankings.get(0).avatarUrl);
   }
 
-  private PullRequest createPullRequest(User assignee) {
+  private PullRequest createPullRequest(User assignee, ZonedDateTime closeDate) {
     PullRequest pullRequest = new PullRequest();
     pullRequest.assignee = assignee;
+    pullRequest.closedAt = closeDate;
     StringBuilder randomPart = new StringBuilder("http://someurl/");
 
     for (int i = 0; i < 20; i++) {
@@ -274,32 +275,32 @@ public class RankingServiceIntegrationTest {
   }
 
   private void createSomeClosedPullRequests() {
-    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha), ZonedDateTime.now().minusHours(1));
-    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha), ZonedDateTime.now().minusHours(2));
-    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha), ZonedDateTime.now().minusHours(3));
-    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha), ZonedDateTime.now().minusDays(2));
-    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha), ZonedDateTime.now().minusDays(8));
-    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha), ZonedDateTime.now().minusDays(28));
-    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha), ZonedDateTime.now().minusDays(42));
+    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha, ZonedDateTime.now().minusHours(1)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha, ZonedDateTime.now().minusHours(2)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha, ZonedDateTime.now().minusHours(3)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha, ZonedDateTime.now().minusDays(2)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha, ZonedDateTime.now().minusDays(8)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha, ZonedDateTime.now().minusDays(28)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userAlpha, ZonedDateTime.now().minusDays(42)));
 
-    rankingService.userHasClosedPullRequest(createPullRequest(userBeta), ZonedDateTime.now().minusHours(4));
-    rankingService.userHasClosedPullRequest(createPullRequest(userBeta), ZonedDateTime.now().minusDays(1));
-    rankingService.userHasClosedPullRequest(createPullRequest(userBeta), ZonedDateTime.now().minusDays(2));
-    rankingService.userHasClosedPullRequest(createPullRequest(userBeta), ZonedDateTime.now().minusDays(3));
-    rankingService.userHasClosedPullRequest(createPullRequest(userBeta), ZonedDateTime.now().minusDays(4));
-    rankingService.userHasClosedPullRequest(createPullRequest(userBeta), ZonedDateTime.now().minusDays(5));
+    rankingService.userHasClosedPullRequest(createPullRequest(userBeta, ZonedDateTime.now().minusHours(4)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userBeta, ZonedDateTime.now().minusDays(1)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userBeta, ZonedDateTime.now().minusDays(2)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userBeta, ZonedDateTime.now().minusDays(3)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userBeta, ZonedDateTime.now().minusDays(4)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userBeta, ZonedDateTime.now().minusDays(5)));
 
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(4));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(9));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(10));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(11));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(32));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(33));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(34));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(35));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(36));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(34));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(38));
-    rankingService.userHasClosedPullRequest(createPullRequest(userGamma), ZonedDateTime.now().minusDays(41));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(4)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(9)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(10)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(11)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(32)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(33)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(34)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(35)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(36)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(34)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(38)));
+    rankingService.userHasClosedPullRequest(createPullRequest(userGamma, ZonedDateTime.now().minusDays(41)));
   }
 }

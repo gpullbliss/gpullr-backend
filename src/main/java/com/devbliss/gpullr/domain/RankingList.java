@@ -1,7 +1,5 @@
 package com.devbliss.gpullr.domain;
 
-import javax.persistence.FetchType;
-
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +8,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -47,7 +46,7 @@ public class RankingList {
       .sorted((r1, r2) -> {
         int result = r2.closedCount.compareTo(r1.closedCount);
         if (result == 0) {
-          result = r1.username.compareTo(r2.username);
+          result = r1.username.toLowerCase().compareTo(r2.username.toLowerCase());
         }
         return result;
       })

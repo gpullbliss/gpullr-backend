@@ -44,6 +44,8 @@ public class PullRequest {
   public String url;
 
   public ZonedDateTime createdAt;
+  
+  public ZonedDateTime closedAt;
 
   @NotNull
   @Enumerated(EnumType.STRING)

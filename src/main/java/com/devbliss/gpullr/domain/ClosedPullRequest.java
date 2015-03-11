@@ -20,7 +20,7 @@ public class ClosedPullRequest {
 
   @NotNull
   @Column(nullable = false)
-  public ZonedDateTime closeDate;
+  public ZonedDateTime closedAt;
 
   @NotBlank
   @Column(unique = true)
@@ -31,9 +31,9 @@ public class ClosedPullRequest {
 
   public ClosedPullRequest() {}
 
-  public ClosedPullRequest(User user, ZonedDateTime closeDate, String pullRequestUrl) {
+  public ClosedPullRequest(User user, ZonedDateTime closedAt, String pullRequestUrl) {
     this.user = user;
-    this.closeDate = closeDate;
+    this.closedAt = closedAt;
     this.pullRequestUrl = pullRequestUrl;
   }
 }

@@ -1,11 +1,11 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.domain.ClosedPullRequest;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.domain.ClosedPullRequest;
 import com.devbliss.gpullr.repository.RankingListRepository;
 import com.devbliss.gpullr.repository.UserHasClosedPullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -50,8 +50,7 @@ public class RankingService {
 
     if (!rankingLists.isEmpty()) {
       RankingList rankingList = rankingLists.get(0);
-      LOGGER.debug("Returning rankings calculated at " + rankingList.calculationDate.toString() + ": ");
-      LOGGER.debug("" + rankingList.getRankings());
+      LOGGER.debug("Returning rankings calculated at " + rankingList.calculationDate.toString());
       return Optional.of(rankingList);
     }
 
@@ -71,7 +70,7 @@ public class RankingService {
     }
   }
 
-  public void userHasClosedPullRequest(PullRequest pullRequest, ZonedDateTime closeDate) {
+  public void userHasClosedPullRequest(PullRequest pullRequest) {
 
     if (pullRequest.assignee == null) {
       LOGGER.warn("Cannot update statistics for closed pull request " + pullRequest.url + ": assignee is null.");
@@ -89,7 +88,8 @@ public class RankingService {
     if (userHasClosedPullRequestRepository.findByPullRequestUrl(pullRequest.url).isPresent()) {
       LOGGER.debug("Found pull request closed data so not storing again for " + pullRequest.url);
     } else {
-      ClosedPullRequest closedPullRequest = new ClosedPullRequest(closer.get(), closeDate,
+      ZonedDateTime closedAt = pullRequest.closedAt != null ? pullRequest.closedAt : ZonedDateTime.now();
+      ClosedPullRequest closedPullRequest = new ClosedPullRequest(closer.get(), closedAt,
           pullRequest.url);
       userHasClosedPullRequestRepository.save(closedPullRequest);
       LOGGER.debug("Stored pull request closed data for " + pullRequest.url);
@@ -121,7 +121,7 @@ public class RankingService {
       ZonedDateTime boarder = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
       numberOfMergedPullRequests = userHasClosedPullRequestRepository.findByUser(user)
         .stream()
-        .filter(uhcp -> !uhcp.closeDate.isBefore(boarder))
+        .filter(uhcp -> !uhcp.closedAt.isBefore(boarder))
         .count();
     } else {
       numberOfMergedPullRequests = Long.valueOf(userHasClosedPullRequestRepository.findByUser(user).size());
