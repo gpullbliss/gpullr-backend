@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
-public class RankingRecalculator extends AbstractFixedScheduleFetcher {
+public class RankingRecalculator extends AbstractFixedScheduleWorker {
 
   @Autowired
   private RankingService rankingService;
 
   @Override
-  protected void fetch() {
+  protected void execute() {
     rankingService.recalculateRankings();
   }
 
@@ -27,7 +27,7 @@ public class RankingRecalculator extends AbstractFixedScheduleFetcher {
    * 
    */
   @Override
-  protected Date nextFetch() {
+  protected Date nextExecution() {
     return Date.from(Instant.now().plus(5, ChronoUnit.MINUTES));
   }
 }

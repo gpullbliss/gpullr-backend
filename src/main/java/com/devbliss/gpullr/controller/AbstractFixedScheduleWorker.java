@@ -8,28 +8,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 
 /**
- * Abstract superclass for fetcher that fetch in a fixed interval, e.g. every two hours.
+ * Abstract superclass for workers that do their work in a fixed interval, e.g. every two hours.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
-public abstract class AbstractFixedScheduleFetcher {
+public abstract class AbstractFixedScheduleWorker {
 
   private static final String NEXT_FETCH_PATTERN = "dd.MM.yyyy HH:mm:ss";
 
   /**
-   * Calculates the date of the next fetch call.
+   * Calculates the date of the next execution.
    * 
    * @return date in future.
    */
-  protected abstract Date nextFetch();
+  protected abstract Date nextExecution();
 
   /**
-   * Actual fetch method to be implemented by concrete class. Do not call this directly - call 
+   * Actual execution method to be implemented by concrete class. Do not call this directly - call 
    * {@link #startFetchLoop()} instead!
    * 
    */
-  protected abstract void fetch();
+  protected abstract void execute();
 
   private TaskScheduler taskScheduler;
 
@@ -42,12 +42,12 @@ public abstract class AbstractFixedScheduleFetcher {
   }
 
   public void startFetchLoop() {
-    logger.info(getClass().getSimpleName() + " starts fetching from GitHub...");
-    fetch();
-    Date nextFetch = nextFetch();
+    logger.info(getClass().getSimpleName() + " starts working...");
+    execute();
+    Date nextFetch = nextExecution();
     taskScheduler.schedule(() -> startFetchLoop(), nextFetch);
     logger.info(getClass().getSimpleName()
-        + " finished fetching from GitHub, next fetch scheduled for "
+        + " finished its work, next execution is scheduled for "
         + formatNextFetch(nextFetch));
   }
 

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
-public class GithubReposFetcher extends AbstractFixedScheduleFetcher {
+public class GithubReposFetcher extends AbstractFixedScheduleWorker {
 
   @Log
   private Logger logger;
@@ -30,7 +30,7 @@ public class GithubReposFetcher extends AbstractFixedScheduleFetcher {
   private RepoService repoService;
 
   @Override
-  protected void fetch() {
+  protected void execute() {
     githubApi.fetchAllGithubRepos().forEach(r -> {
       logger.debug(String.format("fetched repo: %d %s", r.id, r.name));
       repoService.insertOrUpdate(r);
@@ -41,7 +41,7 @@ public class GithubReposFetcher extends AbstractFixedScheduleFetcher {
    * 
    */
   @Override
-  protected Date nextFetch() {
+  protected Date nextExecution() {
     return Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
   }
 }
