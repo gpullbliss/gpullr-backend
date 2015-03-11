@@ -19,14 +19,32 @@ public class UserSettingsConverter {
     UserSettingsDto dto = new UserSettingsDto();
     dto.id = entity.id;
 
-    String orderOptionValue = entity.defaultPullRequestListOrdering.name();
-    try {
-      dto.orderOptionDto = UserSettingsDto.OrderOptionDto.valueOf(orderOptionValue);
-    } catch (IllegalArgumentException e) {
-      logger.error("Error converting OrderOptions with value '%s' to OrderOptionsDto", orderOptionValue, e);
+    if (entity.defaultPullRequestListOrdering != null) {
+      String orderOptionValue = entity.defaultPullRequestListOrdering.name();
+      try {
+        dto.orderOptionDto = UserSettingsDto.OrderOptionDto.valueOf(orderOptionValue);
+      } catch (IllegalArgumentException e) {
+        logger.error("Error converting OrderOptions with value '%s' to OrderOptionsDto", orderOptionValue, e);
+      }
     }
 
     return dto;
+  }
+
+  public UserSettings toEntity(UserSettingsDto dto) {
+    UserSettings entity = new UserSettings();
+    entity.id = dto.id;
+
+    if (dto.orderOptionDto != null) {
+      String orderOptionValue = dto.orderOptionDto.name();
+      try {
+        entity.defaultPullRequestListOrdering = UserSettings.OrderOption.valueOf(orderOptionValue);
+      } catch (IllegalArgumentException e) {
+        logger.error("Error converting OrderOptionsDto with value '%s' to OrderOptions", orderOptionValue, e);
+      }
+    }
+
+    return entity;
   }
 
 }
