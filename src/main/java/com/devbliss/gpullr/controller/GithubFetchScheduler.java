@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GithubFetchScheduler {
 
-  private static final int DELAYED_TASK_START_AFTER_SECONDS = 60;
+  private static final int DELAYED_TASK_START_AFTER_SECONDS = 30;
 
   private ThreadPoolTaskScheduler executor;
 
@@ -33,6 +33,9 @@ public class GithubFetchScheduler {
   @Autowired
   private PullRequestAssigneeWatcher pullrequestAssigneeWatcher;
 
+  @Autowired
+  private RankingRecalculator rankingRecalculator;
+
   public GithubFetchScheduler() {
     executor = new ThreadPoolTaskScheduler();
     executor.initialize();
@@ -40,10 +43,12 @@ public class GithubFetchScheduler {
 
   @PostConstruct
   public void startExecution() {
-    Date delayedTaskStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS));
+    Date eventFetchStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS));
+    Date rankingCalculationStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS * 2));
     executor.execute(() -> githubReposRefresher.startFetchLoop());
     executor.execute(() -> githubUserFetcher.startFetchLoop());
-    executor.schedule(() -> startFetchEventsLoop(), delayedTaskStart);
+    executor.schedule(() -> startFetchEventsLoop(), eventFetchStart);
+    executor.schedule(() -> rankingRecalculator.startFetchLoop(), rankingCalculationStart);
   }
 
   private void startFetchEventsLoop() {
