@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
@@ -20,8 +21,8 @@ public class UserSettings {
 
   @Id
   @Column(name = "user_settings_id")
-  @GeneratedValue
-  public Integer id;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long id;
 
   @Column
   @Enumerated(value = EnumType.STRING)
