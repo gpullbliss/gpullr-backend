@@ -35,9 +35,13 @@ public class UserService {
     return userRepository.findAll();
   }
 
+  public User findOne(Integer userId) {
+    return userRepository.findOne(userId);
+  }
+
   /**
    * Finds all users that are allowed to login to this application, sorted by username.
-   * 
+   *
    * @return possibly empty list of users
    */
   public List<User> findAllOrgaMembers() {
