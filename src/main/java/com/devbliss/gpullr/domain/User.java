@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,23 +30,27 @@ public class User {
 
   public Boolean canLogin = false;
 
-  @OneToOne(fetch = FetchType.EAGER, targetEntity = UserSettings.class)
+  @OneToOne(fetch = FetchType.EAGER, targetEntity = UserSettings.class, cascade = CascadeType.PERSIST, orphanRemoval = true)
   @JoinColumn(name = "user_settings_id")
   public UserSettings userSettings;
 
   public User() {
-    this.userSettings = new UserSettings(UserSettings.OrderOption.DESC);
   }
 
   public User(Integer id, String username, String avatarUrl) {
-    this(id, username, avatarUrl, false);
+    this(id, username, avatarUrl, false, null);
   }
 
   public User(Integer id, String username, String avatarUrl, boolean canLogin) {
+    this(id, username, avatarUrl, canLogin, null);
+  }
+
+  public User(Integer id, String username, String avatarUrl, Boolean canLogin, UserSettings userSettings) {
     this.id = id;
     this.username = username;
     this.avatarUrl = avatarUrl;
     this.canLogin = canLogin;
+    this.userSettings = userSettings;
   }
 
   @Override
