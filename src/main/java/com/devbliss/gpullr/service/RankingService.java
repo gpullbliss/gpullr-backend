@@ -6,8 +6,8 @@ import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.repository.ClosedPullRequestRepository;
 import com.devbliss.gpullr.repository.RankingListRepository;
-import com.devbliss.gpullr.repository.UserHasClosedPullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -31,14 +31,14 @@ public class RankingService {
 
   private final RankingListRepository rankingListRepository;
 
-  private final UserHasClosedPullRequestRepository userHasClosedPullRequestRepository;
+  private final ClosedPullRequestRepository userHasClosedPullRequestRepository;
 
   private final UserRepository userRepository;
 
   @Autowired
   public RankingService(
       RankingListRepository rankingListRepository,
-      UserHasClosedPullRequestRepository userHasClosedPullRequestRepository,
+      ClosedPullRequestRepository userHasClosedPullRequestRepository,
       UserRepository userRepository) {
     this.rankingListRepository = rankingListRepository;
     this.userHasClosedPullRequestRepository = userHasClosedPullRequestRepository;
@@ -73,15 +73,17 @@ public class RankingService {
   public void userHasClosedPullRequest(PullRequest pullRequest) {
 
     if (pullRequest.assignee == null) {
-      LOGGER.warn("Cannot update statistics for closed pull request " + pullRequest.url + ": assignee is null.");
+      LOGGER.warn(String.format("Cannot update statistics for closed pull request '%s': assignee is null.",
+          pullRequest.url));
       return;
     }
 
     Optional<User> closer = userRepository.findById(pullRequest.assignee.id);
 
     if (!closer.isPresent()) {
-      LOGGER.warn("Cannot update statistics for closed pull request " + pullRequest.url + ": assignee with id "
-          + pullRequest.assignee.id + " not found in our database.");
+      LOGGER.warn(String.format(
+          "Cannot update statistics for closed pull request '%s': assignee with id %d not found in our database.",
+          pullRequest.url, pullRequest.assignee.id));
       return;
     }
 

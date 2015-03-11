@@ -1,9 +1,8 @@
 package com.devbliss.gpullr.repository;
 
-import java.util.Optional;
-
 import com.devbliss.gpullr.domain.User;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
 /**

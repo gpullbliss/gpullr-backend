@@ -1,7 +1,7 @@
 package com.devbliss.gpullr.repository;
 
-import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.ClosedPullRequest;
+import com.devbliss.gpullr.domain.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
@@ -12,7 +12,7 @@ import org.springframework.data.repository.CrudRepository;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
-public interface UserHasClosedPullRequestRepository extends CrudRepository<ClosedPullRequest, Long> {
+public interface ClosedPullRequestRepository extends CrudRepository<ClosedPullRequest, Long> {
 
   List<ClosedPullRequest> findByUser(User user);
 

@@ -10,5 +10,7 @@ public interface RankingListRepository extends CrudRepository<RankingList, Long>
 
   List<RankingList> findByRankingScopeOrderByCalculationDateDesc(RankingScope rankingScope);
 
-  List<RankingList> findByCalculationDateBeforeAndRankingScope(ZonedDateTime calculationDate, RankingScope rankingScope);
+  List<RankingList> findByCalculationDateBeforeAndRankingScope(
+      ZonedDateTime calculationDate,
+      RankingScope rankingScope);
 }

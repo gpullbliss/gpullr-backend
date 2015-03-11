@@ -10,8 +10,8 @@ import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.repository.ClosedPullRequestRepository;
 import com.devbliss.gpullr.repository.RankingListRepository;
-import com.devbliss.gpullr.repository.UserHasClosedPullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -43,7 +43,7 @@ public class RankingServiceIntegrationTest {
   private RankingListRepository rankingListRepository;
 
   @Autowired
-  private UserHasClosedPullRequestRepository userHasClosedPullRequestRepository;
+  private ClosedPullRequestRepository userHasClosedPullRequestRepository;
 
   @Autowired
   private UserRepository userRepository;
@@ -63,7 +63,8 @@ public class RankingServiceIntegrationTest {
 
     // create 3 users:
     userAlpha = userRepository.save(new User(14, "alpha", "http://alpha"));
-    userBeta = userRepository.save(new User(13, "Beta", "http://beta")); // intentionally upper case username!
+    userBeta = userRepository.save(new User(13, "Beta", "http://beta")); // intentionally upper case
+                                                                         // username!
     userGamma = userRepository.save(new User(17, "gamma", "http://gamma"));
   }
 
@@ -181,7 +182,7 @@ public class RankingServiceIntegrationTest {
   }
 
   @Test
-  public void alwaysLatestRanking() {
+  public void alwaysLatestRanking() throws Exception {
     // trigger ranking calculation and fetch:
     rankingService.recalculateRankings();
     Optional<RankingList> ranking = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
@@ -189,11 +190,7 @@ public class RankingServiceIntegrationTest {
     ZonedDateTime firstCalcDate = ranking.get().calculationDate;
 
     // wait a moment:
-    try {
-      Thread.sleep(1250);
-    } catch (InterruptedException e) {
-
-    }
+    Thread.sleep(1250);
 
     // trigger ranking calculation again and fetch again:
     rankingService.recalculateRankings();
