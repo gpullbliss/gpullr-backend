@@ -10,7 +10,7 @@ public class UserSettingsDto {
     DESC
   }
 
-  public Integer id;
+  public long id;
 
   public OrderOptionDto orderOptionDto;
 
