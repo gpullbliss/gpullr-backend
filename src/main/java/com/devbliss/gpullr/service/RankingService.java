@@ -5,7 +5,7 @@ import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.domain.UserHasClosedPullRequest;
+import com.devbliss.gpullr.domain.ClosedPullRequest;
 import com.devbliss.gpullr.repository.RankingListRepository;
 import com.devbliss.gpullr.repository.UserHasClosedPullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -71,28 +71,28 @@ public class RankingService {
     }
   }
 
-  public void userHasClosedPullRequest(PullRequest closedPullRequest, ZonedDateTime closeDate) {
+  public void userHasClosedPullRequest(PullRequest pullRequest, ZonedDateTime closeDate) {
 
-    if (closedPullRequest.assignee == null) {
-      LOGGER.warn("Cannot update statistics for closed pull request " + closedPullRequest.url + ": assignee is null.");
+    if (pullRequest.assignee == null) {
+      LOGGER.warn("Cannot update statistics for closed pull request " + pullRequest.url + ": assignee is null.");
       return;
     }
 
-    Optional<User> closer = userRepository.findById(closedPullRequest.assignee.id);
+    Optional<User> closer = userRepository.findById(pullRequest.assignee.id);
 
     if (!closer.isPresent()) {
-      LOGGER.warn("Cannot update statistics for closed pull request " + closedPullRequest.url + ": assignee with id "
-          + closedPullRequest.assignee.id + " not found in our database.");
+      LOGGER.warn("Cannot update statistics for closed pull request " + pullRequest.url + ": assignee with id "
+          + pullRequest.assignee.id + " not found in our database.");
       return;
     }
 
-    if (userHasClosedPullRequestRepository.findByPullRequestUrl(closedPullRequest.url).isPresent()) {
-      LOGGER.debug("Found pull request closed data so not storing again for " + closedPullRequest.url);
+    if (userHasClosedPullRequestRepository.findByPullRequestUrl(pullRequest.url).isPresent()) {
+      LOGGER.debug("Found pull request closed data so not storing again for " + pullRequest.url);
     } else {
-      UserHasClosedPullRequest userHasClosedPullRequest = new UserHasClosedPullRequest(closer.get(), closeDate,
-          closedPullRequest.url);
-      userHasClosedPullRequestRepository.save(userHasClosedPullRequest);
-      LOGGER.debug("Stored pull request closed data for " + closedPullRequest.url);
+      ClosedPullRequest closedPullRequest = new ClosedPullRequest(closer.get(), closeDate,
+          pullRequest.url);
+      userHasClosedPullRequestRepository.save(closedPullRequest);
+      LOGGER.debug("Stored pull request closed data for " + pullRequest.url);
     }
   }
 

@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
 @Entity
-public class UserHasClosedPullRequest {
+public class ClosedPullRequest {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,9 +29,9 @@ public class UserHasClosedPullRequest {
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   public User user;
 
-  public UserHasClosedPullRequest() {}
+  public ClosedPullRequest() {}
 
-  public UserHasClosedPullRequest(User user, ZonedDateTime closeDate, String pullRequestUrl) {
+  public ClosedPullRequest(User user, ZonedDateTime closeDate, String pullRequestUrl) {
     this.user = user;
     this.closeDate = closeDate;
     this.pullRequestUrl = pullRequestUrl;

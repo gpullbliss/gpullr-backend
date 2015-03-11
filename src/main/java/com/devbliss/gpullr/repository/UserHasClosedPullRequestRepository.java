@@ -1,20 +1,20 @@
 package com.devbliss.gpullr.repository;
 
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.domain.UserHasClosedPullRequest;
+import com.devbliss.gpullr.domain.ClosedPullRequest;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * Stores {@link UserHasClosedPullRequest} objects.
+ * Stores {@link ClosedPullRequest} objects.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
-public interface UserHasClosedPullRequestRepository extends CrudRepository<UserHasClosedPullRequest, Long> {
+public interface UserHasClosedPullRequestRepository extends CrudRepository<ClosedPullRequest, Long> {
 
-  List<UserHasClosedPullRequest> findByUser(User user);
+  List<ClosedPullRequest> findByUser(User user);
 
-  Optional<UserHasClosedPullRequest> findByPullRequestUrl(String pullRequestUrl);
+  Optional<ClosedPullRequest> findByPullRequestUrl(String pullRequestUrl);
 }

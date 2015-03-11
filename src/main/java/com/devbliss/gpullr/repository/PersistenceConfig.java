@@ -59,7 +59,7 @@ public class PersistenceConfig {
     HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
     adapter.setDatabase(Database.H2);
     adapter.setShowSql(false);
-    adapter.setGenerateDdl(true);
+    adapter.setGenerateDdl(false);
     adapter.setDatabasePlatform("org.hibernate.dialect.H2Dialect");
     return adapter;
   }
