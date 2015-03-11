@@ -2,6 +2,7 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -28,23 +29,41 @@ public class PullRequestService {
 
   private final GithubApi githubApi;
 
+  private final UserService userService;
+
   @Autowired
   public PullRequestService(
-      PullRequestRepository pullRequestRepository,
-      UserRepository userRepository,
-      GithubApi githubApi) {
+    PullRequestRepository pullRequestRepository,
+    UserRepository userRepository,
+    GithubApi githubApi,
+    UserService userService) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
+    this.userService = userService;
   }
 
   public List<PullRequest> findAll() {
-
-    return pullRequestRepository
+    List<PullRequest> pullRequests = pullRequestRepository
       .findAll()
       .stream()
       .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
       .collect(Collectors.toList());
+
+    return orderPullRequestsByUserPreference(pullRequests);
+  }
+
+  private List<PullRequest> orderPullRequestsByUserPreference(List<PullRequest> pullRequests) {
+    UserSettings userSettings = userService.whoAmI().userSettings;
+    if (userSettings != null && userSettings.defaultPullRequestListOrdering != null) {
+      if (userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.ASC) {
+        pullRequests.stream()
+          .sorted((p1, p2) -> p2.createdAt.compareTo(p2.createdAt))
+          .collect(Collectors.toList());
+      }
+    }
+
+    return pullRequests;
   }
 
   /**
