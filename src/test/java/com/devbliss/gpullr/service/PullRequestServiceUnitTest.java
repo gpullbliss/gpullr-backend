@@ -46,6 +46,9 @@ public class PullRequestServiceUnitTest {
   @Mock
   private UserRepository userRepository;
 
+  @Mock
+  private UserService userService;
+
   private User assignee;
 
   private User anotherAssignee;
@@ -68,7 +71,7 @@ public class PullRequestServiceUnitTest {
     assignee.id = ASSIGNEE_ID;
     anotherAssignee = new User();
     anotherAssignee.id = ANOTHER_ASSIGNEE_ID;
-    pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi);
+    pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService);
     pullRequestFromLocalStorage = new PullRequest();
     pullRequestFromLocalStorage.id = ID;
     pullRequestFromGitHub = new PullRequest();
