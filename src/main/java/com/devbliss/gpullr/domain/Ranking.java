@@ -18,9 +18,10 @@ public class Ranking {
 
   public Ranking() {}
 
-  public Ranking(String username, Long closedCount) {
+  public Ranking(String username, Long closedCount, String avatarUrl) {
     this.username = username;
     this.closedCount = closedCount;
+    this.avatarUrl = avatarUrl;
   }
 
   @Override

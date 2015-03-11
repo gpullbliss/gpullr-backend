@@ -94,7 +94,7 @@ public class GithubHttpResponse {
   }
 
   public Optional<String> getEtag() {
-    return Optional.of(headers.get(HEADER_ETAG));
+    return Optional.ofNullable(headers.get(HEADER_ETAG));
   }
 
   private Optional<List<JsonObject>> parseJsonArrayIfPresent(JsonStructure json) {

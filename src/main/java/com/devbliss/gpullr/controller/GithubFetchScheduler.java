@@ -1,5 +1,8 @@
 package com.devbliss.gpullr.controller;
 
+import org.slf4j.LoggerFactory;
+
+import org.slf4j.Logger;
 import com.devbliss.gpullr.service.github.PullRequestAssigneeWatcher;
 import java.time.Instant;
 import java.util.Date;
@@ -18,7 +21,10 @@ import org.springframework.stereotype.Component;
 public class GithubFetchScheduler {
 
   private static final int DELAYED_TASK_START_AFTER_SECONDS = 30;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(GithubFetchScheduler.class);
 
+  @Autowired
   private ThreadPoolTaskScheduler executor;
 
   @Autowired
@@ -37,8 +43,6 @@ public class GithubFetchScheduler {
   private RankingRecalculator rankingRecalculator;
 
   public GithubFetchScheduler() {
-    executor = new ThreadPoolTaskScheduler();
-    executor.initialize();
   }
 
   @PostConstruct
@@ -47,8 +51,12 @@ public class GithubFetchScheduler {
     Date rankingCalculationStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS * 2));
     executor.execute(() -> githubReposRefresher.startFetchLoop());
     executor.execute(() -> githubUserFetcher.startFetchLoop());
+    LOGGER.debug("********** eventFetchStart: " + eventFetchStart);
+    LOGGER.debug("********** rankingCalculationStart: " + rankingCalculationStart);
     executor.schedule(() -> startFetchEventsLoop(), eventFetchStart);
+    LOGGER.debug("scheduled started fetch events loop");
     executor.schedule(() -> rankingRecalculator.startFetchLoop(), rankingCalculationStart);
+    LOGGER.debug("scheduled recalculate ranking loop");
   }
 
   private void startFetchEventsLoop() {

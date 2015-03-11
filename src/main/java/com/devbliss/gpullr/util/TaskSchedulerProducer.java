@@ -20,6 +20,7 @@ public class TaskSchedulerProducer {
   @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
   public TaskScheduler createThreadPoolTaskScheduler() {
     ThreadPoolTaskScheduler executor = new ThreadPoolTaskScheduler();
+    executor.setPoolSize(5);
     executor.initialize();
     return executor;
   }

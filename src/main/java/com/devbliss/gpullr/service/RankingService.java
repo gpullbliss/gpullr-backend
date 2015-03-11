@@ -86,9 +86,14 @@ public class RankingService {
       return;
     }
 
-    UserHasClosedPullRequest userHasClosedPullRequest = new UserHasClosedPullRequest(closer.get(), closeDate,
-        closedPullRequest.url);
-    userHasClosedPullRequestRepository.save(userHasClosedPullRequest);
+    if (userHasClosedPullRequestRepository.findByPullRequestUrl(closedPullRequest.url).isPresent()) {
+      LOGGER.debug("Found pull request closed data so not storing again for " + closedPullRequest.url);
+    } else {
+      UserHasClosedPullRequest userHasClosedPullRequest = new UserHasClosedPullRequest(closer.get(), closeDate,
+          closedPullRequest.url);
+      userHasClosedPullRequestRepository.save(userHasClosedPullRequest);
+      LOGGER.debug("Stored pull request closed data for " + closedPullRequest.url);
+    }
   }
 
   private void deleteRankingListsOlderThan(ZonedDateTime calculationDate, RankingScope rankingScope) {
@@ -122,6 +127,6 @@ public class RankingService {
       numberOfMergedPullRequests = Long.valueOf(userHasClosedPullRequestRepository.findByUser(user).size());
     }
 
-    return new Ranking(user.username, numberOfMergedPullRequests);
+    return new Ranking(user.username, numberOfMergedPullRequests, user.avatarUrl);
   }
 }

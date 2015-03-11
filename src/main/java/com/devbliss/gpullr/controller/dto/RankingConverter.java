@@ -20,7 +20,7 @@ public class RankingConverter {
     List<RankingDto> dtos = new ArrayList<>();
 
     for (int rank = 0; rank < entities.size(); rank++) {
-      RankingDto dto = toDto(entities.get(0));
+      RankingDto dto = toDto(entities.get(rank));
       dto.rank = rank + 1;
       dtos.add(dto);
     }

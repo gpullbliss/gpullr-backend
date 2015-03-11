@@ -62,9 +62,9 @@ public class RankingServiceIntegrationTest {
     rankingService = new RankingService(rankingListRepository, userHasClosedPullRequestRepository, userRepository);
 
     // create 3 users:
-    userAlpha = userRepository.save(new User(14, "alpha", ""));
-    userBeta = userRepository.save(new User(13, "beta", ""));
-    userGamma = userRepository.save(new User(17, "gamma", ""));
+    userAlpha = userRepository.save(new User(14, "alpha", "http://alpha"));
+    userBeta = userRepository.save(new User(13, "beta", "http://beta"));
+    userGamma = userRepository.save(new User(17, "gamma", "http://gamma"));
   }
 
   @After
@@ -203,6 +203,61 @@ public class RankingServiceIntegrationTest {
 
     // second fetch should have returned a newer ranking list:
     assertTrue(firstCalcDate.isBefore(secondCalcDate));
+  }
+
+  @Test
+  public void submittingClosedPullRequestTwiceDoesNotCountTwice() {
+    // at the beginning, there is no ranking at all:
+    Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    assertFalse(rankingList.isPresent());
+
+    // submitting a closed pull request and trigger calculation:
+    PullRequest pullRequest = createPullRequest(userAlpha);
+    rankingService.userHasClosedPullRequest(pullRequest, ZonedDateTime.now().minusHours(1));
+    rankingService.recalculateRankings();
+
+    // fetching rankings - which should reflect the closed pull request:
+    rankingList = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    assertTrue(rankingList.isPresent());
+    List<Ranking> rankings = rankingList.get().getRankings();
+    assertEquals(3, rankings.size());
+    assertEquals(1, rankings.get(0).closedCount.longValue());
+    assertEquals(0, rankings.get(1).closedCount.longValue());
+    assertEquals(0, rankings.get(2).closedCount.longValue());
+    assertEquals(userAlpha.username, rankings.get(0).username);
+    assertEquals(userAlpha.avatarUrl, rankings.get(0).avatarUrl);
+
+    // submitting same pull request again and trigger calculation:
+    rankingService.userHasClosedPullRequest(pullRequest, ZonedDateTime.now().minusHours(1));
+    rankingService.recalculateRankings();
+
+    // fetching rankings - result should not have changed:
+    rankingList = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    assertTrue(rankingList.isPresent());
+    rankings = rankingList.get().getRankings();
+    assertEquals(3, rankings.size());
+    assertEquals(1, rankings.get(0).closedCount.longValue());
+    assertEquals(0, rankings.get(1).closedCount.longValue());
+    assertEquals(0, rankings.get(2).closedCount.longValue());
+    assertEquals(userAlpha.username, rankings.get(0).username);
+    assertEquals(userAlpha.avatarUrl, rankings.get(0).avatarUrl);
+
+    // submitting same pull request again - this time with different assignee - and trigger
+    // calculation:
+    pullRequest.assignee = userBeta;
+    rankingService.userHasClosedPullRequest(pullRequest, ZonedDateTime.now().minusHours(1));
+    rankingService.recalculateRankings();
+
+    // fetching rankings - result should not have changed:
+    rankingList = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    assertTrue(rankingList.isPresent());
+    rankings = rankingList.get().getRankings();
+    assertEquals(3, rankings.size());
+    assertEquals(1, rankings.get(0).closedCount.longValue());
+    assertEquals(0, rankings.get(1).closedCount.longValue());
+    assertEquals(0, rankings.get(2).closedCount.longValue());
+    assertEquals(userAlpha.username, rankings.get(0).username);
+    assertEquals(userAlpha.avatarUrl, rankings.get(0).avatarUrl);
   }
 
   private PullRequest createPullRequest(User assignee) {
