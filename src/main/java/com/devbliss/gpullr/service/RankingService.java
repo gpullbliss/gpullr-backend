@@ -1,12 +1,11 @@
 package com.devbliss.gpullr.service;
 
-import com.devbliss.gpullr.domain.ClosedPullRequest;
-import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.repository.ClosedPullRequestRepository;
+import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RankingListRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
@@ -31,17 +30,17 @@ public class RankingService {
 
   private final RankingListRepository rankingListRepository;
 
-  private final ClosedPullRequestRepository userHasClosedPullRequestRepository;
+  private final PullRequestRepository pullRequestRepository;
 
   private final UserRepository userRepository;
 
   @Autowired
   public RankingService(
       RankingListRepository rankingListRepository,
-      ClosedPullRequestRepository userHasClosedPullRequestRepository,
+      PullRequestRepository pullRequestRepository,
       UserRepository userRepository) {
     this.rankingListRepository = rankingListRepository;
-    this.userHasClosedPullRequestRepository = userHasClosedPullRequestRepository;
+    this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
   }
 
@@ -70,34 +69,6 @@ public class RankingService {
     }
   }
 
-  public void userHasClosedPullRequest(PullRequest pullRequest) {
-
-    if (pullRequest.assignee == null) {
-      LOGGER.warn(String.format("Cannot update statistics for closed pull request '%s': assignee is null.",
-          pullRequest.url));
-      return;
-    }
-
-    Optional<User> closer = userRepository.findById(pullRequest.assignee.id);
-
-    if (!closer.isPresent()) {
-      LOGGER.warn(String.format(
-          "Cannot update statistics for closed pull request '%s': assignee with id %d not found in our database.",
-          pullRequest.url, pullRequest.assignee.id));
-      return;
-    }
-
-    if (userHasClosedPullRequestRepository.findByPullRequestUrl(pullRequest.url).isPresent()) {
-      LOGGER.debug("Found pull request closed data so not storing again for " + pullRequest.url);
-    } else {
-      ZonedDateTime closedAt = pullRequest.closedAt != null ? pullRequest.closedAt : ZonedDateTime.now();
-      ClosedPullRequest closedPullRequest = new ClosedPullRequest(closer.get(), closedAt,
-          pullRequest.url);
-      userHasClosedPullRequestRepository.save(closedPullRequest);
-      LOGGER.debug("Stored pull request closed data for " + pullRequest.url);
-    }
-  }
-
   private void deleteRankingListsOlderThan(ZonedDateTime calculationDate, RankingScope rankingScope) {
     List<RankingList> rankingsToDelete = rankingListRepository.findByCalculationDateBeforeAndRankingScope(
         calculationDate, rankingScope);
@@ -121,12 +92,12 @@ public class RankingService {
 
     if (rankingScope.daysInPast.isPresent()) {
       ZonedDateTime boarder = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
-      numberOfMergedPullRequests = userHasClosedPullRequestRepository.findByUser(user)
+      numberOfMergedPullRequests = pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
         .stream()
         .filter(uhcp -> !uhcp.closedAt.isBefore(boarder))
         .count();
     } else {
-      numberOfMergedPullRequests = Long.valueOf(userHasClosedPullRequestRepository.findByUser(user).size());
+      numberOfMergedPullRequests = Long.valueOf(pullRequestRepository.findByAssigneeAndState(user, State.CLOSED).size());
     }
 
     return new Ranking(user.username, numberOfMergedPullRequests, user.avatarUrl);

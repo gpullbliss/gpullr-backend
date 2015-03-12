@@ -53,8 +53,7 @@ public class PullRequestEventHandlerTest {
   public void setup() {
     pullRequestEventHandler = new PullRequestEventHandler(
         pullRequestService,
-        pullRequestAssigneeWatcher,
-        rankingService);
+        pullRequestAssigneeWatcher);
     pullRequestEventHandler.logger = LoggerFactory.getLogger(PullRequestEventHandler.class);
     existingPullRequest = new PullRequest();
     existingPullRequest.id = PR_ID;
