@@ -11,6 +11,13 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
+/**
+ * Stores the information that a certain user has closed a certain pull request at a certain time.
+ * Is used by the deferred ranking calculation process.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 @Entity
 public class ClosedPullRequest {
 

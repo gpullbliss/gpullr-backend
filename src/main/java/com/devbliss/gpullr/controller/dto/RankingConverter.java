@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
+/**
+ * Convergts {@link Ranking} entities to {@link RankingDto}s.
+ * 
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
+ *
+ */
 @Component
 public class RankingConverter {
 
