@@ -1,6 +1,6 @@
 package com.devbliss.gpullr.domain;
 
-import com.devbliss.gpullr.exception.InvalidInputException;
+import com.devbliss.gpullr.exception.BadRequestException;
 import java.util.Optional;
 
 public enum RankingScope {
@@ -19,7 +19,7 @@ public enum RankingScope {
     try {
       return RankingScope.valueOf(stringRepresentation.toUpperCase());
     } catch (IllegalArgumentException e) {
-      throw new InvalidInputException("No RankingScope found for value " + stringRepresentation);
+      throw new BadRequestException("No RankingScope found for value " + stringRepresentation);
     }
   }
 

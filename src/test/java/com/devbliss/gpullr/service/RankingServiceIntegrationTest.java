@@ -31,6 +31,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
+ * Integration test that tests ranking service with non-mocked persistence layer.
+ * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */

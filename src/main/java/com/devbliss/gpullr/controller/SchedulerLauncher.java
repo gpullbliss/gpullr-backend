@@ -4,8 +4,6 @@ import com.devbliss.gpullr.service.github.PullRequestAssigneeWatcher;
 import java.time.Instant;
 import java.util.Date;
 import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
@@ -20,9 +18,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class SchedulerLauncher {
-
-  @SuppressWarnings("unused")
-  private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerLauncher.class);
 
   private static final int DELAYED_TASK_START_AFTER_SECONDS = 30;
 

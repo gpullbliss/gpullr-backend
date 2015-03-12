@@ -7,15 +7,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * To be thrown whenever a user or the frontend has sent invalid or incomplete data or requests.
  */
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class InvalidInputException extends RuntimeException {
+public class BadRequestException extends RuntimeException {
 
   private static final long serialVersionUID = -1749257237661508754L;
 
-  public InvalidInputException(String message) {
+  public BadRequestException(String message) {
     super(message);
   }
 
-  public InvalidInputException(Throwable cause) {
+  public BadRequestException(Throwable cause) {
     super(cause);
   }
 }
