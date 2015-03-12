@@ -1,5 +1,5 @@
 # gpullr-backend
-pull request administration tool - backend
+pullrequest administration tool - backend
 
 # Getting started
 
@@ -28,14 +28,9 @@ Instead, the database schema is generated with the commands in [schema.sql](http
 Thus, all commands adding things to the database schema must use the `IF NOT EXISTS` otherwise it will crash.
 
 If you have to add, change or remove a field in an entity, simply add the respective `ALTER TABLE` statement to `schema.sql`.
-If you are not familiar enough with SQL DDL, you may temporarily switch on the generate-ddl-feature on your local machine, remove the database file, start the application, stop it after the gpullrDb.mv.db has been recreated and connect to the database using the H2 web console.
+If you are not familiar enough with SQL DDL, you may temporarily switch on the generate-ddl-feature (see above) on your local machine, remove the database file, start the application, and connect to the database (e.g. by double-clicking the `h2.jar` which can be found in the downloadable distribution of H2 and pretty likely in your gradle dependency cache directory and connecting with the web console) in order to dump the schema with the following SQL command (in the web console use the database url `jdbc:h2:file:/path/to/your/database` and blank username and password).
+Make sure to rename `schema.sql` to any other name before temporarily switching on the generate-ddl-feature otherwise SpringData will still try to apply it before the auto-generation gets into action, which may cause conflicts.
 
-Run the `h2.jar` (obtainable via http://www.h2database.com/html/download.html -> Jar File) and connect with Generic H2 (Embedded), JDBC URL "jdbc:h2:/path/to/gpullr-backend/gpullrDb" and blank user name and password.
-
-Then dump the schema with the following SQL command:
 `SCRIPT NODATA NOPASSWORDS NOSETTINGS TO '/tmp/schema-export-h2.sql' CHARSET 'UTF-8';`
- and copy-paste the relevant parts to `schema.sql`.
- 
- Don't use the export directly as it is missing important stuff like `IF NOT EXISTS`.
- 
- Don't forget to deactivate generate-ddl afterwards again!
+
+ and copy-paste the relevant parts to `schema.sql`. Don't forget to deactivate generate-ddl afterwards again!
