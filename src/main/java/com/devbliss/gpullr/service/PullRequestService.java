@@ -53,19 +53,6 @@ public class PullRequestService {
       .collect(Collectors.toList());
   }
 
-  private List<PullRequest> orderPullRequestsByUserPreference(List<PullRequest> pullRequests) {
-    try {
-      UserSettings userSettings = userService.whoAmI().userSettings;
-      if (userSettings != null && userSettings.defaultPullRequestListOrdering != null) {
-        if (userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.ASC) {
-          Collections.reverse(pullRequests);
-        }
-      }
-    } catch (LoginRequiredException ignored) {}
-
-    return pullRequests;
-  }
-
   /**
    * Finds all open pull requests sorted by creation date, latest first.
    *
@@ -79,6 +66,19 @@ public class PullRequestService {
       .collect(Collectors.toList());
 
     return orderPullRequestsByUserPreference(pullRequests);
+  }
+
+  private List<PullRequest> orderPullRequestsByUserPreference(List<PullRequest> pullRequests) {
+    try {
+      UserSettings userSettings = userService.whoAmI().userSettings;
+      if (userSettings != null && userSettings.defaultPullRequestListOrdering != null) {
+        if (userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.ASC) {
+          Collections.reverse(pullRequests);
+        }
+      }
+    } catch (LoginRequiredException ignored) {}
+
+    return pullRequests;
   }
 
   public Optional<PullRequest> findById(Integer id) {
