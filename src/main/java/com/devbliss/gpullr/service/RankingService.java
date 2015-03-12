@@ -94,13 +94,13 @@ public class RankingService {
       ZonedDateTime boarder = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
       numberOfMergedPullRequests = pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
         .stream()
-        .filter(uhcp -> !uhcp.closedAt.isBefore(boarder))
+        .filter(pr -> !pr.closedAt.isBefore(boarder))
         .count();
     } else {
       numberOfMergedPullRequests =
           Long.valueOf(pullRequestRepository.findByAssigneeAndState(user, State.CLOSED).size());
     }
 
-    return new Ranking(user.username, numberOfMergedPullRequests, user.avatarUrl);
+    return new Ranking(user, numberOfMergedPullRequests);
   }
 }

@@ -46,7 +46,7 @@ public class RankingList {
       .sorted((r1, r2) -> {
         int result = r2.closedCount.compareTo(r1.closedCount);
         if (result == 0) {
-          result = r1.username.toLowerCase().compareTo(r2.username.toLowerCase());
+          result = r1.user.username.toLowerCase().compareTo(r2.user.username.toLowerCase());
         }
         return result;
       })

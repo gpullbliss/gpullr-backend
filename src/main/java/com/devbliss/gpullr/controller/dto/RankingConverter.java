@@ -16,9 +16,9 @@ public class RankingConverter {
 
   public RankingDto toDto(Ranking entity) {
     RankingDto dto = new RankingDto();
-    dto.avatarUrl = entity.avatarUrl;
+    dto.avatarUrl = entity.user.avatarUrl;
     dto.closedCount = entity.closedCount;
-    dto.username = entity.username;
+    dto.username = entity.user.username;
     return dto;
   }
 

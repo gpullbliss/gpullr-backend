@@ -92,6 +92,7 @@ public class PullRequestServiceUnitTest {
     pullRequestFromLocalStorage.assignee = assignee;
     pullRequestFromLocalStorage.assignedAt = IN_THE_PAST;
     pullRequestFromGitHub.assignee = anotherAssignee;
+    pullRequestFromGitHub.assignedAt = ZonedDateTime.now();
     when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
     pullRequestService.insertOrUpdate(pullRequestFromGitHub);
     verify(pullRequestRepository).save(pullRequestCaptor.capture());

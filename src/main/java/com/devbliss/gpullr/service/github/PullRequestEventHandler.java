@@ -6,7 +6,6 @@ import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.Log;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,10 +63,6 @@ public class PullRequestEventHandler {
     if (pullRequestFromEvent.state == State.OPEN) {
       pullRequestAssigneeWatcher.startWatching(pullRequestFromEvent);
     } else if (pullRequestFromEvent.state == State.CLOSED) {
-
-      if (pullRequestFromEvent.closedAt == null) {
-        pullRequestFromEvent.closedAt = ZonedDateTime.now();
-      }
       pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
     }
   }
