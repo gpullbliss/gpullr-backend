@@ -3,6 +3,10 @@ package com.devbliss.gpullr.util.http;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import java.io.IOException;
 import java.net.URI;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +41,12 @@ public class GithubHttpResponse {
 
   private static final String HEADER_ETAG = "ETag";
 
+  private static final String REMAINING_RATE_LIMIT_HEADER_KEY = "X-RateLimit-Remaining";
+
+  private static final String REMAINING_RATE_RESET_HEADER_KEY = "X-RateLimit-Reset";
+
+  private static final String MSG_NO_HEADER_FOUND = "No %s header found in response.";
+
   public final Optional<List<JsonObject>> jsonObjects;
 
   public final Optional<JsonObject> jsonObject;
@@ -44,6 +54,10 @@ public class GithubHttpResponse {
   public final Map<String, String> headers;
 
   public final int statusCode;
+
+  public final int rateLimitRemaining;
+
+  public final Optional<ZonedDateTime> rateLimitResetTime;
 
   public final String uri;
 
@@ -62,6 +76,8 @@ public class GithubHttpResponse {
     headers = parseHeaders(resp);
     statusCode = resp.getStatusLine().getStatusCode();
     this.uri = uri.toString();
+    rateLimitRemaining = parseRemainingRateLimit(headers);
+    rateLimitResetTime = parseRateLimitResetTime(headers);
 
     try {
       Optional<JsonStructure> json = parseJson(resp);
@@ -82,19 +98,64 @@ public class GithubHttpResponse {
     }
   }
 
-  public int getPollInterval() {
+  public Instant getPollInterval() {
+
+    if (rateLimitRemaining < 1) {
+      if (rateLimitResetTime.isPresent()) {
+        return Instant.from(rateLimitResetTime.get());
+      } else {
+        return Instant.now().plusSeconds(60 * 60); // one hour
+      }
+    }
+
     String pollIntervalHeader = headers.get(HEADER_POLL_INTERVAL);
+    int secondsFromNow;
 
     if (pollIntervalHeader == null) {
       logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
-      return DEFAULT_POLL_INTERVAL;
+      secondsFromNow = DEFAULT_POLL_INTERVAL;
+    } else {
+      secondsFromNow = Integer.parseInt(pollIntervalHeader);
     }
 
-    return Integer.parseInt(pollIntervalHeader);
+    return Instant.now().plusSeconds(secondsFromNow);
   }
 
   public Optional<String> getEtag() {
     return Optional.ofNullable(headers.get(HEADER_ETAG));
+  }
+
+  public String getFormattedRateLimitResetTime() {
+    if (rateLimitResetTime.isPresent()) {
+      return rateLimitResetTime.get().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    } else {
+      return "??";
+    }
+  }
+
+  private int parseRemainingRateLimit(Map<String, String> headers) {
+    String header = headers.get(REMAINING_RATE_LIMIT_HEADER_KEY);
+
+    if (header != null) {
+      return Integer.parseInt(header);
+    } else {
+      logger.warn(String.format(MSG_NO_HEADER_FOUND, REMAINING_RATE_LIMIT_HEADER_KEY));
+      return 0;
+    }
+  }
+
+  private Optional<ZonedDateTime> parseRateLimitResetTime(Map<String, String> headers) {
+    String header = headers.get(REMAINING_RATE_RESET_HEADER_KEY);
+
+    if (header != null) {
+      long epoch = Long.valueOf(header);
+      return Optional.of(ZonedDateTime
+        .ofInstant(Instant.ofEpochSecond(epoch), ZoneId.of("UTC"))
+        .withZoneSameInstant(ZoneId.systemDefault()));
+    } else {
+      logger.warn(String.format(MSG_NO_HEADER_FOUND, REMAINING_RATE_RESET_HEADER_KEY));
+      return Optional.empty();
+    }
   }
 
   private Optional<List<JsonObject>> parseJsonArrayIfPresent(JsonStructure json) {

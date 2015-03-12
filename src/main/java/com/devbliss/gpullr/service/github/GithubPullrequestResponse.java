@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -13,8 +14,8 @@ public class GithubPullrequestResponse extends AbstractGithubResponse<Optional<P
 
   public GithubPullrequestResponse(
       Optional<PullRequest> payload,
-      int nextRequestAfterSeconds,
+      Instant nextRequest,
       Optional<String> etagHeader) {
-    super(payload, nextRequestAfterSeconds, etagHeader);
+    super(payload, nextRequest, etagHeader);
   }
 }

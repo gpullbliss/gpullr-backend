@@ -14,6 +14,7 @@ import com.jcabi.http.Request;
 import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,8 +114,8 @@ public class GithubApi {
       GithubHttpResponse resp = githubClient.execute(req);
       List<PullRequestEvent> events = new ArrayList<>();
       Optional<String> etag = resp.getEtag();
-      int nextRequestAfterSeconds = resp.getPollInterval();
-      GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+      Instant nextRequest = resp.getPollInterval();
+      GithubEventsResponse result = new GithubEventsResponse(events, nextRequest, etag);
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
           ope -> ope.ifPresent(result.payload::add));
       return result;
