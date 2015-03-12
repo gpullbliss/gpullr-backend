@@ -22,6 +22,13 @@ public class RankingConverter {
     return dto;
   }
 
+  /**
+   * Converts a list of {@link Ranking} entities to a list of {@link RankingDto}, and adds an ascending numeric 
+   * "rank" to each dto according to the order of the given entities list.
+   * 
+   * @param entities
+   * @return
+   */
   public List<RankingDto> toDtoListWithRank(List<Ranking> entities) {
     List<RankingDto> dtos = new ArrayList<>();
 
