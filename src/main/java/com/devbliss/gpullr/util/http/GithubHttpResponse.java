@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.json.Json;
@@ -35,7 +36,11 @@ public class GithubHttpResponse {
 
   private static final Logger logger = LoggerFactory.getLogger(GithubHttpResponse.class);
 
+  private static final int RANDOM_ADDITIONAL_SECONDS_RANGE = 120;
+
   private static final int DEFAULT_POLL_INTERVAL = 60;
+
+  private static final int DEFAULT_WAIT_SECONDS_IF_RATE_LIMIT_EXCEEDED = 3600;
 
   private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
 
@@ -98,13 +103,27 @@ public class GithubHttpResponse {
     }
   }
 
-  public Instant getPollInterval() {
+  /**
+   * Tells when the next request for the same resource is allowed, respecting the restrictions from GitHub:
+   * 
+   * Normally, this is simply now plus number of seconds stated in poll interval header defaulting to 60 seconds.
+   * However, when the rate limit has been exceeded, this is the value of the rate limit reset time header (defaulting 
+   * to one hour from now) plus a random number of seconds.
+   * 
+   * @return
+   */
+  public Instant getNextFetch() {
 
     if (rateLimitRemaining < 1) {
+      Random random = new Random();
+      int addition = random.nextInt(RANDOM_ADDITIONAL_SECONDS_RANGE);
+
       if (rateLimitResetTime.isPresent()) {
-        return Instant.from(rateLimitResetTime.get());
+        logger.debug("Ratelimit exceeded, next fetch at reset time plus random: " + addition);
+        return Instant.from(rateLimitResetTime.get()).plusSeconds(addition);
       } else {
-        return Instant.now().plusSeconds(60 * 60); // one hour
+        logger.debug("Ratelimit exceeded, next fetch at default reset time plus random: " + addition);
+        return Instant.now().plusSeconds(DEFAULT_WAIT_SECONDS_IF_RATE_LIMIT_EXCEEDED).plusSeconds(addition);
       }
     }
 

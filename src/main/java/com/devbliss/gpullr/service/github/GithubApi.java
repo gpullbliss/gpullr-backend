@@ -101,7 +101,7 @@ public class GithubApi {
 
     try {
       Optional<PullRequest> fetchedPullRequest = handleResponse(resp, jo -> parsePullRequestPayload(jo));
-      return new GithubPullrequestResponse(fetchedPullRequest, resp.getPollInterval(), resp.getEtag());
+      return new GithubPullrequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -114,7 +114,7 @@ public class GithubApi {
       GithubHttpResponse resp = githubClient.execute(req);
       List<PullRequestEvent> events = new ArrayList<>();
       Optional<String> etag = resp.getEtag();
-      Instant nextRequest = resp.getPollInterval();
+      Instant nextRequest = resp.getNextFetch();
       GithubEventsResponse result = new GithubEventsResponse(events, nextRequest, etag);
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
           ope -> ope.ifPresent(result.payload::add));
