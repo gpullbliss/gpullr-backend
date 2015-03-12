@@ -33,11 +33,12 @@ public class PullRequestController {
 
   @RequestMapping(method = RequestMethod.GET)
   public ListDto<PullRequestDto> findAll() {
-    return new ListDto<PullRequestDto>(pullRequestService
-      .findAllOpen()
-      .stream()
-      .map(pr -> pullRequestConverter.toDto(pr))
-      .collect(Collectors.toList()));
+    return new ListDto<>(
+      pullRequestService.findAllOpen()
+        .stream()
+        .map(pullRequestConverter::toDto)
+        .collect(Collectors.toList())
+    );
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/{pullRequestId}")
