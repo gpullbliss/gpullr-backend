@@ -88,6 +88,7 @@ public class RankingServiceIntegrationTest {
     pullRequestRepository.deleteAll();
     userRepository.deleteAll();
     rankingListRepository.deleteAll();
+    repoRepository.deleteAll();
   }
 
   @Test
