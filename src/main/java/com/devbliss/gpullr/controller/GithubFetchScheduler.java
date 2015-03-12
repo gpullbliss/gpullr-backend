@@ -41,9 +41,9 @@ public class GithubFetchScheduler {
   @PostConstruct
   public void startExecution() {
     Date delayedTaskStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS));
-    executor.execute(() -> githubReposRefresher.startFetchLoop());
-    executor.execute(() -> githubUserFetcher.startFetchLoop());
-    executor.schedule(() -> startFetchEventsLoop(), delayedTaskStart);
+    executor.execute(githubReposRefresher::startFetchLoop);
+    executor.execute(githubUserFetcher::startFetchLoop);
+    executor.schedule(this::startFetchEventsLoop, delayedTaskStart);
   }
 
   private void startFetchEventsLoop() {
