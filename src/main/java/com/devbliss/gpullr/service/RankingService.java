@@ -97,7 +97,8 @@ public class RankingService {
         .filter(uhcp -> !uhcp.closedAt.isBefore(boarder))
         .count();
     } else {
-      numberOfMergedPullRequests = Long.valueOf(pullRequestRepository.findByAssigneeAndState(user, State.CLOSED).size());
+      numberOfMergedPullRequests =
+          Long.valueOf(pullRequestRepository.findByAssigneeAndState(user, State.CLOSED).size());
     }
 
     return new Ranking(user.username, numberOfMergedPullRequests, user.avatarUrl);
