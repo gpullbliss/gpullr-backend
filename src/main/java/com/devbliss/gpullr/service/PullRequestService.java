@@ -3,6 +3,7 @@ package com.devbliss.gpullr.service;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
+import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -53,12 +54,14 @@ public class PullRequestService {
   }
 
   private List<PullRequest> orderPullRequestsByUserPreference(List<PullRequest> pullRequests) {
-    UserSettings userSettings = userService.whoAmI().userSettings;
-    if (userSettings != null && userSettings.defaultPullRequestListOrdering != null) {
-      if (userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.ASC) {
-        Collections.reverse(pullRequests);
+    try {
+      UserSettings userSettings = userService.whoAmI().userSettings;
+      if (userSettings != null && userSettings.defaultPullRequestListOrdering != null) {
+        if (userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.ASC) {
+          Collections.reverse(pullRequests);
+        }
       }
-    }
+    } catch (LoginRequiredException ignored) {}
 
     return pullRequests;
   }

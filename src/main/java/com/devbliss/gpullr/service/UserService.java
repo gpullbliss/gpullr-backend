@@ -29,9 +29,9 @@ public class UserService {
 
   public void insertOrUpdate(User user) {
     // don't override user settings, if user already exists
-    if (user.userSettings == null) {
+    if (user.id != null && user.userSettings == null) {
       User dbUser = userRepository.findOne(user.id);
-      if (dbUser.userSettings != null) {
+      if (dbUser != null && dbUser.userSettings != null) {
         user.userSettings = dbUser.userSettings;
       }
     }
@@ -75,7 +75,7 @@ public class UserService {
     userSession.setUser(user);
   }
 
-  public User whoAmI() {
+  public User whoAmI() throws LoginRequiredException {
     requireLogin();
     return userSession.getUser();
   }
