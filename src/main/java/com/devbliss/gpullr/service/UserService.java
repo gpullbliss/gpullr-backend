@@ -28,6 +28,14 @@ public class UserService {
   }
 
   public void insertOrUpdate(User user) {
+    // don't override user settings, if user already exists
+    if (user.userSettings == null) {
+      User dbUser = userRepository.findOne(user.id);
+      if (dbUser.userSettings != null) {
+        user.userSettings = dbUser.userSettings;
+      }
+    }
+
     userRepository.save(user);
   }
 
@@ -61,6 +69,10 @@ public class UserService {
   public void login(int id) {
     User loggedInUser = userRepository.findOne(id);
     userSession.setUser(loggedInUser);
+  }
+
+  public void updateUserSession(User user) {
+    userSession.setUser(user);
   }
 
   public User whoAmI() {
