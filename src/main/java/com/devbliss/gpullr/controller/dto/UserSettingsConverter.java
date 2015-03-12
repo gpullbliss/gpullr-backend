@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.controller.dto;
 
 import com.devbliss.gpullr.domain.UserSettings;
-import com.devbliss.gpullr.util.Log;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserSettingsConverter {
 
-  @Log
-  private Logger logger;
+  private final static Logger logger = LoggerFactory.getLogger(UserSettingsConverter.class);
 
   public UserSettingsDto toDto(UserSettings entity) {
     UserSettingsDto dto = new UserSettingsDto();
