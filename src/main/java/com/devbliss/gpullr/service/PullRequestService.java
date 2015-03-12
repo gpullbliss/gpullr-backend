@@ -8,6 +8,7 @@ import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,22 +45,18 @@ public class PullRequestService {
   }
 
   public List<PullRequest> findAll() {
-    List<PullRequest> pullRequests = pullRequestRepository
+    return pullRequestRepository
       .findAll()
       .stream()
       .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
       .collect(Collectors.toList());
-
-    return orderPullRequestsByUserPreference(pullRequests);
   }
 
   private List<PullRequest> orderPullRequestsByUserPreference(List<PullRequest> pullRequests) {
     UserSettings userSettings = userService.whoAmI().userSettings;
     if (userSettings != null && userSettings.defaultPullRequestListOrdering != null) {
       if (userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.ASC) {
-        pullRequests.stream()
-          .sorted((p1, p2) -> p2.createdAt.compareTo(p2.createdAt))
-          .collect(Collectors.toList());
+        Collections.reverse(pullRequests);
       }
     }
 
@@ -72,11 +69,13 @@ public class PullRequestService {
    * @return possibly empty list of pull requests
    */
   public List<PullRequest> findAllOpen() {
-    return pullRequestRepository
+    List<PullRequest> pullRequests = pullRequestRepository
       .findAllByState(PullRequest.State.OPEN)
       .stream()
       .sorted((p1, p2) -> p2.createdAt.compareTo(p1.createdAt))
       .collect(Collectors.toList());
+
+    return orderPullRequestsByUserPreference(pullRequests);
   }
 
   public Optional<PullRequest> findById(Integer id) {
