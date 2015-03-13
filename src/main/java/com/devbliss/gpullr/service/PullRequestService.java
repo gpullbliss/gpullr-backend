@@ -3,11 +3,13 @@ package com.devbliss.gpullr.service;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,24 +25,43 @@ import org.springframework.stereotype.Service;
 @Service
 public class PullRequestService {
 
+  private final Comparator<PullRequest> latestFirstComparator = new Comparator<PullRequest>() {
+
+    @Override
+    public int compare(PullRequest p1, PullRequest p2) {
+      return p2.createdAt.compareTo(p1.createdAt);
+    }
+  };
+
+  private final Comparator<PullRequest> oldestFirstComparator = new Comparator<PullRequest>() {
+
+    @Override
+    public int compare(PullRequest p1, PullRequest p2) {
+      return p1.createdAt.compareTo(p2.createdAt);
+    }
+  };
+
   private final PullRequestRepository pullRequestRepository;
 
   private final UserRepository userRepository;
 
   private final GithubApi githubApi;
 
+  private final UserService userService;
+
   @Autowired
   public PullRequestService(
       PullRequestRepository pullRequestRepository,
       UserRepository userRepository,
-      GithubApi githubApi) {
+      GithubApi githubApi,
+      UserService userService) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
+    this.userService = userService;
   }
 
   public List<PullRequest> findAll() {
-
     return pullRequestRepository
       .findAll()
       .stream()
@@ -54,11 +75,23 @@ public class PullRequestService {
    * @return possibly empty list of pull requests
    */
   public List<PullRequest> findAllOpen() {
-    return pullRequestRepository
+    List<PullRequest> pullRequests = pullRequestRepository
       .findAllByState(PullRequest.State.OPEN)
       .stream()
-      .sorted((p1, p2) -> p2.createdAt.compareTo(p1.createdAt))
+      .sorted(getPullRequestSortComparator(userService.whoAmI()))
       .collect(Collectors.toList());
+
+    return pullRequests;
+  }
+
+  private Comparator<PullRequest> getPullRequestSortComparator(User currentUser) {
+    UserSettings userSettings = currentUser.userSettings;
+
+    if (userSettings == null || userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.DESC) {
+      return latestFirstComparator;
+    } else {
+      return oldestFirstComparator;
+    }
   }
 
   public Optional<PullRequest> findById(Integer id) {

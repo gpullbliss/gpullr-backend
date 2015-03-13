@@ -10,12 +10,14 @@ import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.junit.After;
@@ -56,6 +58,8 @@ public class PullRequestServiceTest {
   private static final int USER_ID = 1000;
 
   private static final int PR_ID = 1;
+  
+  private static final int OLD_PR_ID = 2;
 
   @Autowired
   private PullRequestRepository prRepository;
@@ -66,6 +70,9 @@ public class PullRequestServiceTest {
   @Autowired
   private RepoRepository repoRepository;
 
+  @Autowired
+  private UserService userService;
+
   private GithubApi githubApi;
 
   private PullRequestService prService;
@@ -75,7 +82,7 @@ public class PullRequestServiceTest {
   @Before
   public void setup() {
     githubApi = mock(GithubApi.class);
-    prService = new PullRequestService(prRepository, userRepository, githubApi);
+    prService = new PullRequestService(prRepository, userRepository, githubApi, userService);
     testPr = new PullRequest();
     testPr.id = PR_ID;
     testPr.author = initUser();
@@ -113,6 +120,9 @@ public class PullRequestServiceTest {
 
   @Test
   public void findAllOpenPullRequests() {
+    User user = initUser();
+    userService.login(user.id);
+
     // store a pullRequest with state OPEN:
     prService.insertOrUpdate(testPr);
 
@@ -130,6 +140,42 @@ public class PullRequestServiceTest {
     assertEquals(1, openPrs.size());
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
+  }
+
+  @Test
+  public void findAllOpenPullRequestsRegardsUserOrderSettings() {
+    User user = initUser();
+    userService.login(user.id);
+
+    user.userSettings = new UserSettings(UserSettings.OrderOption.DESC);
+    userService.insertOrUpdate(user);
+
+    // create pull request:
+    prService.insertOrUpdate(testPr);
+
+    // create second pull request that is OLDER:
+    testPr.id = OLD_PR_ID;
+    testPr.url = testPr.url + "_2";
+    testPr.createdAt = testPr.createdAt.minus(1, ChronoUnit.HOURS);
+    prService.insertOrUpdate(testPr);
+
+    // since user has no user preferences yet, the newer pull request should be first in list
+    // (default behavior):
+    List<PullRequest> allOpen = prService.findAllOpen();
+    assertEquals(PR_ID, allOpen.get(0).id.intValue());
+
+    // after storing user preference that user wants pull requests in ascending order, the other one
+    // should be first in list:
+    user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.ASC;
+    userService.insertOrUpdate(user);
+    allOpen = prService.findAllOpen();
+    assertEquals(OLD_PR_ID, allOpen.get(0).id.intValue());
+
+    // after changing user preference to descneding order, the order changes again:
+    user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.DESC;
+    userService.insertOrUpdate(user);
+    allOpen = prService.findAllOpen();
+    assertEquals(PR_ID, allOpen.get(0).id.intValue());
   }
 
   @Test

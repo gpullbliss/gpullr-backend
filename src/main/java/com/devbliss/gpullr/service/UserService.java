@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
@@ -28,16 +29,29 @@ public class UserService {
   }
 
   public void insertOrUpdate(User user) {
+    // don't override user settings, if user already exists
+    if (user.id != null && user.userSettings == null) {
+      User dbUser = userRepository.findOne(user.id);
+      if (dbUser != null && dbUser.userSettings != null) {
+        user.userSettings = dbUser.userSettings;
+      }
+    }
+
     userRepository.save(user);
+    updateUserSession(user);
   }
 
   public List<User> findAll() {
     return userRepository.findAll();
   }
 
+  public User findOne(Integer userId) {
+    return userRepository.findOne(userId);
+  }
+
   /**
    * Finds all users that are allowed to login to this application, sorted by username.
-   * 
+   *
    * @return possibly empty list of users
    */
   public List<User> findAllOrgaMembers() {
@@ -59,8 +73,25 @@ public class UserService {
     userSession.setUser(loggedInUser);
   }
 
-  public User whoAmI() {
+  public User whoAmI() throws LoginRequiredException {
     requireLogin();
     return userSession.getUser();
+  }
+
+  public void updateUserSettings(int userId, UserSettings update) {
+    User user = findOne(userId);
+
+    if (user.userSettings != null) {
+      // update existing user settings
+      user.userSettings.defaultPullRequestListOrdering = update.defaultPullRequestListOrdering;
+    } else {
+      user.userSettings = update;
+    }
+
+    insertOrUpdate(user);
+  }
+
+  private void updateUserSession(User user) {
+    userSession.setUser(user);
   }
 }

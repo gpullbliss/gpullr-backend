@@ -19,7 +19,7 @@ import org.junit.Test;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
-public class PullRequestConverterTest {
+public class PullRequestConverterUnitTest {
 
   private static final Integer ID = 1981;
 
