@@ -167,13 +167,15 @@ public class PullRequestServiceTest {
     // after storing user preference that user wants pull requests in ascending order, the other one
     // should be first in list:
     user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.ASC;
-    userService.insertOrUpdate(user);
+    userService.updateUserSettings(user.id, user.userSettings);
+    userService.updateUserSession(user);
     allOpen = prService.findAllOpen();
     assertEquals(OLD_PR_ID, allOpen.get(0).id.intValue());
 
     // after changing user preference to descneding order, the order changes again:
     user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.DESC;
-    userService.insertOrUpdate(user);
+    userService.updateUserSettings(user.id, user.userSettings);
+    userService.updateUserSession(user);
     allOpen = prService.findAllOpen();
     assertEquals(PR_ID, allOpen.get(0).id.intValue());
   }
