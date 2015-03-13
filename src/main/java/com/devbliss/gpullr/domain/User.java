@@ -30,12 +30,15 @@ public class User {
 
   public Boolean canLogin = false;
 
-  @OneToOne(fetch = FetchType.EAGER, targetEntity = UserSettings.class, cascade = CascadeType.PERSIST, orphanRemoval = true)
+  @OneToOne(
+      fetch = FetchType.EAGER,
+      targetEntity = UserSettings.class,
+      cascade = CascadeType.PERSIST,
+      orphanRemoval = true)
   @JoinColumn(name = "user_settings_id")
   public UserSettings userSettings;
 
-  public User() {
-  }
+  public User() {}
 
   public User(Integer id, String username, String avatarUrl) {
     this(id, username, avatarUrl, false, null);
@@ -56,11 +59,11 @@ public class User {
   @Override
   public String toString() {
     return "User{" +
-      "id=" + id +
-      ", username='" + username + '\'' +
-      ", avatarUrl='" + avatarUrl + '\'' +
-      ", canLogin=" + canLogin +
-      '}';
+        "id=" + id +
+        ", username='" + username + '\'' +
+        ", avatarUrl='" + avatarUrl + '\'' +
+        ", canLogin=" + canLogin +
+        '}';
   }
 
   @Override

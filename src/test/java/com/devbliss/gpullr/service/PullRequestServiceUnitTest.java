@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,6 +41,7 @@ public class PullRequestServiceUnitTest {
   private static final Integer ANOTHER_ASSIGNEE_ID = 18;
 
   private static final String OLD_PR_TITLE = "old";
+
   private static final String NEW_PR_TITLE = "new";
 
   @Mock

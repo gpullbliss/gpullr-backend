@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -57,6 +58,7 @@ public class PullRequestServiceTest {
   private static final int USER_ID = 1000;
 
   private static final int PR_ID = 1;
+  
   private static final int OLD_PR_ID = 2;
 
   @Autowired
@@ -120,7 +122,7 @@ public class PullRequestServiceTest {
   public void findAllOpenPullRequests() {
     User user = initUser();
     userService.login(user.id);
-    
+
     // store a pullRequest with state OPEN:
     prService.insertOrUpdate(testPr);
 
