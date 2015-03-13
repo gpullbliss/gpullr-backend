@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -10,12 +9,14 @@ import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.junit.After;
@@ -56,6 +57,7 @@ public class PullRequestServiceTest {
   private static final int USER_ID = 1000;
 
   private static final int PR_ID = 1;
+  private static final int OLD_PR_ID = 2;
 
   @Autowired
   private PullRequestRepository prRepository;
@@ -133,6 +135,31 @@ public class PullRequestServiceTest {
     assertEquals(1, openPrs.size());
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
+  }
+
+  @Test
+  public void findAllOpenPullRequestsRegardsUserOrderSettings() {
+    User user = initUser();
+    userService.login(user.id);
+
+    user.userSettings = new UserSettings(UserSettings.OrderOption.DESC);
+    userService.insertOrUpdate(user);
+
+    prService.insertOrUpdate(testPr);
+
+    testPr.id = OLD_PR_ID;
+    testPr.url = testPr.url + "_2";
+    testPr.createdAt = testPr.createdAt.minus(1, ChronoUnit.HOURS);
+    prService.insertOrUpdate(testPr);
+
+    List<PullRequest> allOpen = prService.findAllOpen();
+    assertEquals(PR_ID, allOpen.get(0).id.intValue());
+
+    user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.DESC;
+    userService.insertOrUpdate(user);
+
+    allOpen = prService.findAllOpen();
+    assertEquals(PR_ID, allOpen.get(0).id.intValue());
   }
 
   @Test
