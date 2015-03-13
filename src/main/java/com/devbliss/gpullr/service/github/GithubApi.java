@@ -114,8 +114,8 @@ public class GithubApi {
       GithubHttpResponse resp = githubClient.execute(req);
       List<PullRequestEvent> events = new ArrayList<>();
       Optional<String> etag = resp.getEtag();
-      Instant nextRequest = resp.getNextFetch();
-      GithubEventsResponse result = new GithubEventsResponse(events, nextRequest, etag);
+      Instant nextFetch = resp.getNextFetch();
+      GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
           ope -> ope.ifPresent(result.payload::add));
       return result;
