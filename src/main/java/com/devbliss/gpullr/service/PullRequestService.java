@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.LoginRequiredException;
@@ -110,15 +111,27 @@ public class PullRequestService {
     }
 
     // assignee is null in GitHub response => save assignee if assigned via gpullr:
-    pullRequestRepository.findById(pullRequest.id).ifPresent(existing -> {
-      if (pullRequest.assignee == null) {
-        pullRequest.assignee = existing.assignee;
-        pullRequest.assignedAt = existing.assignedAt;
-      } else if (pullRequest.assignee.id.intValue() != existing.assignee.id.intValue()) {
-        pullRequest.assignedAt = ZonedDateTime.now();
-      }
-    });
+    pullRequestRepository
+      .findById(pullRequest.id)
+      .ifPresent(existing -> ensureAssignee(pullRequest, existing));
+
+    if (pullRequest.state == State.CLOSED && pullRequest.closedAt == null) {
+      pullRequest.closedAt = ZonedDateTime.now();
+    }
+
     pullRequestRepository.save(pullRequest);
+  }
+
+  private void ensureAssignee(PullRequest pullRequestToEnsure, PullRequest fallback) {
+    if (pullRequestToEnsure.assignee == null) {
+      pullRequestToEnsure.assignee = fallback.assignee;
+
+      if (fallback.assignedAt != null) {
+        pullRequestToEnsure.assignedAt = fallback.assignedAt;
+      } else {
+        pullRequestToEnsure.assignedAt = ZonedDateTime.now();
+      }
+    }
   }
 
   private boolean isUserUnknown(User user) {

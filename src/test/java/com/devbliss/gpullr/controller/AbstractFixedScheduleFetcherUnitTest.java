@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 /**
- * Mock based unit test for {@link AbstractFixedScheduleFetcher}.
+ * Mock based unit test for {@link AbstractFixedScheduleWorker}.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
@@ -27,17 +27,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractFixedScheduleFetcherUnitTest {
   
-  private class MockAbstractFixedScheduleFetcher extends AbstractFixedScheduleFetcher {
+  private class MockAbstractFixedScheduleFetcher extends AbstractFixedScheduleWorker {
     
     private int fetchCallCounter;
 
     @Override
-    protected Date nextFetch() {
+    protected Date nextExecution() {
       return NEXT_FETCH;
     }
 
     @Override
-    protected void fetch() {
+    protected void execute() {
       fetchCallCounter++;
     }
     

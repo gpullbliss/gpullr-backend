@@ -1,6 +1,7 @@
 
 ### Version 0.1.0-SNAPSHOT
 
+ - [feature] ranking calculation
  - [refactor] rolling logfiles per day and after 50MB
  - [feature] added assignedAt property to PullRequest Entity and Dto
  - [refactor] implemented simple database migration strategy
@@ -22,5 +23,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 09 12:43:56 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Mar 12 11:22:07 CET 2015
 

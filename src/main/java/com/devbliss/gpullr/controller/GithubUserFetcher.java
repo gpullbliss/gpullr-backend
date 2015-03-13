@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * Fetches all users belonging to Devbliss from GitHub API.
  */
 @Component
-public class GithubUserFetcher extends AbstractFixedScheduleFetcher {
+public class GithubUserFetcher extends AbstractFixedScheduleWorker {
 
   private static final int HOURS_OF_DAY = 24;
 
@@ -32,7 +32,7 @@ public class GithubUserFetcher extends AbstractFixedScheduleFetcher {
   private UserService userService;
 
   @Override
-  protected void fetch() {
+  protected void execute() {
     try {
       List<User> users = githubApi.fetchAllOrgaMembers();
       users.forEach(this::handleUser);
@@ -53,7 +53,7 @@ public class GithubUserFetcher extends AbstractFixedScheduleFetcher {
    * @return
    */
   @Override
-  protected Date nextFetch() {
+  protected Date nextExecution() {
     int diff = HOURS_OF_DAY - LocalTime.now().getHour();
     logger.debug("Still " + diff + " hours until midnight.");
     diff++;

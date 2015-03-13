@@ -58,6 +58,10 @@ public class GithubApi {
 
   private static final String FIELD_KEY_ASSIGNEE = "assignee";
 
+  private static final String FIELD_KEY_CLOSED_AT = "closed_at";
+
+  private static final String FIELD_KEY_MERGED_AT = "merged_at";
+
   private static final String ERR_MSG_RESPONSE = "Request to '%s' returned unexpected status code: %d.";
 
   @Log
@@ -178,7 +182,19 @@ public class GithubApi {
       pullRequest.assignee = parseUser((JsonObject) assigneeValue);
     }
 
+    if (isStringValue(pullRequestJson, FIELD_KEY_CLOSED_AT)) {
+      pullRequest.closedAt = ZonedDateTime.parse(pullRequestJson.getString(FIELD_KEY_CLOSED_AT));
+      logger.debug("parsed closed-date of PR event: " + pullRequest.closedAt);
+    } else if (isStringValue(pullRequestJson, FIELD_KEY_MERGED_AT)) {
+      pullRequest.closedAt = ZonedDateTime.parse(pullRequestJson.getString(FIELD_KEY_MERGED_AT));
+      logger.debug("parsed merged-date of PR event: " + pullRequest.closedAt);
+    }
+
     return pullRequest;
+  }
+
+  private boolean isStringValue(JsonObject jsonObject, String fieldKey) {
+    return jsonObject.containsKey(fieldKey) && jsonObject.get(fieldKey).getValueType() == ValueType.STRING;
   }
 
   private boolean isPullRequestEvent(JsonObject event) {

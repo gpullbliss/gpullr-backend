@@ -9,6 +9,7 @@ import com.devbliss.gpullr.util.Log;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +23,9 @@ public class PullRequestEventHandler {
 
   @Log
   Logger logger;
+
+  @Autowired
+  private TaskScheduler taskScheduler;
 
   private final PullRequestService pullRequestService;
 
@@ -54,7 +58,8 @@ public class PullRequestEventHandler {
     logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
     pullRequestService.insertOrUpdate(pullRequestFromEvent);
 
-    // unfortunately, the assignee is not set in GitHub PR event if state is OPEN, so we have to fetch it manually:
+    // unfortunately, the assignee is not set in GitHub PR event if state is OPEN, so we have to
+    // fetch it manually:
     if (pullRequestFromEvent.state == State.OPEN) {
       pullRequestAssigneeWatcher.startWatching(pullRequestFromEvent);
     } else if (pullRequestFromEvent.state == State.CLOSED) {
