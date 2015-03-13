@@ -145,19 +145,30 @@ public class PullRequestServiceTest {
     user.userSettings = new UserSettings(UserSettings.OrderOption.DESC);
     userService.insertOrUpdate(user);
 
+    // create pull request:
     prService.insertOrUpdate(testPr);
 
+    // create second pull request that is OLDER:
     testPr.id = OLD_PR_ID;
     testPr.url = testPr.url + "_2";
     testPr.createdAt = testPr.createdAt.minus(1, ChronoUnit.HOURS);
     prService.insertOrUpdate(testPr);
 
+    // since user has no user preferences yet, the newer pull request should be first in list
+    // (default behavior):
     List<PullRequest> allOpen = prService.findAllOpen();
     assertEquals(PR_ID, allOpen.get(0).id.intValue());
 
+    // after storing user preference that user wants pull requests in ascending order, the other one
+    // should be first in list:
+    user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.ASC;
+    userService.insertOrUpdate(user);
+    allOpen = prService.findAllOpen();
+    assertEquals(OLD_PR_ID, allOpen.get(0).id.intValue());
+
+    // after changing user preference to descneding order, the order changes again:
     user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.DESC;
     userService.insertOrUpdate(user);
-
     allOpen = prService.findAllOpen();
     assertEquals(PR_ID, allOpen.get(0).id.intValue());
   }

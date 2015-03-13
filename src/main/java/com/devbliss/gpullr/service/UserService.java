@@ -37,6 +37,7 @@ public class UserService {
     }
 
     userRepository.save(user);
+    updateUserSession(user);
   }
 
   public List<User> findAll() {
@@ -71,12 +72,12 @@ public class UserService {
     userSession.setUser(loggedInUser);
   }
 
-  public void updateUserSession(User user) {
-    userSession.setUser(user);
-  }
-
   public User whoAmI() throws LoginRequiredException {
     requireLogin();
     return userSession.getUser();
+  }
+
+  private void updateUserSession(User user) {
+    userSession.setUser(user);
   }
 }

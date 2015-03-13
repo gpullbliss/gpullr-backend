@@ -41,7 +41,6 @@ public class UserSettingsController {
     }
 
     userService.insertOrUpdate(user);
-    userService.updateUserSession(user);
   }
 
 }
