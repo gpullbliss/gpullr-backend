@@ -118,6 +118,9 @@ public class PullRequestServiceTest {
 
   @Test
   public void findAllOpenPullRequests() {
+    User user = initUser();
+    userService.login(user.id);
+    
     // store a pullRequest with state OPEN:
     prService.insertOrUpdate(testPr);
 

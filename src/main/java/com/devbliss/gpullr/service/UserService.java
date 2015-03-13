@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
@@ -75,6 +76,19 @@ public class UserService {
   public User whoAmI() throws LoginRequiredException {
     requireLogin();
     return userSession.getUser();
+  }
+
+  public void updateUserSettings(int userId, UserSettings update) {
+    User user = findOne(userId);
+
+    if (user.userSettings != null) {
+      // update existing user settings
+      user.userSettings.defaultPullRequestListOrdering = update.defaultPullRequestListOrdering;
+    } else {
+      user.userSettings = update;
+    }
+
+    insertOrUpdate(user);
   }
 
   private void updateUserSession(User user) {

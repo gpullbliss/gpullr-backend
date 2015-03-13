@@ -1,8 +1,7 @@
 package com.devbliss.gpullr.controller.dto;
 
 import com.devbliss.gpullr.domain.UserSettings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.devbliss.gpullr.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class UserSettingsConverter {
-
-  private final static Logger logger = LoggerFactory.getLogger(UserSettingsConverter.class);
 
   public UserSettingsDto toDto(UserSettings entity) {
     UserSettingsDto dto = new UserSettingsDto();
@@ -23,7 +20,8 @@ public class UserSettingsConverter {
       try {
         dto.orderOptionDto = UserSettingsDto.OrderOptionDto.valueOf(orderOptionValue);
       } catch (IllegalArgumentException e) {
-        logger.error("Error converting OrderOptions with value '%s' to OrderOptionsDto", orderOptionValue, e);
+        throw new BadRequestException(String.format("Error converting OrderOptions with value '%s' to OrderOptionsDto",
+            orderOptionValue));
       }
     }
 
@@ -39,7 +37,8 @@ public class UserSettingsConverter {
       try {
         entity.defaultPullRequestListOrdering = UserSettings.OrderOption.valueOf(orderOptionValue);
       } catch (IllegalArgumentException e) {
-        logger.error("Error converting OrderOptionsDto with value '%s' to OrderOptions", orderOptionValue, e);
+        throw new BadRequestException(String.format("Error converting OrderOptionsDto with value '%s' to OrderOptions",
+            orderOptionValue));
       }
     }
 

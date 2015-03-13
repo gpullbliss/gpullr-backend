@@ -117,7 +117,7 @@ public class PullRequestServiceUnitTest {
     List<PullRequest> allOpen = pullRequestService.findAllOpen();
 
     verify(userService).whoAmI();
-    assertEquals(OLD_PR_TITLE, allOpen.get(0).title);
+    assertEquals(NEW_PR_TITLE, allOpen.get(0).title);
   }
 
   private void mockFindOpenPullRequests() {
