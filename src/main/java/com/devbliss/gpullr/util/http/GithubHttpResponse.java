@@ -3,10 +3,12 @@ package com.devbliss.gpullr.util.http;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +42,7 @@ public class GithubHttpResponse {
 
   private static final int DEFAULT_POLL_INTERVAL = 60;
 
-  private static final int DEFAULT_WAIT_SECONDS_IF_RATE_LIMIT_EXCEEDED = 3600;
+  private static final int DEFAULT_WAIT_MINUTES_IF_RATE_LIMIT_EXCEEDED = 60;
 
   private static final String HEADER_POLL_INTERVAL = "X-Poll-Interval";
 
@@ -123,7 +125,10 @@ public class GithubHttpResponse {
         return Instant.from(rateLimitResetTime.get()).plusSeconds(addition);
       } else {
         logger.debug("Ratelimit exceeded, next fetch at default reset time plus random: " + addition);
-        return Instant.now().plusSeconds(DEFAULT_WAIT_SECONDS_IF_RATE_LIMIT_EXCEEDED).plusSeconds(addition);
+        return Instant
+          .now()
+          .plus(Duration.of(DEFAULT_WAIT_MINUTES_IF_RATE_LIMIT_EXCEEDED, ChronoUnit.MINUTES))
+          .plusSeconds(addition);
       }
     }
 
