@@ -14,8 +14,8 @@ public class GithubPullrequestResponse extends AbstractGithubResponse<Optional<P
 
   public GithubPullrequestResponse(
       Optional<PullRequest> payload,
-      Instant nextRequest,
+      Instant nextFetch,
       Optional<String> etagHeader) {
-    super(payload, nextRequest, etagHeader);
+    super(payload, nextFetch, etagHeader);
   }
 }

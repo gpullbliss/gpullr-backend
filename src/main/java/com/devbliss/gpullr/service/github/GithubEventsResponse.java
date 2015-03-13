@@ -17,8 +17,8 @@ public class GithubEventsResponse extends AbstractGithubResponse<List<PullReques
 
   public GithubEventsResponse(
       List<PullRequestEvent> pullRequestEvents,
-      Instant nextRequest,
+      Instant nextFetch,
       Optional<String> etagHeader) {
-    super(pullRequestEvents, nextRequest, etagHeader);
+    super(pullRequestEvents, nextFetch, etagHeader);
   }
 }

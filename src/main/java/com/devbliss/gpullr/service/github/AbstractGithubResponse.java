@@ -12,15 +12,15 @@ import java.util.Optional;
  */
 public abstract class AbstractGithubResponse<PAYLOAD> {
 
-  public final Instant nextRequest;
+  public final Instant nextFetch;
 
   public final Optional<String> etagHeader;
 
   public final PAYLOAD payload;
 
-  protected AbstractGithubResponse(PAYLOAD payload, Instant nextRequest, Optional<String> etagHeader) {
+  protected AbstractGithubResponse(PAYLOAD payload, Instant nextFetch, Optional<String> etagHeader) {
     this.payload = payload;
-    this.nextRequest = nextRequest;
+    this.nextFetch = nextFetch;
     this.etagHeader = etagHeader;
   }
 }

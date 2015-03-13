@@ -64,7 +64,7 @@ public class PullRequestAssigneeWatchThread extends Thread {
     resp.payload.ifPresent(this::handlePullRequest);
 
     if (!stopped) {
-      Date nextFetch = Date.from(resp.nextRequest);
+      Date nextFetch = Date.from(resp.nextFetch);
       taskScheduler.schedule(() -> fetch(resp.etagHeader), nextFetch);
     }
   }
