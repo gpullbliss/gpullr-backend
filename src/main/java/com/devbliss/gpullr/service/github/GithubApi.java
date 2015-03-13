@@ -14,6 +14,7 @@ import com.jcabi.http.Request;
 import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +101,7 @@ public class GithubApi {
 
     try {
       Optional<PullRequest> fetchedPullRequest = handleResponse(resp, jo -> parsePullRequestPayload(jo));
-      return new GithubPullrequestResponse(fetchedPullRequest, resp.getPollInterval(), resp.getEtag());
+      return new GithubPullrequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -113,8 +114,8 @@ public class GithubApi {
       GithubHttpResponse resp = githubClient.execute(req);
       List<PullRequestEvent> events = new ArrayList<>();
       Optional<String> etag = resp.getEtag();
-      int nextRequestAfterSeconds = resp.getPollInterval();
-      GithubEventsResponse result = new GithubEventsResponse(events, nextRequestAfterSeconds, etag);
+      Instant nextFetch = resp.getNextFetch();
+      GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
           ope -> ope.ifPresent(result.payload::add));
       return result;

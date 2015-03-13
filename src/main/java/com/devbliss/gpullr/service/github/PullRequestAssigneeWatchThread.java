@@ -2,7 +2,6 @@ package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.service.PullRequestService;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public class PullRequestAssigneeWatchThread extends Thread {
   /**
    * Call this to stop the infinite loop of fetching. Will not cancel a request that is currently running but make
    * sure there is no follow up request.
-   */      
+   */
   public void pleaseStop() {
     stopped = true;
   }
@@ -65,7 +64,7 @@ public class PullRequestAssigneeWatchThread extends Thread {
     resp.payload.ifPresent(this::handlePullRequest);
 
     if (!stopped) {
-      Date nextFetch = Date.from(Instant.now().plusSeconds(resp.nextRequestAfterSeconds));
+      Date nextFetch = Date.from(resp.nextFetch);
       taskScheduler.schedule(() -> fetch(resp.etagHeader), nextFetch);
     }
   }

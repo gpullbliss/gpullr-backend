@@ -10,6 +10,7 @@ import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.PullRequestService;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 import org.junit.Before;
@@ -69,7 +70,10 @@ public class PullRequestAssigneeWatchThreadUnitTest {
     nonEmptyEtagHeader = Optional.of(ETAG);
     pullRequest = new PullRequest();
     pullRequest.repo = repo;
-    githubPullrequestResponse = new GithubPullrequestResponse(Optional.of(pullRequest), 60, nonEmptyEtagHeader);
+    githubPullrequestResponse = new GithubPullrequestResponse(
+        Optional.of(pullRequest),
+        Instant.now().plusSeconds(60),
+        nonEmptyEtagHeader);
     when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullrequestResponse);
     when(githubApi.fetchPullRequest(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullrequestResponse);
     pullRequestAssigneeWatchThread = new PullRequestAssigneeWatchThread(pullRequest, taskScheduler, githubApi,

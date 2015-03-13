@@ -3,11 +3,6 @@ package com.devbliss.gpullr.util.http;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.service.github.AbstractGithubRequest;
 import com.devbliss.gpullr.util.Log;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -33,10 +28,6 @@ import org.springframework.stereotype.Component;
 public class GithubHttpClientImpl implements GithubHttpClient {
 
   private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
-
-  private static final String REMAINING_RATE_LIMIT_HEADER_KEY = "X-RateLimit-Remaining";
-
-  private static final String REMAINING_RATE_RESET_HEADER_KEY = "X-RateLimit-Reset";
 
   @Log
   private Logger logger;
@@ -64,27 +55,20 @@ public class GithubHttpClientImpl implements GithubHttpClient {
       req.setHeader(AUTHORIZATION_HEADER_KEY, "token " + oauthToken);
       logger.debug("HTTP request against GitHub: " + req.getURI());
       CloseableHttpResponse resp = httpClient.execute(req);
-      logResponse(resp);
-      return GithubHttpResponse.create(resp, req.getURI());
+      GithubHttpResponse githubResp = GithubHttpResponse.create(resp, req.getURI());
+      logResponse(githubResp);
+      return githubResp;
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
   }
 
-  private void logResponse(HttpResponse resp) {
+  private void logResponse(GithubHttpResponse resp) {
     logger.debug("HTTP response from GitHub: "
-        + resp.getStatusLine().getStatusCode()
+        + resp.statusCode
         + ", remaining rate limit: "
-        + resp.getLastHeader(REMAINING_RATE_LIMIT_HEADER_KEY).getValue()
+        + resp.rateLimitRemaining
         + ", reset at: "
-        + parseRateLimitResetTime(resp));
-  }
-
-  private String parseRateLimitResetTime(HttpResponse resp) {
-    long epoch = Long.valueOf(resp.getLastHeader(REMAINING_RATE_RESET_HEADER_KEY).getValue());
-    ZonedDateTime ts = ZonedDateTime
-      .ofInstant(Instant.ofEpochSecond(epoch), ZoneId.of("UTC"))
-      .withZoneSameInstant(ZoneId.systemDefault());
-    return ts.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        + resp.getFormattedRateLimitResetTime());
   }
 }
