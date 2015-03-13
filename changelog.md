@@ -1,6 +1,7 @@
 
 ### Version 0.1.0-SNAPSHOT
 
+ - [bug] correct rate limit exceeded / reset handling
  - [feature] ranking calculation
  - [refactor] rolling logfiles per day and after 50MB
  - [feature] added assignedAt property to PullRequest Entity and Dto
@@ -23,5 +24,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Mar 12 11:22:07 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Fri Mar 13 13:48:43 CET 2015
 

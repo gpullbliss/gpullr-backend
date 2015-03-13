@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -11,15 +12,15 @@ import java.util.Optional;
  */
 public abstract class AbstractGithubResponse<PAYLOAD> {
 
-  public final int nextRequestAfterSeconds;
-  
+  public final Instant nextFetch;
+
   public final Optional<String> etagHeader;
-  
+
   public final PAYLOAD payload;
 
-  protected AbstractGithubResponse(PAYLOAD payload, final int nextRequestAfterSeconds, Optional<String> etagHeader) {
+  protected AbstractGithubResponse(PAYLOAD payload, Instant nextFetch, Optional<String> etagHeader) {
     this.payload = payload;
-    this.nextRequestAfterSeconds = nextRequestAfterSeconds;
+    this.nextFetch = nextFetch;
     this.etagHeader = etagHeader;
   }
 }

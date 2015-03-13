@@ -7,7 +7,6 @@ import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
 import com.devbliss.gpullr.service.github.PullRequestEventHandler;
 import com.devbliss.gpullr.util.Log;
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +82,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
 
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
     response.payload.forEach(pullRequestEventHandler::handlePullRequestEvent);
-    Date start = Date.from(Instant.now().plusSeconds(response.nextRequestAfterSeconds));
+    Date start = Date.from(response.nextFetch);
     executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
     logger.debug("Fetched "
         + response.payload.size()
