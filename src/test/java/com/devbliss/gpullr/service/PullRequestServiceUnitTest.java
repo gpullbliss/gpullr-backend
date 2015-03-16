@@ -114,11 +114,11 @@ public class PullRequestServiceUnitTest {
   @Test
   public void findAllOpenRegardsUserOrderOptions() {
     mockFindOpenPullRequests();
-    when(userService.whoAmI()).thenReturn(author);
+    when(userService.getCurrentUserIfLoggedIn()).thenReturn(Optional.of(author));
 
     List<PullRequest> allOpen = pullRequestService.findAllOpen();
 
-    verify(userService).whoAmI();
+    verify(userService).getCurrentUserIfLoggedIn();
     assertEquals(NEW_PR_TITLE, allOpen.get(0).title);
   }
 

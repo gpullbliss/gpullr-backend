@@ -2,6 +2,7 @@ package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.controller.dto.UserSettingsConverter;
 import com.devbliss.gpullr.controller.dto.UserSettingsDto;
+import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.service.UserService;
 import javax.validation.constraints.NotNull;
@@ -33,7 +34,8 @@ public class UserSettingsController {
       @PathVariable("userId") int userId, @RequestBody @NotNull UserSettingsDto userSettingsDto) {
 
     UserSettings userSettings = userSettingsConverter.toEntity(userSettingsDto);
-    userService.updateUserSettings(userId, userSettings);
+    User user = userService.updateUserSettings(userId, userSettings);
+    userService.updateUserSession(user);
   }
 
 }

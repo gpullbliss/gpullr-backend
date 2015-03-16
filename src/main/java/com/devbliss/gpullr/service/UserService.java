@@ -6,6 +6,7 @@ import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,6 @@ public class UserService {
     }
 
     userRepository.save(user);
-    updateUserSession(user);
   }
 
   public List<User> findAll() {
@@ -78,7 +78,11 @@ public class UserService {
     return userSession.getUser();
   }
 
-  public void updateUserSettings(int userId, UserSettings update) {
+  public Optional<User> getCurrentUserIfLoggedIn() {
+    return Optional.ofNullable(userSession.getUser());
+  }
+
+  public User updateUserSettings(int userId, UserSettings update) {
     User user = findOne(userId);
 
     if (user.userSettings != null) {
@@ -89,9 +93,10 @@ public class UserService {
     }
 
     insertOrUpdate(user);
+    return user;
   }
 
-  private void updateUserSession(User user) {
+  public void updateUserSession(User user) {
     userSession.setUser(user);
   }
 }
