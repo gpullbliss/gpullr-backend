@@ -185,10 +185,12 @@ public class GithubApi {
 
     if (isStringValue(pullRequestJson, FIELD_KEY_CLOSED_AT)) {
       pullRequest.closedAt = ZonedDateTime.parse(pullRequestJson.getString(FIELD_KEY_CLOSED_AT));
-      logger.debug("parsed closed-date of PR event: " + pullRequest.closedAt);
+      logger.debug("parsed closed-date of PR event: " + pullRequest.closedAt + " in pr " + pullRequest.url);
     } else if (isStringValue(pullRequestJson, FIELD_KEY_MERGED_AT)) {
       pullRequest.closedAt = ZonedDateTime.parse(pullRequestJson.getString(FIELD_KEY_MERGED_AT));
-      logger.debug("parsed merged-date of PR event: " + pullRequest.closedAt);
+      logger.debug("parsed merged-date of PR event: " + pullRequest.closedAt + " in pr " + pullRequest.url);
+    } else {
+      logger.debug("Neither close-date nor merged-date found in pullrequest payload of " + pullRequest.url);
     }
 
     return pullRequest;

@@ -25,6 +25,6 @@ public class PullRequestAssigneeWatchThreadProducer {
   private PullRequestService pullRequestService;
 
   public PullRequestAssigneeWatchThread createThread(PullRequest pullRequest) {
-    return new PullRequestAssigneeWatchThread(pullRequest, taskScheduler, githubApi, pullRequestService);
+    return new PullRequestAssigneeWatchThread(pullRequest.id, taskScheduler, githubApi, pullRequestService);
   }
 }

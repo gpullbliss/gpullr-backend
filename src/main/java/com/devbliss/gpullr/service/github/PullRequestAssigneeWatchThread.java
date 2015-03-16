@@ -22,7 +22,7 @@ public class PullRequestAssigneeWatchThread extends Thread {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestAssigneeWatchThread.class);
 
-  public final PullRequest pullRequest;
+  public final int pullRequestId;
 
   private final TaskScheduler taskScheduler;
 
@@ -33,11 +33,11 @@ public class PullRequestAssigneeWatchThread extends Thread {
   private boolean stopped = false;
 
   public PullRequestAssigneeWatchThread(
-      PullRequest pullRequest,
+      int pullRequestId,
       TaskScheduler taskScheduler,
       GithubApi githubApi,
       PullRequestService pullRequestService) {
-    this.pullRequest = pullRequest;
+    this.pullRequestId = pullRequestId;
     this.taskScheduler = taskScheduler;
     this.githubApi = githubApi;
     this.pullRequestService = pullRequestService;
@@ -57,11 +57,13 @@ public class PullRequestAssigneeWatchThread extends Thread {
   }
 
   private void fetch(Optional<String> etagHeader) {
-    handleResponse(githubApi.fetchPullRequest(pullRequest, etagHeader));
+    pullRequestService
+      .findById(pullRequestId)
+      .ifPresent(pr -> handleResponse(pr, githubApi.fetchPullRequest(pr, etagHeader)));
   }
 
-  private void handleResponse(GithubPullrequestResponse resp) {
-    resp.payload.ifPresent(this::handlePullRequest);
+  private void handleResponse(PullRequest pullRequestFromDb, GithubPullrequestResponse resp) {
+    resp.payload.ifPresent(pr -> handlePullRequest(pullRequestFromDb, pr));
 
     if (!stopped) {
       Date nextFetch = Date.from(resp.nextFetch);
@@ -69,11 +71,28 @@ public class PullRequestAssigneeWatchThread extends Thread {
     }
   }
 
-  private void handlePullRequest(PullRequest fetchedPullRequest) {
+  private void handlePullRequest(PullRequest pullRequestFromDb, PullRequest fetchedPullRequest) {
+    pullRequestService.findById(pullRequestId).ifPresent(p -> synchronizePullRequestData(p, fetchedPullRequest));
+  }
+
+  private void synchronizePullRequestData(PullRequest pullRequestFromDb, PullRequest fetchedPullRequest) {
+    LOGGER.debug("synchronizing PR data in watch thread for PR " + pullRequestFromDb.url);
+
     if (fetchedPullRequest.assignee != null) {
-      pullRequest.assignee = fetchedPullRequest.assignee;
-      pullRequestService.insertOrUpdate(pullRequest);
-      LOGGER.debug("stored assignee " + pullRequest.assignee.username + " for pullrequest " + pullRequest);
+      pullRequestFromDb.assignee = fetchedPullRequest.assignee;
+      LOGGER.debug("stored assignee " + pullRequestFromDb.assignee.username + " for pullrequest " + pullRequestFromDb);
     }
+
+    if (fetchedPullRequest.assignedAt != null) {
+      pullRequestFromDb.assignedAt = fetchedPullRequest.assignedAt;
+      LOGGER.debug("stored assignedAt " + pullRequestFromDb.assignedAt + " for pullrequest " + pullRequestFromDb);
+    }
+
+    if (fetchedPullRequest.closedAt != null) {
+      pullRequestFromDb.closedAt = fetchedPullRequest.createdAt;
+      LOGGER.debug("stored closedAt " + pullRequestFromDb.closedAt + " for pullrequest " + pullRequestFromDb);
+    }
+
+    pullRequestService.insertOrUpdate(pullRequestFromDb);
   }
 }

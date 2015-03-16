@@ -76,7 +76,7 @@ public class PullRequestAssigneeWatchThreadUnitTest {
         nonEmptyEtagHeader);
     when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullrequestResponse);
     when(githubApi.fetchPullRequest(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullrequestResponse);
-    pullRequestAssigneeWatchThread = new PullRequestAssigneeWatchThread(pullRequest, taskScheduler, githubApi,
+    pullRequestAssigneeWatchThread = new PullRequestAssigneeWatchThread(pullRequest.id, taskScheduler, githubApi,
         pullRequestService);
   }
 
