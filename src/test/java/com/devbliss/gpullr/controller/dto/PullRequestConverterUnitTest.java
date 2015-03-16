@@ -45,9 +45,9 @@ public class PullRequestConverterUnitTest {
   private static final ZonedDateTime ASSIGNED_AT = ZonedDateTime.of(LocalDateTime.of(2015, Month.APRIL, 1, 18, 15),
       ZoneId.of("Europe/Paris"));
 
-  private static final String CREATED_AT_STRING = "2015-04-01T17:15+02:00[Europe/Paris]";
+  private static final String CREATED_AT_STRING = "2015-04-01T17:15+02:00";
 
-  private static final String ASSIGNED_AT_STRING = "2015-04-01T18:15+02:00[Europe/Paris]";
+  private static final String ASSIGNED_AT_STRING = "2015-04-01T18:15+02:00";
 
   private static final Integer FILES_CHANGED = 17;
 
