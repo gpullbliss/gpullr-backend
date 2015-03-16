@@ -78,14 +78,15 @@ public class PullRequestService {
     List<PullRequest> pullRequests = pullRequestRepository
       .findAllByState(PullRequest.State.OPEN)
       .stream()
-      .sorted(getPullRequestSortComparator(userService.whoAmI()))
+      .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
       .collect(Collectors.toList());
 
     return pullRequests;
   }
 
-  private Comparator<PullRequest> getPullRequestSortComparator(User currentUser) {
-    UserSettings userSettings = currentUser.userSettings;
+  private Comparator<PullRequest> getPullRequestSortComparator(Optional<User> currentUser) {
+    User user = currentUser.orElse(null);
+    UserSettings userSettings = user != null ? user.userSettings : null;
 
     if (userSettings == null || userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.DESC) {
       return latestFirstComparator;
