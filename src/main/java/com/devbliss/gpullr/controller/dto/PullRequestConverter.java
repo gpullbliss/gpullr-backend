@@ -26,6 +26,8 @@ public class PullRequestConverter {
     dto.assignee = entity.assignee;
     dto.number = entity.number;
     dto.assignedAt = entity.assignedAt != null ? entity.assignedAt.toString() : null;
+    dto.closedAt = entity.closedAt != null ? entity.closedAt.toString() : null;
     return dto;
   }
+
 }

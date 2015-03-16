@@ -3,9 +3,12 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.controller.dto.ListDto;
 import com.devbliss.gpullr.controller.dto.RankingConverter;
 import com.devbliss.gpullr.controller.dto.RankingDto;
+import com.devbliss.gpullr.controller.dto.RankingListConverter;
+import com.devbliss.gpullr.controller.dto.RankingListDto;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.service.RankingService;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,9 @@ public class RankingController {
   @Autowired
   private RankingConverter rankingConverter;
 
+  @Autowired
+  private RankingListConverter rankingListConverter;
+
   @RequestMapping(method = RequestMethod.GET)
   @ResponseStatus(HttpStatus.OK)
   public ListDto<RankingDto> getRankingsForScope(
@@ -40,5 +46,15 @@ public class RankingController {
       .orElse(new RankingList())
       .getRankings()
       ));
+  }
+
+  @RequestMapping(value = "/_debug", method = RequestMethod.GET)
+  @ResponseStatus(HttpStatus.OK)
+  public ListDto<RankingListDto> debugFindAllRankingLists() {
+    return new ListDto<>(rankingService
+      .findAll()
+      .stream()
+      .map(rankingListConverter::toDto)
+      .collect(Collectors.toList()));
   }
 }

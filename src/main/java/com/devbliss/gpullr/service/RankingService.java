@@ -57,6 +57,10 @@ public class RankingService {
     return Optional.empty();
   }
 
+  public List<RankingList> findAll() {
+    return rankingListRepository.findAll();
+  }
+
   public void recalculateRankings() {
     ZonedDateTime now = ZonedDateTime.now();
 

@@ -84,6 +84,21 @@ public class PullRequestService {
     return pullRequests;
   }
 
+  /**
+   * Finds all closed pull requests sorted by closed date, earliest first.
+   *
+   * @return possibly empty list of pull requests
+   */
+  public List<PullRequest> findAllClosed() {
+    List<PullRequest> pullRequests = pullRequestRepository
+      .findAllByState(PullRequest.State.CLOSED)
+      .stream()
+      .sorted((p1, p2) -> p1.closedAt.compareTo(p2.closedAt))
+      .collect(Collectors.toList());
+
+    return pullRequests;
+  }
+
   private Comparator<PullRequest> getPullRequestSortComparator(Optional<User> currentUser) {
     User user = currentUser.orElse(null);
     UserSettings userSettings = user != null ? user.userSettings : null;

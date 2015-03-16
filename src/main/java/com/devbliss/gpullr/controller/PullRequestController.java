@@ -32,13 +32,21 @@ public class PullRequestController {
   private UserService userService;
 
   @RequestMapping(method = RequestMethod.GET)
-  public ListDto<PullRequestDto> findAll() {
+  public ListDto<PullRequestDto> findAllOpen() {
     return new ListDto<>(
-      pullRequestService.findAllOpen()
-        .stream()
-        .map(pullRequestConverter::toDto)
-        .collect(Collectors.toList())
-    );
+        pullRequestService.findAllOpen()
+          .stream()
+          .map(pullRequestConverter::toDto)
+          .collect(Collectors.toList()));
+  }
+
+  @RequestMapping(value = "/closed", method = RequestMethod.GET)
+  public ListDto<PullRequestDto> findAllClosed() {
+    return new ListDto<>(
+        pullRequestService.findAllClosed()
+          .stream()
+          .map(pullRequestConverter::toDto)
+          .collect(Collectors.toList()));
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/{pullRequestId}")
