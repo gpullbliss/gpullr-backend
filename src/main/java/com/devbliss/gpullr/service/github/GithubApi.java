@@ -224,7 +224,8 @@ public class GithubApi {
     } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
       return new ArrayList<>();
     } else {
-      throw new UnexpectedException(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
+      logger.warn(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
+      return new ArrayList<>();
     }
   }
 

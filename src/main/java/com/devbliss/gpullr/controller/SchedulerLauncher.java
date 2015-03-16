@@ -45,13 +45,9 @@ public class SchedulerLauncher {
   public void startExecution() {
     Date eventFetchStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS));
     Date rankingCalculationStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS * 2));
-    executor.execute(() -> githubReposRefresher.startFetchLoop());
-    executor.execute(() -> githubUserFetcher.startFetchLoop());
-    executor.schedule(() -> startFetchEventsLoop(), eventFetchStart);
-    executor.schedule(() -> rankingRecalculator.startFetchLoop(), rankingCalculationStart);
-  }
-
-  private void startFetchEventsLoop() {
-    githubEventFetcher.startFetchEventsLoop();
+    executor.execute(githubReposRefresher::startFetchLoop);
+    executor.execute(githubUserFetcher::startFetchLoop);
+    executor.schedule(githubEventFetcher::startFetchEventsLoop, eventFetchStart);
+    executor.schedule(rankingRecalculator::startFetchLoop, rankingCalculationStart);
   }
 }

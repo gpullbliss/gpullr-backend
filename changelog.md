@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [bug] first attempt to solve fetch problems
  - [bug] pull requests w/o user session works again (with default sort order)
  - [bug] correct rate limit exceeded / reset handling
  - [feature] user settings for preferred sort order of pull requests
@@ -27,5 +28,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Fri Mar 13 17:44:43 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 16 11:20:00 CET 2015
 
