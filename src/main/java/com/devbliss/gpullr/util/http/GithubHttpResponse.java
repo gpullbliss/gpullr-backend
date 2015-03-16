@@ -136,7 +136,6 @@ public class GithubHttpResponse {
     int secondsFromNow;
 
     if (pollIntervalHeader == null) {
-      logger.debug("No poll interval header set in response, using default = " + DEFAULT_POLL_INTERVAL);
       secondsFromNow = DEFAULT_POLL_INTERVAL;
     } else {
       secondsFromNow = Integer.parseInt(pollIntervalHeader);

@@ -42,12 +42,11 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   @Autowired
   private PullRequestEventHandler pullRequestEventHandler;
 
+  @Autowired
   private ThreadPoolTaskScheduler executor;
 
   public GithubEventFetcher() {
-    executor = new ThreadPoolTaskScheduler();
-    executor.initialize();
-    executor.setPoolSize(600);
+
   }
 
   /**
@@ -59,7 +58,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
     int counter = 1;
 
     for (Repo repo : allRepos) {
-      logger.debug("Fetching events for repo: " + repo.name + " ( " + counter + ". in list )");
+      logger.debug("Fetching events for repo (initial loop): " + repo.name + " (" + counter + ". in list)");
       fetchEvents(repo, Optional.empty());
       counter++;
     }
@@ -80,16 +79,21 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
     handleEventsResponse(githubApi.fetchAllEvents(repo, etagHeader), repo);
   }
 
+  private void fetchEventsAgain(Repo repo, Optional<String> etagHeader) {
+    logger.debug("Fetching events for repo (scheduled): " + repo.name);
+    fetchEvents(repo, etagHeader);
+  }
+
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
     response.payload.forEach(pullRequestEventHandler::handlePullRequestEvent);
     Date start = Date.from(response.nextFetch);
-    executor.schedule(() -> fetchEvents(repo, response.etagHeader), start);
+    executor.schedule(() -> fetchEventsAgain(repo, response.etagHeader), start);
     logger.debug("Fetched "
         + response.payload.size()
         + " PR events for " + repo.name
+        + " / next fetch=" + start
         + " / active threads in executor="
         + executor.getActiveCount() + ", queueSize="
         + executor.getScheduledThreadPoolExecutor().getQueue().size());
-
   }
 }

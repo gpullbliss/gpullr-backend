@@ -26,7 +26,8 @@
   </appender>
 
   <logger name="com.devbliss.gpullr" level="debug" />
-
+  <logger name="org.springframework.context.support" level="error" />
+  
   <root level="warn">
     <appender-ref ref="FILE" />
     <appender-ref ref="STDOUT" />
