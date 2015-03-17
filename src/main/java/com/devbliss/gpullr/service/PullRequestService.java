@@ -176,6 +176,14 @@ public class PullRequestService {
       LOGGER.debug("kept existing closedAt " + existing.closedAt + " from database for pullrequest " + existing);
     }
 
+    if (update.state == null) {
+      update.state = existing.state;
+    }
+
+    if (update.repo == null) {
+      update.repo = existing.repo;
+    }
+
     update = ensureClosedAtIfClosed(update);
     return update;
   }

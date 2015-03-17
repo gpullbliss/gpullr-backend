@@ -1,6 +1,5 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Date;
 import java.util.Optional;
@@ -59,40 +58,15 @@ public class PullRequestAssigneeWatchThread extends Thread {
   private void fetch(Optional<String> etagHeader) {
     pullRequestService
       .findById(pullRequestId)
-      .ifPresent(pr -> handleResponse(pr, githubApi.fetchPullRequest(pr, etagHeader)));
+      .ifPresent(pr -> handleResponse(githubApi.fetchPullRequest(pr, etagHeader)));
   }
 
-  private void handleResponse(PullRequest pullRequestFromDb, GithubPullrequestResponse resp) {
-    resp.payload.ifPresent(pr -> handlePullRequest(pullRequestFromDb, pr));
+  private void handleResponse(GithubPullrequestResponse resp) {
+    resp.payload.ifPresent(pullRequestService::insertOrUpdate);
 
     if (!stopped) {
       Date nextFetch = Date.from(resp.nextFetch);
       taskScheduler.schedule(() -> fetch(resp.etagHeader), nextFetch);
     }
-  }
-
-  private void handlePullRequest(PullRequest pullRequestFromDb, PullRequest fetchedPullRequest) {
-    pullRequestService.findById(pullRequestId).ifPresent(p -> synchronizePullRequestData(p, fetchedPullRequest));
-  }
-
-  private void synchronizePullRequestData(PullRequest pullRequestFromDb, PullRequest fetchedPullRequest) {
-    LOGGER.debug("synchronizing PR data in watch thread for PR " + pullRequestFromDb.url);
-
-    if (fetchedPullRequest.assignee != null) {
-      pullRequestFromDb.assignee = fetchedPullRequest.assignee;
-      LOGGER.debug("stored assignee " + pullRequestFromDb.assignee.username + " for pullrequest " + pullRequestFromDb);
-    }
-
-    if (fetchedPullRequest.assignedAt != null) {
-      pullRequestFromDb.assignedAt = fetchedPullRequest.assignedAt;
-      LOGGER.debug("stored assignedAt " + pullRequestFromDb.assignedAt + " for pullrequest " + pullRequestFromDb);
-    }
-
-    if (fetchedPullRequest.closedAt != null) {
-      pullRequestFromDb.closedAt = fetchedPullRequest.createdAt;
-      LOGGER.debug("stored closedAt " + pullRequestFromDb.closedAt + " for pullrequest " + pullRequestFromDb);
-    }
-
-    pullRequestService.insertOrUpdate(pullRequestFromDb);
   }
 }
