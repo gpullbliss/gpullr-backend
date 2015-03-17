@@ -81,7 +81,7 @@ public class RankingService {
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
 
-    List<User> userStatistics = userRepository.findAll();
+    List<User> userStatistics = userRepository.findByCanLoginIsTrue();
 
     List<Ranking> rankingsForScope = userStatistics
       .stream()
