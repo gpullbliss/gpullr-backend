@@ -146,44 +146,46 @@ public class PullRequestService {
     Optional<PullRequest> existing = pullRequestRepository.findById(pullRequest.id);
 
     if (existing.isPresent()) {
-      updatePullRequest(existing.get(), pullRequest);
+      pullRequest = syncPullRequestData(existing.get(), pullRequest);
     } else {
-      ensureClosedAtIfClosed(pullRequest);
-      pullRequestRepository.save(pullRequest);
+      pullRequest = ensureClosedAtIfClosed(pullRequest);
     }
+
+    pullRequestRepository.save(pullRequest);
   }
 
   private boolean isUserUnknown(User user) {
     return userRepository.findOne(user.id) == null;
   }
 
-  private void updatePullRequest(PullRequest existing, PullRequest update) {
-    // TODO copy other values or make it the other way round...
+  private PullRequest syncPullRequestData(PullRequest existing, PullRequest update) {
     LOGGER.debug("Updating PR data from update for PR " + existing);
 
-    if (update.assignee != null) {
-      existing.assignee = update.assignee;
-      LOGGER.debug("updated assignee " + existing.assignee.username + " for pullrequest " + existing);
+    if (update.assignee == null) {
+      update.assignee = existing.assignee;
+      LOGGER.debug("kept existing assignee " + existing.assignee + " from database for pullrequest " + existing);
     }
 
-    if (update.assignedAt != null) {
-      existing.assignedAt = update.assignedAt;
-      LOGGER.debug("updated assignedAt " + existing.assignedAt + " for pullrequest " + existing);
+    if (update.assignedAt == null) {
+      update.assignedAt = existing.assignedAt;
+      LOGGER.debug("kept existing assignedAt " + existing.assignedAt + " from database for pullrequest " + existing);
     }
 
-    if (update.closedAt != null) {
-      existing.closedAt = update.closedAt;
-      LOGGER.debug("updated closedAt " + existing.closedAt + " for pullrequest " + existing);
+    if (update.closedAt == null) {
+      update.closedAt = existing.closedAt;
+      LOGGER.debug("kept existing closedAt " + existing.closedAt + " from database for pullrequest " + existing);
     }
 
-    ensureClosedAtIfClosed(existing);
-    pullRequestRepository.save(existing);
+    update = ensureClosedAtIfClosed(update);
+    return update;
   }
 
-  private void ensureClosedAtIfClosed(PullRequest pullRequest) {
+  private PullRequest ensureClosedAtIfClosed(PullRequest pullRequest) {
     if (pullRequest.state == State.CLOSED && pullRequest.closedAt == null) {
       pullRequest.closedAt = ZonedDateTime.now();
       LOGGER.debug("Set current date as fallback closedAt for pullrequest " + pullRequest);
     }
+
+    return pullRequest;
   }
 }
