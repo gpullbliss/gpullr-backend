@@ -18,14 +18,14 @@ public class PullRequestConverter {
     dto.url = entity.url;
     dto.repoName = entity.repo.name;
     dto.author = entity.author;
-    dto.createdAt = entity.createdAt.toString();
+    dto.createdAt = entity.createdAt.toOffsetDateTime().toString();
     dto.filesChanged = entity.filesChanged;
     dto.linesAdded = entity.linesAdded;
     dto.linesRemoved = entity.linesRemoved;
     dto.status = entity.state.toString();
     dto.assignee = entity.assignee;
     dto.number = entity.number;
-    dto.assignedAt = entity.assignedAt != null ? entity.assignedAt.toString() : null;
+    dto.assignedAt = entity.assignedAt != null ? entity.assignedAt.toOffsetDateTime().toString() : null;
     dto.closedAt = entity.closedAt != null ? entity.closedAt.toString() : null;
     return dto;
   }
