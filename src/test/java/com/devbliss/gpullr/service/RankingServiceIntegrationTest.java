@@ -74,12 +74,12 @@ public class RankingServiceIntegrationTest {
     rankingService = new RankingService(rankingListRepository, pullRequestRepository, userRepository);
 
     // create 3 users that close pull requests:
-    userAlpha = userRepository.save(new User(14, "alpha", "http://alpha"));
-    userBeta = userRepository.save(new User(13, "Beta", "http://beta")); // intentionally upper case
-    userGamma = userRepository.save(new User(17, "gamma", "http://gamma"));
+    userAlpha = userRepository.save(new User(14, "alpha", "http://alpha", true));
+    userBeta = userRepository.save(new User(13, "Beta", "http://beta", true)); // yes, upper case!
+    userGamma = userRepository.save(new User(17, "gamma", "http://gamma", true));
 
     // and one author of all pull requests:
-    author = userRepository.save(new User(1, "megaauthor", "http://author"));
+    author = userRepository.save(new User(1, "megaauthor", "http://author", true));
 
     // and one repo for all pull requests:
     repo = repoRepository.save(new Repo(1, "Some Repo", "Some description"));
@@ -273,6 +273,27 @@ public class RankingServiceIntegrationTest {
     assertEquals(0, rankings.get(2).closedCount.longValue());
     assertEquals(userBeta.username, rankings.get(0).user.username);
     assertEquals(userBeta.avatarUrl, rankings.get(0).user.avatarUrl);
+  }
+
+  @Test
+  public void dontCalculateRankingsForUsersThatDontBelongToUs() {
+    // create a user that is NOT part of our company:
+    final int strangerId = 19;
+    User stranger = userRepository.save(new User(strangerId, "stranger", "http://stranger", false));
+
+    createSomeClosedPullRequests();
+
+    // trigger ranking calculation:
+    rankingService.recalculateRankings();
+
+    // fetch calculated rankings:
+    Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    assertTrue(rankingList.isPresent());
+    List<Ranking> rankings = rankingList.get().getRankings();
+
+    // but there should only be rankings for the users belonging to us:
+    assertEquals(4, rankings.size());
+    rankings.forEach(r -> assertFalse("User not belonging to us should not have a ranking", stranger.equals(r.user)));
   }
 
   private PullRequest createPullRequest(User assignee, ZonedDateTime closeDate) {

@@ -1,12 +1,16 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequest.State;
+import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -34,7 +38,9 @@ public class PullRequestServiceUnitTest {
 
   private static final Integer ID = 1981;
 
-  private static final ZonedDateTime IN_THE_PAST = ZonedDateTime.now().minusDays(1);
+  private static final ZonedDateTime ONE_DAY_AGO = ZonedDateTime.now().minusDays(1);
+
+  private static final ZonedDateTime FIVE_MINUTES_AGO = ZonedDateTime.now().minusMinutes(5);
 
   private static final Integer ASSIGNEE_ID = 12;
 
@@ -63,6 +69,9 @@ public class PullRequestServiceUnitTest {
   @Mock
   private User author;
 
+  @Mock
+  private Repo repo;
+
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
 
@@ -81,34 +90,125 @@ public class PullRequestServiceUnitTest {
     pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService);
     pullRequestFromLocalStorage = new PullRequest();
     pullRequestFromLocalStorage.id = ID;
+    pullRequestFromLocalStorage.repo = repo;
     pullRequestFromGitHub = new PullRequest();
     pullRequestFromGitHub.id = ID;
     pullRequestFromGitHub.author = author;
     pullRequestFromGitHub.createdAt = ZonedDateTime.now();
+    pullRequestFromGitHub.repo = repo;
   }
 
   @Test
   public void keepLocallyStoredAssigneeWhenAssigneeFromEventIsNull() {
     pullRequestFromLocalStorage.assignee = assignee;
-    pullRequestFromLocalStorage.assignedAt = IN_THE_PAST;
     when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
     pullRequestService.insertOrUpdate(pullRequestFromGitHub);
     verify(pullRequestRepository).save(pullRequestCaptor.capture());
     assertEquals(assignee, pullRequestCaptor.getValue().assignee);
-    assertEquals(IN_THE_PAST, pullRequestCaptor.getValue().assignedAt);
   }
 
   @Test
   public void overwriteLocallyStoredAssigneeWhenAssigneeFromEventIsNotNull() {
     pullRequestFromLocalStorage.assignee = assignee;
-    pullRequestFromLocalStorage.assignedAt = IN_THE_PAST;
     pullRequestFromGitHub.assignee = anotherAssignee;
     pullRequestFromGitHub.assignedAt = ZonedDateTime.now();
     when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
     pullRequestService.insertOrUpdate(pullRequestFromGitHub);
     verify(pullRequestRepository).save(pullRequestCaptor.capture());
     assertEquals(anotherAssignee, pullRequestCaptor.getValue().assignee);
-    assertTrue(IN_THE_PAST.isBefore(pullRequestCaptor.getValue().assignedAt));
+  }
+
+  @Test
+  public void keepLocallyStoredAssignedAtWhenAssignedAtFromEventIsNull() {
+    pullRequestFromLocalStorage.assignedAt = ONE_DAY_AGO;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(ONE_DAY_AGO, pullRequestCaptor.getValue().assignedAt);
+  }
+
+  @Test
+  public void overwriteLocallyStoredAssignedAtWhenAssignedAtFromEventIsNotNull() {
+    pullRequestFromLocalStorage.assignedAt = ONE_DAY_AGO;
+    pullRequestFromGitHub.assignedAt = FIVE_MINUTES_AGO;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(FIVE_MINUTES_AGO, pullRequestCaptor.getValue().assignedAt);
+  }
+
+  @Test
+  public void keepLocallyStoredClosedAtWhenClosedAtFromEventIsNull() {
+    pullRequestFromLocalStorage.closedAt = ONE_DAY_AGO;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(ONE_DAY_AGO, pullRequestCaptor.getValue().closedAt);
+  }
+
+  @Test
+  public void overwriteLocallyStoredClosedAtWhenClosedAtFromEventIsNotNull() {
+    pullRequestFromLocalStorage.closedAt = ONE_DAY_AGO;
+    pullRequestFromGitHub.closedAt = FIVE_MINUTES_AGO;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(FIVE_MINUTES_AGO, pullRequestCaptor.getValue().closedAt);
+  }
+
+  @Test
+  public void keepLocallyStoredStateWhenStateFromEventIsNull() {
+    pullRequestFromLocalStorage.state = State.OPEN;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(State.OPEN, pullRequestCaptor.getValue().state);
+  }
+
+  @Test
+  public void overwriteLocallyStoredStateWhenStateFromEventIsNotNull() {
+    pullRequestFromLocalStorage.state = State.OPEN;
+    pullRequestFromGitHub.state = State.CLOSED;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(State.CLOSED, pullRequestCaptor.getValue().state);
+  }
+
+  @Test
+  public void keepLocallyStoredRepoWhenRepoFromEventIsNull() {
+    pullRequestFromLocalStorage.repo = repo;
+    pullRequestFromGitHub.repo = null;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(repo, pullRequestCaptor.getValue().repo);
+  }
+
+  @Test
+  public void overwriteLocallyStoredRepoWhenRepoFromEventIsNotNull() {
+    Repo anotherRepo = mock(Repo.class);
+    pullRequestFromLocalStorage.repo = repo;
+    pullRequestFromGitHub.repo = anotherRepo;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(anotherRepo, pullRequestCaptor.getValue().repo);
+  }
+
+  @Test
+  public void setNowAsClosedDateInAClosedPullRequestWhenThereIsNone() {
+    pullRequestFromLocalStorage.closedAt = null;
+    pullRequestFromGitHub.closedAt = null;
+    pullRequestFromGitHub.state = State.CLOSED;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertNotNull(pullRequestCaptor.getValue().closedAt);
+    
+    // close date is supposed to be about now:
+    assertTrue(pullRequestCaptor.getValue().closedAt.isBefore(ZonedDateTime.now().plusSeconds(2)));
+    assertTrue(pullRequestCaptor.getValue().closedAt.isAfter(ZonedDateTime.now().minusSeconds(2)));
   }
 
   @Test

@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +42,8 @@ public class PullRequestService {
       return p1.createdAt.compareTo(p2.createdAt);
     }
   };
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestService.class);
 
   private final PullRequestRepository pullRequestRepository;
 
@@ -70,7 +74,8 @@ public class PullRequestService {
   }
 
   /**
-   * Finds all open pull requests sorted by creation date, latest first.
+   * Finds all open pull requests sorted according to user settings, 
+   * defaulting to sorting by creation date, latest first.
    *
    * @return possibly empty list of pull requests
    */
@@ -79,6 +84,21 @@ public class PullRequestService {
       .findAllByState(PullRequest.State.OPEN)
       .stream()
       .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
+      .collect(Collectors.toList());
+
+    return pullRequests;
+  }
+
+  /**
+   * Finds all closed pull requests sorted by closed date, earliest first.
+   *
+   * @return possibly empty list of pull requests
+   */
+  public List<PullRequest> findAllClosed() {
+    List<PullRequest> pullRequests = pullRequestRepository
+      .findAllByState(PullRequest.State.CLOSED)
+      .stream()
+      .sorted((p1, p2) -> p1.closedAt.compareTo(p2.closedAt))
       .collect(Collectors.toList());
 
     return pullRequests;
@@ -123,31 +143,57 @@ public class PullRequestService {
       userRepository.save(pullRequest.author);
     }
 
-    // assignee is null in GitHub response => save assignee if assigned via gpullr:
-    pullRequestRepository
-      .findById(pullRequest.id)
-      .ifPresent(existing -> ensureAssignee(pullRequest, existing));
+    Optional<PullRequest> existing = pullRequestRepository.findById(pullRequest.id);
 
-    if (pullRequest.state == State.CLOSED && pullRequest.closedAt == null) {
-      pullRequest.closedAt = ZonedDateTime.now();
+    if (existing.isPresent()) {
+      pullRequest = syncPullRequestData(existing.get(), pullRequest);
+    } else {
+      pullRequest = ensureClosedAtIfClosed(pullRequest);
     }
 
     pullRequestRepository.save(pullRequest);
   }
 
-  private void ensureAssignee(PullRequest pullRequestToEnsure, PullRequest fallback) {
-    if (pullRequestToEnsure.assignee == null) {
-      pullRequestToEnsure.assignee = fallback.assignee;
-
-      if (fallback.assignedAt != null) {
-        pullRequestToEnsure.assignedAt = fallback.assignedAt;
-      } else {
-        pullRequestToEnsure.assignedAt = ZonedDateTime.now();
-      }
-    }
-  }
-
   private boolean isUserUnknown(User user) {
     return userRepository.findOne(user.id) == null;
+  }
+
+  private PullRequest syncPullRequestData(PullRequest existing, PullRequest update) {
+    LOGGER.debug("Updating PR data from update for PR " + existing);
+
+    if (update.assignee == null) {
+      update.assignee = existing.assignee;
+      LOGGER.debug("kept existing assignee {} from database for pullrequest {}", existing.assignee, existing);
+    }
+
+    if (update.assignedAt == null) {
+      update.assignedAt = existing.assignedAt;
+      LOGGER.debug("kept existing assignedAt '{}' from database for pullrequest {}", existing.assignedAt, existing);
+    }
+
+    if (update.closedAt == null) {
+      update.closedAt = existing.closedAt;
+      LOGGER.debug("kept existing closedAt '{}' from database for pullrequest {}", existing.closedAt, existing);
+    }
+
+    if (update.state == null) {
+      update.state = existing.state;
+    }
+
+    if (update.repo == null) {
+      update.repo = existing.repo;
+    }
+
+    update = ensureClosedAtIfClosed(update);
+    return update;
+  }
+
+  private PullRequest ensureClosedAtIfClosed(PullRequest pullRequest) {
+    if (pullRequest.state == State.CLOSED && pullRequest.closedAt == null) {
+      pullRequest.closedAt = ZonedDateTime.now();
+      LOGGER.debug("Set current date as fallback closedAt for pullrequest " + pullRequest);
+    }
+
+    return pullRequest;
   }
 }

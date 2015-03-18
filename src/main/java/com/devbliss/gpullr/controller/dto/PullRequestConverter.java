@@ -22,10 +22,12 @@ public class PullRequestConverter {
     dto.filesChanged = entity.filesChanged;
     dto.linesAdded = entity.linesAdded;
     dto.linesRemoved = entity.linesRemoved;
-    dto.status = entity.state.toString();
+    dto.status = entity.state.name();
     dto.assignee = entity.assignee;
     dto.number = entity.number;
     dto.assignedAt = entity.assignedAt != null ? entity.assignedAt.toOffsetDateTime().toString() : null;
+    dto.closedAt = entity.closedAt != null ? entity.closedAt.toString() : null;
     return dto;
   }
+
 }

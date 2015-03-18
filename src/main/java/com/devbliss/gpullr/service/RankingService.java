@@ -57,6 +57,10 @@ public class RankingService {
     return Optional.empty();
   }
 
+  public List<RankingList> findAll() {
+    return rankingListRepository.findAll();
+  }
+
   public void recalculateRankings() {
     ZonedDateTime now = ZonedDateTime.now();
 
@@ -77,7 +81,7 @@ public class RankingService {
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
 
-    List<User> userStatistics = userRepository.findAll();
+    List<User> userStatistics = userRepository.findByCanLoginIsTrue();
 
     List<Ranking> rankingsForScope = userStatistics
       .stream()
