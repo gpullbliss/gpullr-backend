@@ -43,7 +43,7 @@ public class PullRequestService {
     }
   };
 
-  private Logger LOGGER = LoggerFactory.getLogger(PullRequestService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestService.class);
 
   private final PullRequestRepository pullRequestRepository;
 
