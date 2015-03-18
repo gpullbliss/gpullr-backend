@@ -1,8 +1,9 @@
 package com.devbliss.gpullr.controller.dto;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import com.devbliss.gpullr.domain.UserSettings;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -26,10 +27,12 @@ public class UserSettingsConverterUnitTest {
     userSettings = new UserSettings();
     userSettings.id = 1;
     userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.ASC;
+    userSettings.repoBlackList.addAll(Arrays.asList(1, 2));
 
     userSettingsDto = new UserSettingsDto();
     userSettingsDto.id = 2;
     userSettingsDto.orderOptionDto = UserSettingsDto.OrderOptionDto.DESC;
+    userSettingsDto.repoBlackList.addAll(Arrays.asList(1, 2, 3));
   }
 
   @Test
@@ -38,6 +41,7 @@ public class UserSettingsConverterUnitTest {
 
     assertEquals(userSettings.id, dto.id);
     assertEquals(userSettings.defaultPullRequestListOrdering.name(), dto.orderOptionDto.name());
+    assertEquals(userSettings.repoBlackList.size(), dto.repoBlackList.size());
   }
 
   @Test
@@ -46,6 +50,7 @@ public class UserSettingsConverterUnitTest {
 
     assertEquals(userSettingsDto.id, entity.id);
     assertEquals(userSettingsDto.orderOptionDto.name(), entity.defaultPullRequestListOrdering.name());
+    assertEquals(userSettingsDto.repoBlackList.size(), entity.repoBlackList.size());
   }
 
 }
