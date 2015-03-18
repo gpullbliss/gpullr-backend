@@ -2,6 +2,7 @@ package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -152,7 +153,7 @@ public class PullRequestServiceUnitTest {
     verify(pullRequestRepository).save(pullRequestCaptor.capture());
     assertEquals(FIVE_MINUTES_AGO, pullRequestCaptor.getValue().closedAt);
   }
-  
+
   @Test
   public void keepLocallyStoredStateWhenStateFromEventIsNull() {
     pullRequestFromLocalStorage.state = State.OPEN;
@@ -172,6 +173,26 @@ public class PullRequestServiceUnitTest {
     assertEquals(State.CLOSED, pullRequestCaptor.getValue().state);
   }
 
+  @Test
+  public void keepLocallyStoredRepoWhenRepoFromEventIsNull() {
+    pullRequestFromLocalStorage.repo = repo;
+    pullRequestFromGitHub.repo = null;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(repo, pullRequestCaptor.getValue().repo);
+  }
+
+  @Test
+  public void overwriteLocallyStoredRepoWhenRepoFromEventIsNotNull() {
+    Repo anotherRepo = mock(Repo.class);
+    pullRequestFromLocalStorage.repo = repo;
+    pullRequestFromGitHub.repo = anotherRepo;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertEquals(anotherRepo, pullRequestCaptor.getValue().repo);
+  }
 
   @Test
   public void findAllOpenRegardsUserOrderOptions() {
