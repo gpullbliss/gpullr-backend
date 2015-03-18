@@ -33,6 +33,8 @@ public class PullRequestAssigneeWatchThreadUnitTest {
 
   private static final String ETAG = "abc123def";
 
+  private static final int PULLREQUEST_ID = 999;
+
   @Mock
   private TaskScheduler taskScheduler;
 
@@ -69,6 +71,7 @@ public class PullRequestAssigneeWatchThreadUnitTest {
     emptyEtagHeader = Optional.empty();
     nonEmptyEtagHeader = Optional.of(ETAG);
     pullRequest = new PullRequest();
+    pullRequest.id = PULLREQUEST_ID;
     pullRequest.repo = repo;
     githubPullrequestResponse = new GithubPullrequestResponse(
         Optional.of(pullRequest),
@@ -76,6 +79,7 @@ public class PullRequestAssigneeWatchThreadUnitTest {
         nonEmptyEtagHeader);
     when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullrequestResponse);
     when(githubApi.fetchPullRequest(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullrequestResponse);
+    when(pullRequestService.findById(PULLREQUEST_ID)).thenReturn(Optional.of(pullRequest));
     pullRequestAssigneeWatchThread = new PullRequestAssigneeWatchThread(pullRequest.id, taskScheduler, githubApi,
         pullRequestService);
   }
@@ -87,14 +91,6 @@ public class PullRequestAssigneeWatchThreadUnitTest {
     verify(githubApi).fetchPullRequest(pullRequest, emptyEtagHeader);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
     assertEquals(assignee, pullRequestCaptor.getValue().assignee);
-  }
-
-  @Test
-  public void fetchAndHandleResponseWithoutAssignee() {
-    pullRequest.assignee = null;
-    pullRequestAssigneeWatchThread.run();
-    verify(githubApi).fetchPullRequest(pullRequest, emptyEtagHeader);
-    verify(pullRequestService, never()).insertOrUpdate(any(PullRequest.class));
   }
 
   @Test

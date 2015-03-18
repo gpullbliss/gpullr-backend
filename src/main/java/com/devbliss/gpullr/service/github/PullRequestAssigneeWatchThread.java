@@ -3,8 +3,6 @@ package com.devbliss.gpullr.service.github;
 import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Date;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 
 /**
@@ -18,8 +16,6 @@ import org.springframework.scheduling.TaskScheduler;
  *
  */
 public class PullRequestAssigneeWatchThread extends Thread {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestAssigneeWatchThread.class);
 
   public final int pullRequestId;
 
