@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -31,7 +32,7 @@ public class UserSettings {
   public OrderOption defaultPullRequestListOrdering;
 
   @ElementCollection
-  public List<Integer> repoBlackList;
+  public List<Integer> repoBlackList = new ArrayList<>();
 
   public UserSettings() {
   }
