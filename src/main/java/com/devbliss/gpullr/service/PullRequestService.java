@@ -163,21 +163,17 @@ public class PullRequestService {
 
     if (update.assignee == null) {
       update.assignee = existing.assignee;
-      LOGGER
-        .debug(String.format("kept existing assignee from database for pullrequest %s", existing.assignee, existing));
+      LOGGER.debug("kept existing assignee {} from database for pullrequest {}", existing.assignee, existing);
     }
 
     if (update.assignedAt == null) {
       update.assignedAt = existing.assignedAt;
-      LOGGER
-        .debug(String.format("kept existing assignedAt '%s' from database for pullrequest %s", existing.assignedAt,
-            existing));
+      LOGGER.debug("kept existing assignedAt '{}' from database for pullrequest {}", existing.assignedAt, existing);
     }
 
     if (update.closedAt == null) {
       update.closedAt = existing.closedAt;
-      LOGGER.debug(String.format("kept existing closedAt '%s' from database for pullrequest %s", existing.closedAt,
-          existing));
+      LOGGER.debug("kept existing closedAt '{}' from database for pullrequest {}", existing.closedAt, existing);
     }
 
     if (update.state == null) {
