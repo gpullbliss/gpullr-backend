@@ -37,7 +37,6 @@ public class RankingController {
   private RankingListConverter rankingListConverter;
 
   @RequestMapping(method = RequestMethod.GET)
-  @ResponseStatus(HttpStatus.OK)
   public ListDto<RankingDto> getRankingsForScope(
       @RequestParam(value = "rankingScope", required = true) String rankingScopeString) {
     RankingScope rankingScope = RankingScope.parse(rankingScopeString);
@@ -49,7 +48,6 @@ public class RankingController {
   }
 
   @RequestMapping(value = "/_debug", method = RequestMethod.GET)
-  @ResponseStatus(HttpStatus.OK)
   public ListDto<RankingListDto> debugFindAllRankingLists() {
     return new ListDto<>(rankingService
       .findAll()
