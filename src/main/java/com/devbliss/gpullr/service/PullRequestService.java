@@ -88,6 +88,10 @@ public class PullRequestService {
 
     return pullRequests;
   }
+  
+  public List<PullRequest> findAllOpen(String ... repoIdsOrNames) {
+    return null;
+  }
 
   /**
    * Finds all closed pull requests sorted by closed date, earliest first.
