@@ -1,9 +1,8 @@
 package com.devbliss.gpullr.controller.dto;
 
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import com.devbliss.gpullr.domain.RankingList;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
