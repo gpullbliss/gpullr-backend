@@ -1,6 +1,8 @@
 package com.devbliss.gpullr.domain;
 
+import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -28,10 +30,18 @@ public class UserSettings {
   @Enumerated(value = EnumType.STRING)
   public OrderOption defaultPullRequestListOrdering;
 
+  @ElementCollection
+  public List<Integer> repoBlackList;
+
   public UserSettings() {
   }
 
   public UserSettings(OrderOption ordering) {
     this.defaultPullRequestListOrdering = ordering;
+  }
+
+  public UserSettings(OrderOption defaultPullRequestListOrdering, List<Integer> repoBlackList) {
+    this.defaultPullRequestListOrdering = defaultPullRequestListOrdering;
+    this.repoBlackList = repoBlackList;
   }
 }
