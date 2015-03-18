@@ -1,6 +1,8 @@
 package com.devbliss.gpullr.service;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -192,6 +194,21 @@ public class PullRequestServiceUnitTest {
     pullRequestService.insertOrUpdate(pullRequestFromGitHub);
     verify(pullRequestRepository).save(pullRequestCaptor.capture());
     assertEquals(anotherRepo, pullRequestCaptor.getValue().repo);
+  }
+
+  @Test
+  public void setNowAsClosedDateInAClosedPullRequestWhenThereIsNone() {
+    pullRequestFromLocalStorage.closedAt = null;
+    pullRequestFromGitHub.closedAt = null;
+    pullRequestFromGitHub.state = State.CLOSED;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(pullRequestRepository).save(pullRequestCaptor.capture());
+    assertNotNull(pullRequestCaptor.getValue().closedAt);
+    
+    // close date is supposed to be about now:
+    assertTrue(pullRequestCaptor.getValue().closedAt.isBefore(ZonedDateTime.now().plusSeconds(2)));
+    assertTrue(pullRequestCaptor.getValue().closedAt.isAfter(ZonedDateTime.now().minusSeconds(2)));
   }
 
   @Test
