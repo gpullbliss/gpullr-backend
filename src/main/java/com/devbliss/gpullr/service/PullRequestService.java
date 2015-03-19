@@ -2,10 +2,12 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
+import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
+import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
@@ -13,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,16 +56,20 @@ public class PullRequestService {
 
   private final UserService userService;
 
+  private final RepoRepository repoRepository;
+
   @Autowired
   public PullRequestService(
       PullRequestRepository pullRequestRepository,
       UserRepository userRepository,
       GithubApi githubApi,
-      UserService userService) {
+      UserService userService,
+      RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
     this.userService = userService;
+    this.repoRepository = repoRepository;
   }
 
   public List<PullRequest> findAll() {
@@ -89,6 +96,20 @@ public class PullRequestService {
     return pullRequests;
   }
 
+  public List<PullRequest> findAllOpen(String... repoIdsOrNames) {
+
+    List<Repo> repos = Stream.of(repoIdsOrNames)
+      .map(ion -> findRepoByIdOrName(ion))
+      .collect(Collectors.toList());
+
+    List<PullRequest> openPullRequests = findAllOpen();
+
+    return openPullRequests
+      .stream()
+      .filter(pr -> repos.contains(pr.repo))
+      .collect(Collectors.toList());
+  }
+
   /**
    * Finds all closed pull requests sorted by closed date, earliest first.
    *
@@ -102,6 +123,22 @@ public class PullRequestService {
       .collect(Collectors.toList());
 
     return pullRequests;
+  }
+
+  private Repo findRepoByIdOrName(String idOrName) {
+    Optional<Repo> repo;
+
+    if (idOrName.matches("\\d+")) {
+      repo = repoRepository.findById(Integer.valueOf(idOrName));
+
+      if (!repo.isPresent()) {
+        repo = repoRepository.findByName(idOrName);
+      }
+    } else {
+      repo = repoRepository.findByName(idOrName);
+    }
+
+    return repo.orElseThrow(() -> new NotFoundException("No repo found with id or name " + idOrName));
   }
 
   private Comparator<PullRequest> getPullRequestSortComparator(Optional<User> currentUser) {

@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] pullrequests endpoint supports optional filtering by repos for filtered wallboard feature
  - [bug] fixed ranking calculation / close dates
  - [bug] fixed date time formatting for pullrequest dto
  - [bug] first attempt to solve fetch problems
@@ -30,5 +31,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed Mar 18 13:16:46 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Mar 19 15:07:27 CET 2015
 

@@ -58,7 +58,7 @@ public class PullRequestServiceTest {
   private static final int USER_ID = 1000;
 
   private static final int PR_ID = 1;
-  
+
   private static final int OLD_PR_ID = 2;
 
   @Autowired
@@ -82,7 +82,7 @@ public class PullRequestServiceTest {
   @Before
   public void setup() {
     githubApi = mock(GithubApi.class);
-    prService = new PullRequestService(prRepository, userRepository, githubApi, userService);
+    prService = new PullRequestService(prRepository, userRepository, githubApi, userService, repoRepository);
     testPr = new PullRequest();
     testPr.id = PR_ID;
     testPr.author = initUser();
@@ -140,6 +140,90 @@ public class PullRequestServiceTest {
     assertEquals(1, openPrs.size());
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
+  }
+
+  @Test
+  public void findAllOpenPullRequestsByIdsOrNames() {
+
+    // create some more open and a closed pull request with different repos:
+    final int repo1Id = 99;
+    PullRequest openPullRequest1 = new PullRequest();
+    openPullRequest1.id = PR_ID + 7;
+    openPullRequest1.author = testPr.author;
+    openPullRequest1.state = State.OPEN;
+    openPullRequest1.createdAt = ZonedDateTime.now().minusMinutes(3);
+    openPullRequest1.repo = repoRepository.save(new Repo(repo1Id, "One Repo", ""));
+    prService.insertOrUpdate(openPullRequest1);
+
+    final String repo2Title = "My Cool Repo";
+    PullRequest openPullRequest2 = new PullRequest();
+    openPullRequest2.id = PR_ID + 8;
+    openPullRequest2.author = testPr.author;
+    openPullRequest2.state = State.OPEN;
+    openPullRequest2.createdAt = ZonedDateTime.now().minusMinutes(3);
+    openPullRequest2.repo = repoRepository.save(new Repo(repo1Id + 1, repo2Title, ""));
+    prService.insertOrUpdate(openPullRequest2);
+
+    final String repo3Title = "999888777";
+    PullRequest openPullRequest3 = new PullRequest();
+    openPullRequest3.id = PR_ID + 9;
+    openPullRequest3.author = testPr.author;
+    openPullRequest3.state = State.OPEN;
+    openPullRequest3.createdAt = ZonedDateTime.now().minusMinutes(3);
+    openPullRequest3.repo = repoRepository.save(new Repo(repo1Id + 2, repo3Title, ""));
+    prService.insertOrUpdate(openPullRequest3);
+
+    final int repo4Id = 250;
+    PullRequest closedPullRequest = new PullRequest();
+    closedPullRequest.id = PR_ID + 10;
+    closedPullRequest.author = testPr.author;
+    closedPullRequest.state = State.CLOSED;
+    closedPullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
+    closedPullRequest.repo = repoRepository.save(new Repo(repo4Id, "Another Repo", ""));
+    prService.insertOrUpdate(closedPullRequest);
+
+    // expecting to retrieve three pullrequests:
+    List<PullRequest> pullRequests = prService.findAllOpen(repo2Title,
+        Integer.toString(repo1Id),
+        repo3Title,
+        Integer.toString(repo4Id));
+    assertEquals(3, pullRequests.size());
+    assertTrue(pullRequests.contains(openPullRequest1));
+    assertTrue(pullRequests.contains(openPullRequest2));
+    assertTrue(pullRequests.contains(openPullRequest3));
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void findAllOpenPullRequestsByIdsOrNamesFailsOnUnknownRepoId() {
+
+    // create one pullrequest and a repo:
+    final int repoId = 99;
+    PullRequest openPullRequest = new PullRequest();
+    openPullRequest.id = PR_ID + 7;
+    openPullRequest.author = testPr.author;
+    openPullRequest.state = State.OPEN;
+    openPullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
+    openPullRequest.repo = repoRepository.save(new Repo(repoId, "One Repo", ""));
+    prService.insertOrUpdate(openPullRequest);
+
+    // ask for all PRs with the id of the repo just created or a non-existing id:
+    prService.findAllOpen(Integer.toString(repoId), Integer.toString(repoId + 1));
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void findAllOpenPullRequestsByIdsOrNamesFailsOnUnknownRepoTitle() {
+    // create one pullrequest and a repo:
+    final String repoTitle = "My Cool Repo";
+    PullRequest openPullRequest = new PullRequest();
+    openPullRequest.id = PR_ID + 8;
+    openPullRequest.author = testPr.author;
+    openPullRequest.state = State.OPEN;
+    openPullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
+    openPullRequest.repo = repoRepository.save(new Repo(1997 + 1, repoTitle, ""));
+    prService.insertOrUpdate(openPullRequest);
+
+    // ask for all PRs with the title of the repo just created or a non-existing title:
+    prService.findAllOpen(repoTitle, repoTitle + "_doesnotexist");
   }
 
   @Test

@@ -13,6 +13,7 @@ import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.PullRequestRepository;
+import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
@@ -72,6 +73,9 @@ public class PullRequestServiceUnitTest {
   @Mock
   private Repo repo;
 
+  @Mock
+  private RepoRepository repoRepository;
+
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
 
@@ -87,7 +91,8 @@ public class PullRequestServiceUnitTest {
     assignee.id = ASSIGNEE_ID;
     anotherAssignee = new User();
     anotherAssignee.id = ANOTHER_ASSIGNEE_ID;
-    pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService);
+    pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService,
+        repoRepository);
     pullRequestFromLocalStorage = new PullRequest();
     pullRequestFromLocalStorage.id = ID;
     pullRequestFromLocalStorage.repo = repo;
@@ -205,7 +210,7 @@ public class PullRequestServiceUnitTest {
     pullRequestService.insertOrUpdate(pullRequestFromGitHub);
     verify(pullRequestRepository).save(pullRequestCaptor.capture());
     assertNotNull(pullRequestCaptor.getValue().closedAt);
-    
+
     // close date is supposed to be about now:
     assertTrue(pullRequestCaptor.getValue().closedAt.isBefore(ZonedDateTime.now().plusSeconds(2)));
     assertTrue(pullRequestCaptor.getValue().closedAt.isAfter(ZonedDateTime.now().minusSeconds(2)));
