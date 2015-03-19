@@ -81,8 +81,21 @@ public class PullRequestService {
    * @return possibly empty list of pull requests
    */
   public List<PullRequest> findAllOpen() {
-    List<PullRequest> pullRequests = pullRequestRepository
-      .findAllByState(PullRequest.State.OPEN)
+    List<PullRequest> pullRequests = null;
+    User user = userService.whoAmI();
+
+    if (user != null) {
+      UserSettings userSettings = user.userSettings;
+      if (userSettings != null && userSettings.repoBlackList != null) {
+        pullRequests = pullRequestRepository
+          .findAllByStateAndIdNotIn(PullRequest.State.OPEN, userSettings.repoBlackList);
+      }
+    }
+    if (pullRequests == null) {
+      pullRequests = pullRequestRepository.findAllByState(PullRequest.State.OPEN);
+    }
+
+    pullRequests
       .stream()
       .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
       .collect(Collectors.toList());
