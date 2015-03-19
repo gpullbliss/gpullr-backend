@@ -51,10 +51,10 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-      PullRequestRepository pullRequestRepository,
-      UserRepository userRepository,
-      GithubApi githubApi,
-      UserService userService) {
+    PullRequestRepository pullRequestRepository,
+    UserRepository userRepository,
+    GithubApi githubApi,
+    UserService userService) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -70,7 +70,13 @@ public class PullRequestService {
   }
 
   /**
-   * Finds all open pull requests sorted by creation date, latest first.
+   * Finds all open pull requests sorted by creation date, latest first (default).<br /><br />
+   * <p>
+   * If there is a session:
+   * <ul>
+   * <li>user order options will be used for sorting</li>
+   * <li>user repo blacklist will be applied</li>
+   * </ul>
    *
    * @return possibly empty list of pull requests
    */
