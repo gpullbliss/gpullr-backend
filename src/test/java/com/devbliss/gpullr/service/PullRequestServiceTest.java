@@ -58,7 +58,7 @@ public class PullRequestServiceTest {
   private static final int USER_ID = 1000;
 
   private static final int PR_ID = 1;
-  
+
   private static final int OLD_PR_ID = 2;
 
   @Autowired
@@ -82,7 +82,7 @@ public class PullRequestServiceTest {
   @Before
   public void setup() {
     githubApi = mock(GithubApi.class);
-    prService = new PullRequestService(prRepository, userRepository, githubApi, userService);
+    prService = new PullRequestService(prRepository, userRepository, githubApi, userService, repoRepository);
     testPr = new PullRequest();
     testPr.id = PR_ID;
     testPr.author = initUser();
@@ -140,6 +140,51 @@ public class PullRequestServiceTest {
     assertEquals(1, openPrs.size());
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
+  }
+
+  @Test
+  public void findAllOpenPullRequestsByIdsOrNames() {
+
+    // create some more open and a closed pull request with different repos:
+    final int repo1Id = 99;
+    new Repo(REPO_ID, REPO_NAME, REPO_DESC);
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 7;
+    pullRequest.author = testPr.author;
+    pullRequest.state = State.OPEN;
+    pullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
+    pullRequest.repo = repoRepository.save(new Repo(repo1Id, "One Repo", ""));
+    prService.insertOrUpdate(pullRequest);
+
+    final String repo2Title = "My Cool Repo";
+    pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 8;
+    pullRequest.author = testPr.author;
+    pullRequest.state = State.OPEN;
+    pullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
+    pullRequest.repo = repoRepository.save(new Repo(repo1Id + 1, repo2Title, ""));
+    prService.insertOrUpdate(pullRequest);
+
+    final String repo3Title = "999888777";
+    pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 9;
+    pullRequest.author = testPr.author;
+    pullRequest.state = State.OPEN;
+    pullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
+    pullRequest.repo = repoRepository.save(new Repo(repo1Id + 2, repo3Title, ""));
+    prService.insertOrUpdate(pullRequest);
+
+    pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 10;
+    pullRequest.author = testPr.author;
+    pullRequest.state = State.CLOSED;
+    pullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
+    pullRequest.repo = testPr.repo;
+    prService.insertOrUpdate(pullRequest);
+
+    // expecting to retrieve three pullrequests
+    List<PullRequest> pullRequests = prService.findAllOpen(repo2Title, Integer.toString(repo1Id), repo3Title);
+    assertEquals(3, pullRequests.size());
   }
 
   @Test
