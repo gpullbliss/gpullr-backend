@@ -5,8 +5,6 @@ import com.devbliss.gpullr.domain.RepoCreatedEvent;
 import com.devbliss.gpullr.repository.RepoRepository;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +47,9 @@ public class RepoService {
   public void setRepos(List<Repo> repos) {
     repoRepository.findAll().forEach(r -> {
       if (!repos.contains(r)) {
-        LOGGER.info("Deleting local repo '{}'", r.name);
-        repoRepository.delete(r.id);
+        LOGGER.info("Deactivating local repo '{}'", r.name);
+        r.active = false;
+        repoRepository.save(r);
       }
     });
 
@@ -58,7 +57,10 @@ public class RepoService {
   }
 
   public List<Repo> findAll() {
-    return StreamSupport.stream(repoRepository.findAll().spliterator(), false).collect(Collectors.toList());
+    return repoRepository.findAll();
   }
 
+  public List<Repo> findAllActive() {
+    return repoRepository.findAllByActive(true);
+  }
 }
