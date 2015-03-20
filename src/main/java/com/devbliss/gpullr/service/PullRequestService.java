@@ -4,6 +4,7 @@ import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
+import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -81,26 +82,39 @@ public class PullRequestService {
    * @return possibly empty list of pull requests
    */
   public List<PullRequest> findAllOpen() {
-    List<PullRequest> pullRequests = null;
-    User user = userService.whoAmI();
-
-    if (user != null) {
-      UserSettings userSettings = user.userSettings;
-      if (userSettings != null && userSettings.repoBlackList != null) {
-        pullRequests = pullRequestRepository
-          .findAllByStateAndIdNotIn(PullRequest.State.OPEN, userSettings.repoBlackList);
-      }
-    }
-    if (pullRequests == null) {
-      pullRequests = pullRequestRepository.findAllByState(PullRequest.State.OPEN);
-    }
-
-    pullRequests
+    List<PullRequest> prs = pullRequestRepository.findAllByState(State.OPEN)
       .stream()
       .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
       .collect(Collectors.toList());
 
-    return pullRequests;
+    User user = null;
+
+    try {
+      user = userService.whoAmI();
+    } catch (LoginRequiredException ignored) { }
+
+    if (user != null) {
+      UserSettings userSettings = user.userSettings;
+      if (hasBlacklistesRepos(user)) {
+        prs = prs
+          .stream()
+          .filter(pr -> userSettings.repoBlackList.contains(pr.repo.id))
+          .collect(Collectors.toList());
+      }
+    }
+
+    return prs;
+  }
+
+  private boolean hasBlacklistesRepos(User user) {
+    UserSettings userSettings = user.userSettings;
+    if (userSettings == null) {
+      return false;
+    }
+    if (userSettings.repoBlackList == null) {
+      return false;
+    }
+    return userSettings.repoBlackList.size() > 0;
   }
 
   private Comparator<PullRequest> getPullRequestSortComparator(Optional<User> currentUser) {
