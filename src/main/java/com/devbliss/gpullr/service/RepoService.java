@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RepoService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(RepoService.class);
 
   private final RepoRepository repoRepository;
 
@@ -42,7 +46,19 @@ public class RepoService {
     }
   }
 
+  public void setRepos(List<Repo> repos) {
+    repoRepository.findAll().forEach(r -> {
+      if (!repos.contains(r)) {
+        LOGGER.info("Deleting local repo '{}'", r.name);
+        repoRepository.delete(r.id);
+      }
+    });
+
+    repoRepository.save(repos);
+  }
+
   public List<Repo> findAll() {
     return StreamSupport.stream(repoRepository.findAll().spliterator(), false).collect(Collectors.toList());
   }
+
 }
