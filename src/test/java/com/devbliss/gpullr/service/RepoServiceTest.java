@@ -8,8 +8,11 @@ import static org.mockito.Mockito.mock;
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.repository.RepoRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +46,11 @@ public class RepoServiceTest {
     repoService = new RepoService(repoRepository, applicationContext);
   }
 
+  @After
+  public void teardown() {
+    repoRepository.deleteAll();
+  }
+
   @Test
   public void insertUpdateShowAll() {
     // make sure database is empty at the beginning:
@@ -74,6 +82,32 @@ public class RepoServiceTest {
     assertEquals(ID, repo.id);
     assertEquals(updatedName, repo.name);
     assertEquals(updatedDescription, repo.description);
+  }
+
+  @Test
+  public void setRepos() {
+    // make sure database is empty at the beginning:
+    assertEquals(0, repoService.findAll().size());
+
+    // create a list of three repos and store it:
+    List<Repo> createdRepos = new ArrayList<>();
+    IntStream.of(0, 1, 2).forEach(i -> createdRepos.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
+    repoService.setRepos(createdRepos);
+
+    // make sure those three repos are returned by the service:
+    List<Repo> retrievedRepos = repoService.findAll();
+    assertEquals(3, retrievedRepos.size());
+    createdRepos.forEach(r -> assertTrue(retrievedRepos.contains(r)));
+
+    // remove one element from list, add two new ones and store the list again:
+    createdRepos.remove(2);
+    IntStream.of(3, 4).forEach(i -> createdRepos.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
+    repoService.setRepos(createdRepos);
+
+    // make sure the service returns exactly the changed list now:
+    List<Repo> retrievedReposAgain = repoService.findAll();
+    assertEquals(4, retrievedReposAgain.size());
+    createdRepos.forEach(r -> assertTrue(retrievedReposAgain.contains(r)));
   }
 
   @Test
