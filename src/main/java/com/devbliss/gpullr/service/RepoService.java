@@ -35,15 +35,6 @@ public class RepoService {
     return repoRepository.findByName(name);
   }
 
-  public void insertOrUpdate(Repo repo) {
-    Optional<Repo> existing = repoRepository.findById(repo.id);
-    repoRepository.save(repo);
-
-    if (!existing.isPresent()) {
-      applicationContext.publishEvent(new RepoCreatedEvent(this, repo));
-    }
-  }
-
   /**
    * Sets the list of active repos. All repos in the given list will be in the database afterwards. The ones
    * already stored in the database will be updated in case they have changed. The ones in the database which are
@@ -52,17 +43,18 @@ public class RepoService {
    * @param repos
    */
   public void setActiveRepos(List<Repo> repos) {
-    repoRepository.findAll().stream().filter(r -> !repos.contains(r)).forEach(r -> {
+    List<Repo> existingRepos = repoRepository.findAll();
+    existingRepos.stream().filter(r -> !repos.contains(r)).forEach(r -> {
       LOGGER.info("Deactivating local repo '{}'", r.name);
       r.active = false;
       repoRepository.save(r);
     });
 
+    repos.stream().filter(r -> !existingRepos.contains(r)).forEach(r -> {
+      LOGGER.info("Firing repo created event for new repo '{}'", r.name);
+      applicationContext.publishEvent(new RepoCreatedEvent(this, r));
+    });
     repoRepository.save(repos);
-  }
-
-  public List<Repo> findAll() {
-    return repoRepository.findAll();
   }
 
   public List<Repo> findAllActive() {
