@@ -2,6 +2,10 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [bug] make repos inactive instead of deleting them
+ - [bug] remove repos that have disappeared
+ - [feature] pullrequests endpoint supports optional filtering by repos for filtered wallboard feature
+ - [bug] fixed ranking calculation / close dates
  - [bug] fixed date time formatting for pullrequest dto
  - [bug] first attempt to solve fetch problems
  - [bug] pull requests w/o user session works again (with default sort order)
@@ -29,5 +33,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Philipp Karstedt <philipp.karstedt@devbliss.com> Mon Mar 16 17:30:28 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 23 09:09:31 CET 2015
 

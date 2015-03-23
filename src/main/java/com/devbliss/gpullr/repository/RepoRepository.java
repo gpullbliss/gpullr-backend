@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.repository;
 
 import com.devbliss.gpullr.domain.Repo;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
@@ -14,4 +15,8 @@ public interface RepoRepository extends CrudRepository<Repo, Integer> {
   Optional<Repo> findByName(String name);
 
   Optional<Repo> findById(Integer id);
+
+  List<Repo> findAll();
+  
+  List<Repo> findAllByActive(boolean active);
 }

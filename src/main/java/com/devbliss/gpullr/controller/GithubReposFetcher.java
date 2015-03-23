@@ -1,11 +1,13 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.RepoService;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,10 +33,13 @@ public class GithubReposFetcher extends AbstractFixedScheduleWorker {
 
   @Override
   protected void execute() {
-    githubApi.fetchAllGithubRepos().forEach(r -> {
+    List<Repo> fetchedRepos = githubApi.fetchAllGithubRepos();
+
+    fetchedRepos.forEach(r -> {
       logger.debug(String.format("fetched repo: %d %s", r.id, r.name));
-      repoService.insertOrUpdate(r);
     });
+    
+    repoService.setActiveRepos(fetchedRepos);
   }
 
   /**

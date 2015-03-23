@@ -1,11 +1,8 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Date;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 
 /**
@@ -20,9 +17,7 @@ import org.springframework.scheduling.TaskScheduler;
  */
 public class PullRequestAssigneeWatchThread extends Thread {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestAssigneeWatchThread.class);
-
-  public final PullRequest pullRequest;
+  public final int pullRequestId;
 
   private final TaskScheduler taskScheduler;
 
@@ -33,11 +28,11 @@ public class PullRequestAssigneeWatchThread extends Thread {
   private boolean stopped = false;
 
   public PullRequestAssigneeWatchThread(
-      PullRequest pullRequest,
+      int pullRequestId,
       TaskScheduler taskScheduler,
       GithubApi githubApi,
       PullRequestService pullRequestService) {
-    this.pullRequest = pullRequest;
+    this.pullRequestId = pullRequestId;
     this.taskScheduler = taskScheduler;
     this.githubApi = githubApi;
     this.pullRequestService = pullRequestService;
@@ -57,23 +52,17 @@ public class PullRequestAssigneeWatchThread extends Thread {
   }
 
   private void fetch(Optional<String> etagHeader) {
-    handleResponse(githubApi.fetchPullRequest(pullRequest, etagHeader));
+    pullRequestService
+      .findById(pullRequestId)
+      .ifPresent(pr -> handleResponse(githubApi.fetchPullRequest(pr, etagHeader)));
   }
 
   private void handleResponse(GithubPullrequestResponse resp) {
-    resp.payload.ifPresent(this::handlePullRequest);
+    resp.payload.ifPresent(pullRequestService::insertOrUpdate);
 
     if (!stopped) {
       Date nextFetch = Date.from(resp.nextFetch);
       taskScheduler.schedule(() -> fetch(resp.etagHeader), nextFetch);
-    }
-  }
-
-  private void handlePullRequest(PullRequest fetchedPullRequest) {
-    if (fetchedPullRequest.assignee != null) {
-      pullRequest.assignee = fetchedPullRequest.assignee;
-      pullRequestService.insertOrUpdate(pullRequest);
-      LOGGER.debug("stored assignee " + pullRequest.assignee.username + " for pullrequest " + pullRequest);
     }
   }
 }
