@@ -43,12 +43,16 @@ public abstract class AbstractFixedScheduleWorker {
 
   public void startFetchLoop() {
     logger.info(getClass().getSimpleName() + " starts working...");
-    execute();
-    Date nextFetch = nextExecution();
-    taskScheduler.schedule(() -> startFetchLoop(), nextFetch);
-    logger.info(getClass().getSimpleName()
-        + " finished its work, next execution is scheduled for "
-        + formatNextFetch(nextFetch));
+
+    try {
+      execute();
+    } finally {
+      Date nextFetch = nextExecution();
+      taskScheduler.schedule(() -> startFetchLoop(), nextFetch);
+      logger.info(getClass().getSimpleName()
+          + " finished its work, next execution is scheduled for "
+          + formatNextFetch(nextFetch));
+    }
   }
 
   private String formatNextFetch(Date nextFetch) {
