@@ -112,19 +112,7 @@ public class PullRequestService {
     return prs;
   }
 
-  private boolean hasBlacklistedRepos(User user) {
-    UserSettings userSettings = user.userSettings;
-    if (userSettings == null) {
-      return false;
-    }
-    if (userSettings.repoBlackList == null) {
-      return false;
-    }
-    return userSettings.repoBlackList.size() > 0;
-  }
-
   public List<PullRequest> findAllOpen(String... repoIdsOrNames) {
-
     List<Repo> repos = Stream.of(repoIdsOrNames)
       .map(ion -> findRepoByIdOrName(ion))
       .collect(Collectors.toList());
@@ -135,6 +123,17 @@ public class PullRequestService {
       .stream()
       .filter(pr -> repos.contains(pr.repo))
       .collect(Collectors.toList());
+  }
+
+  private boolean hasBlacklistedRepos(User user) {
+    UserSettings userSettings = user.userSettings;
+    if (userSettings == null) {
+      return false;
+    }
+    if (userSettings.repoBlackList == null) {
+      return false;
+    }
+    return userSettings.repoBlackList.size() > 0;
   }
 
   /**
