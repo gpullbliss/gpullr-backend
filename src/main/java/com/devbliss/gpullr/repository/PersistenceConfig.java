@@ -40,7 +40,7 @@ public class PersistenceConfig {
   })
   @Bean
   public DataSource createDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:./gpullrDb").driverClassName(DRIVER_CLASS_NAME).build();
+    return DataSourceBuilder.create().url("jdbc:h2:./gpullrDb;AUTO_SERVER=TRUE").driverClassName(DRIVER_CLASS_NAME).build();
   }
 
   @Bean
