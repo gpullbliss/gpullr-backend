@@ -36,17 +36,18 @@ public class PersistenceConfig {
   }
 
   @Profile({
-    "prod", "dev"
+      "prod", "dev"
   })
   @Bean
   public DataSource createDataSource() {
-    return DataSourceBuilder.create().url("jdbc:h2:./gpullrDb;AUTO_SERVER=TRUE").driverClassName(DRIVER_CLASS_NAME).build();
+    return DataSourceBuilder.create().url("jdbc:h2:./gpullrDb;AUTO_SERVER=TRUE")
+      .driverClassName(DRIVER_CLASS_NAME).build();
   }
 
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-    DataSource dataSource,
-    JpaVendorAdapter jpaVendorAdapter) {
+      DataSource dataSource,
+      JpaVendorAdapter jpaVendorAdapter) {
     LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
     emfb.setDataSource(dataSource);
     emfb.setPackagesToScan("com.devbliss.gpullr");
