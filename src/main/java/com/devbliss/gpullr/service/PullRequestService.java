@@ -97,9 +97,7 @@ public class PullRequestService {
       .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
       .collect(Collectors.toList());
 
-    Optional<User> user = null;
-
-    user = userService.getCurrentUserIfLoggedIn();
+    Optional<User> user = userService.getCurrentUserIfLoggedIn();
 
     if (user.isPresent()) {
       UserSettings userSettings = user.get().userSettings;
