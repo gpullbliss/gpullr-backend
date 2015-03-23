@@ -1,8 +1,10 @@
 package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.controller.dto.ErrorResponseDto;
+import com.devbliss.gpullr.exception.BadRequestException;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
+import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Constants;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -27,8 +29,24 @@ public class GlobalDefaultExceptionHandler {
   @ExceptionHandler(NotFoundException.class)
   public ResponseEntity<ErrorResponseDto> notFound(NotFoundException e) {
     ErrorResponseDto errorResponseDto = new ErrorResponseDto();
-    errorResponseDto.errorKey = Constants.KEY_DTO_ERROR_NOTFOUND;
+    errorResponseDto.errorKey = Constants.KEY_DTO_ERROR_NOT_FOUND;
     errorResponseDto.errorMessage = e.getMessage();
     return new ResponseEntity<ErrorResponseDto>(errorResponseDto, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(UnexpectedException.class)
+  public ResponseEntity<ErrorResponseDto> unexpected() {
+    ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+    errorResponseDto.errorKey = Constants.KEY_DTO_ERROR_INTERNAL;
+    errorResponseDto.errorMessage = "An unexpected server error occured.";
+    return new ResponseEntity<ErrorResponseDto>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(BadRequestException.class)
+  public ResponseEntity<ErrorResponseDto> badRequest(BadRequestException e) {
+    ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+    errorResponseDto.errorKey = Constants.KEY_DTO_ERROR_BAD_REQUEST;
+    errorResponseDto.errorMessage = e.getMessage();
+    return new ResponseEntity<ErrorResponseDto>(errorResponseDto, HttpStatus.BAD_REQUEST);
   }
 }
