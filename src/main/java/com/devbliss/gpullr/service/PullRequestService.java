@@ -60,11 +60,11 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-    PullRequestRepository pullRequestRepository,
-    UserRepository userRepository,
-    GithubApi githubApi,
-    UserService userService,
-    RepoRepository repoRepository) {
+      PullRequestRepository pullRequestRepository,
+      UserRepository userRepository,
+      GithubApi githubApi,
+      UserService userService,
+      RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -164,7 +164,7 @@ public class PullRequestService {
       repo = repoRepository.findByName(idOrName);
     }
 
-    return repo.orElseThrow(() -> new NotFoundException("No repo found with id or name " + idOrName));
+    return repo.orElseThrow(() -> new NotFoundException("No repo found with id or name '" + idOrName + "'."));
   }
 
   private Comparator<PullRequest> getPullRequestSortComparator(Optional<User> currentUser) {

@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [refactor] better error propagation to the frontend
  - [feature] configurable repository watchlist
  - [bug] make repos inactive instead of deleting them
  - [bug] remove repos that have disappeared
@@ -34,5 +35,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Mon Mar 23 12:37:23 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 23 16:48:58 CET 2015
 
