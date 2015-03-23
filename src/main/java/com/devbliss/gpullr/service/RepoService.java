@@ -35,11 +35,15 @@ public class RepoService {
     return repoRepository.findByName(name);
   }
 
+  public List<Repo> findAll() {
+    return repoRepository.findAll();
+  }
+
   /**
    * Sets the list of active repos. All repos in the given list will be in the database afterwards. The ones
    * already stored in the database will be updated in case they have changed. The ones in the database which are
    * NOT in the given list will be inactive afterwards.
-   * 
+   *
    * @param repos
    */
   public void setActiveRepos(List<Repo> repos) {
