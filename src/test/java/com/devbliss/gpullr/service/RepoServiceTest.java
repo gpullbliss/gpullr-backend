@@ -100,14 +100,16 @@ public class RepoServiceTest {
     createdRepos.forEach(r -> assertTrue(retrievedRepos.contains(r)));
 
     // remove one element from list, add two new ones and store the list again:
-    createdRepos.remove(2);
+    Repo notStoredAgain = createdRepos.remove(2);
     IntStream.of(3, 4).forEach(i -> createdRepos.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
     repoService.setRepos(createdRepos);
 
-    // make sure the service returns exactly the changed list now:
+    // the element that has NOT been stored again should still be there, but now inactive:
     List<Repo> retrievedReposAgain = repoService.findAll();
-    assertEquals(4, retrievedReposAgain.size());
+    assertEquals(5, retrievedReposAgain.size());
     createdRepos.forEach(r -> assertTrue(retrievedReposAgain.contains(r)));
+    assertTrue(retrievedReposAgain.contains(notStoredAgain));
+    assertFalse(retrievedReposAgain.get(retrievedReposAgain.indexOf(notStoredAgain)).active);
   }
 
   @Test
