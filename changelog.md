@@ -2,6 +2,8 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] configurable repository watchlist
+ - [bug] make repos inactive instead of deleting them
  - [bug] remove repos that have disappeared
  - [feature] pullrequests endpoint supports optional filtering by repos for filtered wallboard feature
  - [bug] fixed ranking calculation / close dates
@@ -32,5 +34,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Fri Mar 20 12:08:12 CET 2015
+-- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Mon Mar 23 12:37:23 CET 2015
 

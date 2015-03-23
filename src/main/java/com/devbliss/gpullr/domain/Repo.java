@@ -30,6 +30,8 @@ public class Repo {
   @Column(nullable = true,
       length = 1000)
   public String description;
+  
+  public boolean active = true;
 
   public Repo() {}
 

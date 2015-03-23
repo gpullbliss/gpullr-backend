@@ -53,11 +53,11 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
    * Starts the fetching loop. Must be called once at application start.
    */
   public void startFetchEventsLoop() {
-    List<Repo> allRepos = repoService.findAll();
-    logger.info("Start fetching events from GitHub for all " + allRepos.size() + " repos...");
+    List<Repo> allActiveRepos = repoService.findAllActive();
+    logger.info("Start fetching events from GitHub for all " + allActiveRepos.size() + " repos...");
     int counter = 1;
 
-    for (Repo repo : allRepos) {
+    for (Repo repo : allActiveRepos) {
       logger.debug("Fetching events for repo (initial loop): " + repo.name + " (" + counter + ". in list)");
       fetchEvents(repo, Optional.empty());
       counter++;

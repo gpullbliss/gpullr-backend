@@ -39,7 +39,7 @@ public class GithubReposFetcher extends AbstractFixedScheduleWorker {
       logger.debug(String.format("fetched repo: %d %s", r.id, r.name));
     });
     
-    repoService.setRepos(fetchedRepos);
+    repoService.setActiveRepos(fetchedRepos);
   }
 
   /**

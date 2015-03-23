@@ -14,6 +14,7 @@ public class UserSettingsConverter {
   public UserSettingsDto toDto(UserSettings entity) {
     UserSettingsDto dto = new UserSettingsDto();
     dto.id = entity.id;
+    dto.repoBlackList = entity.repoBlackList;
 
     if (entity.defaultPullRequestListOrdering != null) {
       String orderOptionValue = entity.defaultPullRequestListOrdering.name();
@@ -31,6 +32,7 @@ public class UserSettingsConverter {
   public UserSettings toEntity(UserSettingsDto dto) {
     UserSettings entity = new UserSettings();
     entity.id = dto.id;
+    entity.repoBlackList = dto.repoBlackList;
 
     if (dto.orderOptionDto != null) {
       String orderOptionValue = dto.orderOptionDto.name();

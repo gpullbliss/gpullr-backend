@@ -36,7 +36,7 @@ public class PersistenceConfig {
   }
 
   @Profile({
-      "prod", "dev"
+    "prod", "dev"
   })
   @Bean
   public DataSource createDataSource() {
@@ -45,12 +45,12 @@ public class PersistenceConfig {
 
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-      DataSource dataSource,
-      JpaVendorAdapter jpaVendorAdapter) {
+    DataSource dataSource,
+    JpaVendorAdapter jpaVendorAdapter) {
     LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
     emfb.setDataSource(dataSource);
     emfb.setPackagesToScan("com.devbliss.gpullr");
-    emfb.setJpaVendorAdapter(jpaVendorAdapter);    
+    emfb.setJpaVendorAdapter(jpaVendorAdapter);
     return emfb;
   }
 

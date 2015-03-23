@@ -17,4 +17,6 @@ public interface RepoRepository extends CrudRepository<Repo, Integer> {
   Optional<Repo> findById(Integer id);
 
   List<Repo> findAll();
+  
+  List<Repo> findAllByActive(boolean active);
 }
