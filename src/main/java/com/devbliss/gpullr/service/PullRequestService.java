@@ -95,7 +95,7 @@ public class PullRequestService {
 
     if (user != null) {
       UserSettings userSettings = user.userSettings;
-      if (hasBlacklistesRepos(user)) {
+      if (hasBlacklistedRepos(user)) {
         prs = prs
           .stream()
           .filter(pr -> userSettings.repoBlackList.contains(pr.repo.id))
@@ -106,7 +106,7 @@ public class PullRequestService {
     return prs;
   }
 
-  private boolean hasBlacklistesRepos(User user) {
+  private boolean hasBlacklistedRepos(User user) {
     UserSettings userSettings = user.userSettings;
     if (userSettings == null) {
       return false;
