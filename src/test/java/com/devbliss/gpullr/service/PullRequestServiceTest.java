@@ -272,7 +272,7 @@ public class PullRequestServiceTest {
     userService.login(user.id);
     userService.updateUserSession(user);
 
-    // create pr that will be filtered, because it's repo is blacklisted
+    // create pr that will be filtered, because its repo is blacklisted
     prService.insertOrUpdate(testPr);
 
     // create pr that will _not_ be filtered
