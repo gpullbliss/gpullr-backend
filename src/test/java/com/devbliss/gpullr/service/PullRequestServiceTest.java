@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -184,9 +185,9 @@ public class PullRequestServiceTest {
 
     // expecting to retrieve three pullrequests:
     List<PullRequest> pullRequests = prService.findAllOpen(repo2Title,
-        Integer.toString(repo1Id),
-        repo3Title,
-        Integer.toString(repo4Id));
+      Integer.toString(repo1Id),
+      repo3Title,
+      Integer.toString(repo4Id));
     assertEquals(3, pullRequests.size());
     assertTrue(pullRequests.contains(openPullRequest1));
     assertTrue(pullRequests.contains(openPullRequest2));

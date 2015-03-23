@@ -1,6 +1,6 @@
 package com.devbliss.gpullr.controller.dto;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import com.devbliss.gpullr.BaseTest;
 import com.devbliss.gpullr.domain.Repo;
