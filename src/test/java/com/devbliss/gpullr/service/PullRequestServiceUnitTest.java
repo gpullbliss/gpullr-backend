@@ -1,9 +1,8 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,7 +91,7 @@ public class PullRequestServiceUnitTest {
     anotherAssignee = new User();
     anotherAssignee.id = ANOTHER_ASSIGNEE_ID;
     pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService,
-        repoRepository);
+      repoRepository);
     pullRequestFromLocalStorage = new PullRequest();
     pullRequestFromLocalStorage.id = ID;
     pullRequestFromLocalStorage.repo = repo;
@@ -223,7 +222,7 @@ public class PullRequestServiceUnitTest {
 
     List<PullRequest> allOpen = pullRequestService.findAllOpen();
 
-    verify(userService).getCurrentUserIfLoggedIn();
+    verify(userService, atLeastOnce()).getCurrentUserIfLoggedIn();
     assertEquals(NEW_PR_TITLE, allOpen.get(0).title);
   }
 

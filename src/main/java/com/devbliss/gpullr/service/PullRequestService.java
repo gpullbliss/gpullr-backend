@@ -5,7 +5,6 @@ import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
-import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
@@ -98,15 +97,13 @@ public class PullRequestService {
       .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
       .collect(Collectors.toList());
 
-    User user = null;
+    Optional<User> user = null;
 
-    try {
-      user = userService.whoAmI();
-    } catch (LoginRequiredException ignored) { }
+    user = userService.getCurrentUserIfLoggedIn();
 
-    if (user != null) {
-      UserSettings userSettings = user.userSettings;
-      if (hasBlacklistedRepos(user)) {
+    if (user.isPresent()) {
+      UserSettings userSettings = user.get().userSettings;
+      if (hasBlacklistedRepos(user.get())) {
         prs = prs
           .stream()
           .filter(pr -> userSettings.repoBlackList.contains(pr.repo.id))
