@@ -60,11 +60,11 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-      PullRequestRepository pullRequestRepository,
-      UserRepository userRepository,
-      GithubApi githubApi,
-      UserService userService,
-      RepoRepository repoRepository) {
+    PullRequestRepository pullRequestRepository,
+    UserRepository userRepository,
+    GithubApi githubApi,
+    UserService userService,
+    RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -81,23 +81,38 @@ public class PullRequestService {
   }
 
   /**
-   * Finds all open pull requests sorted according to user settings, 
-   * defaulting to sorting by creation date, latest first.
+   * Finds all open pull requests sorted by creation date, latest first (default).<br /><br />
+   * <p>
+   * If there is a session:
+   * <ul>
+   * <li>user order options will be used for sorting</li>
+   * <li>user repo blacklist will be applied</li>
+   * </ul>
    *
    * @return possibly empty list of pull requests
    */
   public List<PullRequest> findAllOpen() {
-    List<PullRequest> pullRequests = pullRequestRepository
-      .findAllByState(PullRequest.State.OPEN)
+    List<PullRequest> prs = pullRequestRepository.findAllByState(State.OPEN)
       .stream()
       .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
       .collect(Collectors.toList());
 
-    return pullRequests;
+    Optional<User> user = userService.getCurrentUserIfLoggedIn();
+
+    if (user.isPresent()) {
+      UserSettings userSettings = user.get().userSettings;
+      if (hasBlacklistedRepos(user.get())) {
+        prs = prs
+          .stream()
+          .filter(pr -> userSettings.repoBlackList.contains(pr.repo.id))
+          .collect(Collectors.toList());
+      }
+    }
+
+    return prs;
   }
 
   public List<PullRequest> findAllOpen(String... repoIdsOrNames) {
-
     List<Repo> repos = Stream.of(repoIdsOrNames)
       .map(ion -> findRepoByIdOrName(ion))
       .collect(Collectors.toList());
@@ -108,6 +123,17 @@ public class PullRequestService {
       .stream()
       .filter(pr -> repos.contains(pr.repo))
       .collect(Collectors.toList());
+  }
+
+  private boolean hasBlacklistedRepos(User user) {
+    UserSettings userSettings = user.userSettings;
+    if (userSettings == null) {
+      return false;
+    }
+    if (userSettings.repoBlackList == null) {
+      return false;
+    }
+    return userSettings.repoBlackList.size() > 0;
   }
 
   /**

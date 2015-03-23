@@ -18,6 +18,7 @@ import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.After;
@@ -184,9 +185,9 @@ public class PullRequestServiceTest {
 
     // expecting to retrieve three pullrequests:
     List<PullRequest> pullRequests = prService.findAllOpen(repo2Title,
-        Integer.toString(repo1Id),
-        repo3Title,
-        Integer.toString(repo4Id));
+      Integer.toString(repo1Id),
+      repo3Title,
+      Integer.toString(repo4Id));
     assertEquals(3, pullRequests.size());
     assertTrue(pullRequests.contains(openPullRequest1));
     assertTrue(pullRequests.contains(openPullRequest2));
@@ -265,6 +266,28 @@ public class PullRequestServiceTest {
   }
 
   @Test
+  public void regardsUserBlacklist() {
+    User user = initUser();
+    user.userSettings = new UserSettings(UserSettings.OrderOption.DESC, Arrays.asList(testPr.repo.id));
+    userService.insertOrUpdate(user);
+    userService.login(user.id);
+    userService.updateUserSession(user);
+
+    // create pr that will be filtered, because its repo is blacklisted
+    prService.insertOrUpdate(testPr);
+
+    // create pr that will _not_ be filtered
+    testPr.id = 500000;
+    testPr.repo = initRepo(500, "another repo");
+    prService.insertOrUpdate(testPr);
+
+    List<PullRequest> allOpen = prService.findAllOpen();
+
+    assertEquals(1, allOpen.size());
+    assertEquals(PR_ID, (int) allOpen.get(0).id);
+  }
+
+  @Test
   public void assignPullRequest() {
     // create new PR w/o owner:
     PullRequest pullRequest = new PullRequest();
@@ -321,7 +344,19 @@ public class PullRequestServiceTest {
   }
 
   private Repo initRepo() {
+    return initRepo(null, null);
+  }
+
+  private Repo initRepo(Integer repoId, String repoName) {
     Repo repo = new Repo(REPO_ID, REPO_NAME, REPO_DESC);
+
+    if (repoId != null) {
+      repo.id = repoId;
+    }
+    if (repoName != null) {
+      repo.name = repoName;
+    }
+
     return repoRepository.save(repo);
   }
 

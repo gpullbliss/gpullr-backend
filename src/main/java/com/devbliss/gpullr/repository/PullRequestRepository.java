@@ -3,6 +3,7 @@ package com.devbliss.gpullr.repository;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.User;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
@@ -17,6 +18,8 @@ public interface PullRequestRepository extends CrudRepository<PullRequest, Integ
   List<PullRequest> findAll();
 
   List<PullRequest> findAllByState(PullRequest.State state);
+
+  List<PullRequest> findAllByStateAndIdNotIn(PullRequest.State state, Collection<Integer> ids);
 
   Optional<PullRequest> findById(Integer id);
 
