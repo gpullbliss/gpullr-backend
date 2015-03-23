@@ -8,5 +8,6 @@ public class Constants {
 
   public static String KEY_DTO_ERROR_FORBIDDEN = "FORBIDDEN";
 
+  public static String KEY_DTO_ERROR_NOTFOUND = "NOT_FOUND";
 }
 
