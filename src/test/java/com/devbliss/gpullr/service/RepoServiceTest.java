@@ -85,14 +85,14 @@ public class RepoServiceTest {
   }
 
   @Test
-  public void setRepos() {
+  public void setActiveRepos() {
     // make sure database is empty at the beginning:
     assertEquals(0, repoService.findAll().size());
 
     // create a list of three repos and store it:
     List<Repo> createdRepos = new ArrayList<>();
     IntStream.of(0, 1, 2).forEach(i -> createdRepos.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
-    repoService.setRepos(createdRepos);
+    repoService.setActiveRepos(createdRepos);
 
     // make sure those three repos are returned by the service:
     List<Repo> retrievedRepos = repoService.findAll();
@@ -102,7 +102,7 @@ public class RepoServiceTest {
     // remove one element from list, add two new ones and store the list again:
     Repo notStoredAgain = createdRepos.remove(2);
     IntStream.of(3, 4).forEach(i -> createdRepos.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
-    repoService.setRepos(createdRepos);
+    repoService.setActiveRepos(createdRepos);
 
     // the element that has NOT been stored again should still be there, but now inactive:
     List<Repo> retrievedReposAgain = repoService.findAll();

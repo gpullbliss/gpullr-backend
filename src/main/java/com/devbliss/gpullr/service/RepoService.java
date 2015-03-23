@@ -44,13 +44,18 @@ public class RepoService {
     }
   }
 
-  public void setRepos(List<Repo> repos) {
-    repoRepository.findAll().forEach(r -> {
-      if (!repos.contains(r)) {
-        LOGGER.info("Deactivating local repo '{}'", r.name);
-        r.active = false;
-        repoRepository.save(r);
-      }
+  /**
+   * Sets the list of active repos. All repos in the given list will be in the database afterwards. The ones
+   * already stored in the database will be updated in case they have changed. The ones in the database which are
+   * NOT in the given list will be inactive afterwards.
+   * 
+   * @param repos
+   */
+  public void setActiveRepos(List<Repo> repos) {
+    repoRepository.findAll().stream().filter(r -> !repos.contains(r)).forEach(r -> {
+      LOGGER.info("Deactivating local repo '{}'", r.name);
+      r.active = false;
+      repoRepository.save(r);
     });
 
     repoRepository.save(repos);
