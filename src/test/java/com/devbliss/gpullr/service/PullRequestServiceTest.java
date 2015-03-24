@@ -60,6 +60,8 @@ public class PullRequestServiceTest {
 
   private static final int PR_ID = 1;
 
+  private static final int BLACKLISTED_REPO_ID = 501231;
+
   private static final int OLD_PR_ID = 2;
 
   @Autowired
@@ -268,7 +270,7 @@ public class PullRequestServiceTest {
   @Test
   public void regardsUserBlacklist() {
     User user = initUser();
-    user.userSettings = new UserSettings(UserSettings.OrderOption.DESC, Arrays.asList(testPr.repo.id));
+    user.userSettings = new UserSettings(UserSettings.OrderOption.DESC, Arrays.asList(BLACKLISTED_REPO_ID));
     userService.insertOrUpdate(user);
     userService.login(user.id);
     userService.updateUserSession(user);
@@ -278,7 +280,7 @@ public class PullRequestServiceTest {
 
     // create pr that will _not_ be filtered
     testPr.id = 500000;
-    testPr.repo = initRepo(500, "another repo");
+    testPr.repo = initRepo(BLACKLISTED_REPO_ID, "another repo");
     prService.insertOrUpdate(testPr);
 
     List<PullRequest> allOpen = prService.findAllOpen();

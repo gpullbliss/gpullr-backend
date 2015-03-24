@@ -104,7 +104,7 @@ public class PullRequestService {
       if (hasBlacklistedRepos(user.get())) {
         prs = prs
           .stream()
-          .filter(pr -> userSettings.repoBlackList.contains(pr.repo.id))
+          .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
           .collect(Collectors.toList());
       }
     }
