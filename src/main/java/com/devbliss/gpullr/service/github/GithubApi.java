@@ -146,7 +146,7 @@ public class GithubApi {
   }
 
   public void unassignUserFromPullRequest(User user, PullRequest pull) {
-    JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, null).build();
+    JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, "").build();
     final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
 
     try {
