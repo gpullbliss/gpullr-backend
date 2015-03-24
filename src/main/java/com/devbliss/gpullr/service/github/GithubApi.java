@@ -82,7 +82,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-          jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
+        jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -117,7 +117,7 @@ public class GithubApi {
       Instant nextFetch = resp.getNextFetch();
       GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
-          ope -> ope.ifPresent(result.payload::add));
+        ope -> ope.ifPresent(result.payload::add));
       return result;
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -130,7 +130,7 @@ public class GithubApi {
 
   public void assignUserToPullRequest(User user, PullRequest pull) {
     JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, user.username).build();
-    final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
+    final String uri = buildIssueUri(pull.repo.name, pull.number);
 
     try {
       Request req = client.entry()
@@ -147,7 +147,7 @@ public class GithubApi {
 
   public void unassignUserFromPullRequest(User user, PullRequest pull) {
     JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, "").build();
-    final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
+    final String uri = buildIssueUri(pull.repo.name, pull.number);
 
     try {
       Request req = client.entry()
@@ -227,7 +227,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
-      GetGithubEventsRequest nextRequest) throws IOException {
+    GetGithubEventsRequest nextRequest) throws IOException {
 
     int statusCode = resp.statusCode;
 
@@ -262,7 +262,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-      throws IOException {
+    throws IOException {
 
     List<T> result = responseToList(resp, mapper);
 
@@ -275,7 +275,7 @@ public class GithubApi {
 
   private boolean hasMorePages(JsonResponse resp) {
     return resp.headers().keySet().contains(HEADER_LINK)
-        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains(HEADER_MARKER_MORE_PAGES));
+      && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains(HEADER_MARKER_MORE_PAGES));
   }
 
   private boolean hasMorePages(GithubHttpResponse resp) {
@@ -311,4 +311,9 @@ public class GithubApi {
       throw new UnexpectedException(e);
     }
   }
+
+  private String buildIssueUri(final String repoName, final int pullNumber) {
+    return "/repos/devbliss/" + repoName + "/issues/" + pullNumber;
+  }
+
 }
