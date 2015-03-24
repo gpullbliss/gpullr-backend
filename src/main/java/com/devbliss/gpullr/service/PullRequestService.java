@@ -30,6 +30,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PullRequestService {
 
+  private static final String NO_SUCH_REPO_MESSAGE = "No pullRequest found with id ";
+
   private final Comparator<PullRequest> latestFirstComparator = new Comparator<PullRequest>() {
 
     @Override
@@ -60,11 +62,11 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-      PullRequestRepository pullRequestRepository,
-      UserRepository userRepository,
-      GithubApi githubApi,
-      UserService userService,
-      RepoRepository repoRepository) {
+    PullRequestRepository pullRequestRepository,
+    UserRepository userRepository,
+    GithubApi githubApi,
+    UserService userService,
+    RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -189,7 +191,7 @@ public class PullRequestService {
   public void assignPullRequest(User user, Integer pullRequestId) {
     PullRequest pullRequest = pullRequestRepository
       .findById(pullRequestId)
-      .orElseThrow(() -> new NotFoundException("No pullRequest found with id " + pullRequestId));
+      .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
 
     if (isUserUnknown(user)) {
       throw new NotFoundException("Cannot assign unknown user " + user.username + " to a pullRequest.");
@@ -198,6 +200,22 @@ public class PullRequestService {
     githubApi.assignUserToPullRequest(user, pullRequest);
     pullRequest.assignedAt = ZonedDateTime.now();
     pullRequest.assignee = user;
+    pullRequestRepository.save(pullRequest);
+  }
+
+  public void unassignPullRequest(User user, Integer pullRequestId) {
+    PullRequest pullRequest = pullRequestRepository
+      .findById(pullRequestId)
+      .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
+
+    if (isUserUnknown(user)) {
+      throw new NotFoundException("Cannot unassign unknown user " + user.username + " from a pullRequest.");
+    }
+
+    githubApi.unassignUserFromPullRequest(user, pullRequest);
+
+    pullRequest.assignedAt = null;
+    pullRequest.assignee = null;
     pullRequestRepository.save(pullRequest);
   }
 
