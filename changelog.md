@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [bug] Fixed bug when using repo watchlist feature
  - [refactor] better error propagation to the frontend
  - [feature] configurable repository watchlist
  - [bug] make repos inactive instead of deleting them
@@ -35,5 +36,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 23 16:48:58 CET 2015
+-- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Tue Mar 24 10:24:30 CET 2015
 
