@@ -5,14 +5,14 @@ import java.time.Instant;
 import java.util.Optional;
 
 /**
- * Response to a request that has fetched the details of ONE single pullrequest from GitHub API.
+ * Response to a request that has fetched the details of ONE single pull request from GitHub API.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
-public class GithubPullrequestResponse extends AbstractGithubResponse<Optional<PullRequest>> {
+public class GithubPullerRequestResponse extends AbstractGithubResponse<Optional<PullRequest>> {
 
-  public GithubPullrequestResponse(
+  public GithubPullerRequestResponse(
       Optional<PullRequest> payload,
       Instant nextFetch,
       Optional<String> etagHeader) {

@@ -63,7 +63,7 @@ public class PullRequestAssigneeWatcher {
           thread = pullRequestAssigneeWatchThreadProducer.createThread(pullRequest);
           activeWatchers.put(pullRequest.id, thread);
           taskScheduler.schedule(thread, Date.from(Instant.now()));
-          logger.debug("started assignee watcher for pullrequest " + pullRequest + " thread: " + this);
+          logger.debug("started assignee watcher for pull request " + pullRequest + " thread: " + this);
         }
       }
     }
@@ -80,7 +80,7 @@ public class PullRequestAssigneeWatcher {
 
     if (watcherToStop != null) {
       watcherToStop.pleaseStop();
-      logger.debug("stopped assignee watcher for pullrequest " + pullRequest);
+      logger.debug("stopped assignee watcher for pull request " + pullRequest);
     }
   }
 }

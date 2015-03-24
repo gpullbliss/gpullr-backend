@@ -95,13 +95,13 @@ public class GithubApi {
    * @param etagHeader
    * @return response object containing the actual pull request plus response meta data required for next request
    */
-  public GithubPullrequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
+  public GithubPullerRequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestDetailsRequest req = new GetPullRequestDetailsRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
 
     try {
-      Optional<PullRequest> fetchedPullRequest = handleResponse(resp, jo -> parsePullRequestPayload(jo));
-      return new GithubPullrequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
+      Optional<PullRequest> fetchedPullRequest = handleResponse(resp, this::parsePullRequestPayload);
+      return new GithubPullerRequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -190,7 +190,7 @@ public class GithubApi {
       pullRequest.closedAt = ZonedDateTime.parse(pullRequestJson.getString(FIELD_KEY_MERGED_AT));
       logger.debug("parsed merged-date of PR event: {} in pr {}", pullRequest.closedAt, pullRequest.url);
     } else {
-      logger.debug("Neither close-date nor merged-date found in pullrequest payload of " + pullRequest.url);
+      logger.debug("Neither close-date nor merged-date found in pull request payload of " + pullRequest.url);
     }
 
     return pullRequest;

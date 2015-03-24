@@ -60,7 +60,7 @@ public class PullRequestAssigneeWatchThreadUnitTest {
 
   private PullRequestAssigneeWatchThread pullRequestAssigneeWatchThread;
 
-  private GithubPullrequestResponse githubPullrequestResponse;
+  private GithubPullerRequestResponse githubPullerRequestResponse;
 
   private Optional<String> emptyEtagHeader;
 
@@ -73,12 +73,12 @@ public class PullRequestAssigneeWatchThreadUnitTest {
     pullRequest = new PullRequest();
     pullRequest.id = PULLREQUEST_ID;
     pullRequest.repo = repo;
-    githubPullrequestResponse = new GithubPullrequestResponse(
+    githubPullerRequestResponse = new GithubPullerRequestResponse(
         Optional.of(pullRequest),
         Instant.now().plusSeconds(60),
         nonEmptyEtagHeader);
-    when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullrequestResponse);
-    when(githubApi.fetchPullRequest(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullrequestResponse);
+    when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullerRequestResponse);
+    when(githubApi.fetchPullRequest(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullerRequestResponse);
     when(pullRequestService.findById(PULLREQUEST_ID)).thenReturn(Optional.of(pullRequest));
     pullRequestAssigneeWatchThread = new PullRequestAssigneeWatchThread(pullRequest.id, taskScheduler, githubApi,
         pullRequestService);
