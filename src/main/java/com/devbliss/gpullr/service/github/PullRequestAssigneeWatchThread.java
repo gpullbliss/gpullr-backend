@@ -57,7 +57,7 @@ public class PullRequestAssigneeWatchThread extends Thread {
       .ifPresent(pr -> handleResponse(githubApi.fetchPullRequest(pr, etagHeader)));
   }
 
-  private void handleResponse(GithubPullerRequestResponse resp) {
+  private void handleResponse(GithubPullRequestResponse resp) {
     resp.payload.ifPresent(pullRequestService::insertOrUpdate);
 
     if (!stopped) {

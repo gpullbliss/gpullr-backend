@@ -10,9 +10,9 @@ import java.util.Optional;
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
-public class GithubPullerRequestResponse extends AbstractGithubResponse<Optional<PullRequest>> {
+public class GithubPullRequestResponse extends AbstractGithubResponse<Optional<PullRequest>> {
 
-  public GithubPullerRequestResponse(
+  public GithubPullRequestResponse(
       Optional<PullRequest> payload,
       Instant nextFetch,
       Optional<String> etagHeader) {

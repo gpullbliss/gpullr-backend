@@ -95,13 +95,13 @@ public class GithubApi {
    * @param etagHeader
    * @return response object containing the actual pull request plus response meta data required for next request
    */
-  public GithubPullerRequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
+  public GithubPullRequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestDetailsRequest req = new GetPullRequestDetailsRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
 
     try {
       Optional<PullRequest> fetchedPullRequest = handleResponse(resp, this::parsePullRequestPayload);
-      return new GithubPullerRequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
+      return new GithubPullRequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
