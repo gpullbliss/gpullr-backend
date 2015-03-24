@@ -212,8 +212,7 @@ public class PullRequestService {
 
     githubApi.unassignUserFromPullRequest(user, pullRequest);
 
-    // TODO: what to do with assignedAt? update it, set to null or leave as is?
-//    pullRequest.assignedAt = ZonedDateTime.now();
+    pullRequest.assignedAt = null;
     pullRequest.assignee = null;
     pullRequestRepository.save(pullRequest);
   }
