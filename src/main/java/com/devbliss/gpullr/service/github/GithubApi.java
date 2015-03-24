@@ -146,7 +146,12 @@ public class GithubApi {
   }
 
   private User parseUser(JsonObject userJson) {
-    return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"), userJson.getString("avatar_url"));
+    return new User(
+        userJson.getInt(FIELD_KEY_ID),
+        userJson.getString("login"),
+        userJson.getString(FIELD_KEY_NAME),
+        userJson.getString("avatar_url")
+    );
   }
 
   private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {

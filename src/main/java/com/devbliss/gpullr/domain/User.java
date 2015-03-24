@@ -26,6 +26,8 @@ public class User {
   @Column(unique = true)
   public String username;
 
+  public String fullName;
+
   public String avatarUrl;
 
   public Boolean canLogin = false;
@@ -40,17 +42,18 @@ public class User {
 
   public User() {}
 
-  public User(Integer id, String username, String avatarUrl) {
-    this(id, username, avatarUrl, false, null);
+  public User(Integer id, String username, String fullName, String avatarUrl) {
+    this(id, username, fullName, avatarUrl, false, null);
   }
 
-  public User(Integer id, String username, String avatarUrl, boolean canLogin) {
-    this(id, username, avatarUrl, canLogin, null);
+  public User(Integer id, String username, String fullName, String avatarUrl, boolean canLogin) {
+    this(id, username, fullName, avatarUrl, canLogin, null);
   }
 
-  public User(Integer id, String username, String avatarUrl, Boolean canLogin, UserSettings userSettings) {
+  public User(Integer id, String username, String fullName, String avatarUrl, Boolean canLogin, UserSettings userSettings) {
     this.id = id;
     this.username = username;
+    this.fullName = fullName;
     this.avatarUrl = avatarUrl;
     this.canLogin = canLogin;
     this.userSettings = userSettings;
@@ -61,6 +64,7 @@ public class User {
     return "User{" +
         "id=" + id +
         ", username='" + username + '\'' +
+        ", fullName='" + fullName + '\'' +
         ", avatarUrl='" + avatarUrl + '\'' +
         ", canLogin=" + canLogin +
         '}';

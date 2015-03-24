@@ -52,6 +52,10 @@ public class PullRequestServiceTest {
 
   private static final String USER_NAME_2 = USER_NAME + "_2";
 
+  private static final String FULL_NAME = "Test User";
+
+  private static final String FULL_NAME_2 = FULL_NAME + " 2";
+
   private static final String AVATAR = "0815.jpg";
 
   private static final String AVATAR_2 = "what.ever.jpg";
@@ -185,7 +189,7 @@ public class PullRequestServiceTest {
     closedPullRequest.repo = repoRepository.save(new Repo(repo4Id, "Another Repo", ""));
     prService.insertOrUpdate(closedPullRequest);
 
-    // expecting to retrieve three pullrequests:
+    // expecting to retrieve three pull requests:
     List<PullRequest> pullRequests = prService.findAllOpen(repo2Title,
       Integer.toString(repo1Id),
       repo3Title,
@@ -199,7 +203,7 @@ public class PullRequestServiceTest {
   @Test(expected = NotFoundException.class)
   public void findAllOpenPullRequestsByIdsOrNamesFailsOnUnknownRepoId() {
 
-    // create one pullrequest and a repo:
+    // create one pull request and a repo:
     final int repoId = 99;
     PullRequest openPullRequest = new PullRequest();
     openPullRequest.id = PR_ID + 7;
@@ -215,7 +219,7 @@ public class PullRequestServiceTest {
 
   @Test(expected = NotFoundException.class)
   public void findAllOpenPullRequestsByIdsOrNamesFailsOnUnknownRepoTitle() {
-    // create one pullrequest and a repo:
+    // create one pull request and a repo:
     final String repoTitle = "My Cool Repo";
     PullRequest openPullRequest = new PullRequest();
     openPullRequest.id = PR_ID + 8;
@@ -301,7 +305,7 @@ public class PullRequestServiceTest {
     prService.insertOrUpdate(pullRequest);
 
     // assign to an existing user:
-    User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
+    User assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2);
     userRepository.save(assignee);
     prService.assignPullRequest(assignee, pullRequest.id);
 
@@ -324,7 +328,7 @@ public class PullRequestServiceTest {
     prService.insertOrUpdate(pullRequest);
 
     // assign to a non existing user:
-    User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
+    User assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2);
     prService.assignPullRequest(assignee, pullRequest.id);
   }
 
@@ -363,7 +367,7 @@ public class PullRequestServiceTest {
   }
 
   private User initUser() {
-    User prOwner = new User(USER_ID, USER_NAME, AVATAR);
+    User prOwner = new User(USER_ID, USER_NAME, FULL_NAME, AVATAR);
     return userRepository.save(prOwner);
   }
 }
