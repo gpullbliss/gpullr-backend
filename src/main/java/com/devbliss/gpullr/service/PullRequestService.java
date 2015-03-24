@@ -60,11 +60,11 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-      PullRequestRepository pullRequestRepository,
-      UserRepository userRepository,
-      GithubApi githubApi,
-      UserService userService,
-      RepoRepository repoRepository) {
+    PullRequestRepository pullRequestRepository,
+    UserRepository userRepository,
+    GithubApi githubApi,
+    UserService userService,
+    RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -198,6 +198,23 @@ public class PullRequestService {
     githubApi.assignUserToPullRequest(user, pullRequest);
     pullRequest.assignedAt = ZonedDateTime.now();
     pullRequest.assignee = user;
+    pullRequestRepository.save(pullRequest);
+  }
+
+  public void unassignPullRequest(User user, Integer pullRequestId) {
+    PullRequest pullRequest = pullRequestRepository
+      .findById(pullRequestId)
+      .orElseThrow(() -> new NotFoundException("No pullRequest found with id " + pullRequestId));
+
+    if (isUserUnknown(user)) {
+      throw new NotFoundException("Cannot unassign unknown user " + user.username + " from a pullRequest.");
+    }
+
+    githubApi.unassignUserFromPullRequest(user, pullRequest);
+
+    // TODO: what to do with assignedAt? update it, set to null or leave as is?
+//    pullRequest.assignedAt = ZonedDateTime.now();
+    pullRequest.assignee = null;
     pullRequestRepository.save(pullRequest);
   }
 

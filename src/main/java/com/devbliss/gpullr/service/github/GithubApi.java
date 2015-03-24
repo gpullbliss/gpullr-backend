@@ -145,6 +145,23 @@ public class GithubApi {
     }
   }
 
+  public void unassignUserFromPullRequest(User user, PullRequest pull) {
+    JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, null).build();
+    final String uri = "/repos/devbliss/" + pull.repo.name + "/issues/" + pull.number;
+
+    try {
+      Request req = client.entry()
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
+
+      req.fetch();
+
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    }
+  }
+
   private User parseUser(JsonObject userJson) {
     return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"), userJson.getString("avatar_url"));
   }
