@@ -42,10 +42,16 @@ public class User {
 
   public User() {}
 
+  public User(Integer id, String username) {
+    this(id, username, null, null, false, null);
+  }
+
+  // TODO (Michael Diodone 2015-03-25): wird der noch gebraucht?
   public User(Integer id, String username, String fullName, String avatarUrl) {
     this(id, username, fullName, avatarUrl, false, null);
   }
 
+  // TODO (Michael Diodone 2015-03-25): entfernen weil nur noch in test benutzt?
   public User(Integer id, String username, String fullName, String avatarUrl, boolean canLogin) {
     this(id, username, fullName, avatarUrl, canLogin, null);
   }

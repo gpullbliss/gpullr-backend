@@ -125,6 +125,8 @@ public class GithubApi {
   }
 
   public List<User> fetchAllOrgaMembers() throws IOException {
+    // TODO (Michael Diodone 2015-03-25): extra methode für user details holen und user.fullName + avatarUrl setzen (diese benutzt this::parseUser)
+    // außerdem user.canLogin = true; hier rein ziehen aus GithubUserFetcher::handleUser
     return loadAllPages("/orgs/devbliss/members", this::parseUser);
   }
 
@@ -145,7 +147,19 @@ public class GithubApi {
     }
   }
 
+  // TODO (Michael Diodone 2015-03-25): nur id und username übergeben und getUserReferenceFromJson
   private User parseUser(JsonObject userJson) {
+    logger.debug(userJson.toString());
+//    User user = new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"));
+    // TODO (Michael Diodone 2015-03-25): anreichern über api call
+    GetUserDetailsRequest req = new GetUserDetailsRequest(userJson.getString("url"));
+    GithubHttpResponse resp = githubClient.execute(req);
+    User detailUser = handleResponse(resp, this::getUserDetails); // TODO (Michael Diodone new method):
+
+    return detailUser;
+  }
+
+  private User getUserDetails(JsonObject userJson) {
     return new User(
         userJson.getInt(FIELD_KEY_ID),
         userJson.getString("login"),

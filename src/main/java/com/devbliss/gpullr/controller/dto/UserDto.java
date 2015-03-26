@@ -9,6 +9,8 @@ public class UserDto {
 
   public String username;
 
+  public String fullName;
+
   public String avatarUrl;
 
   public UserSettingsDto userSettingsDto;
