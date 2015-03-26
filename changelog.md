@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [refactor] H2 mixed mode
  - [feature] unassign myself from pull request
  - [bug] Fixed bug when using repo watchlist feature
  - [refactor] better error propagation to the frontend
@@ -37,5 +38,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Tue Mar 24 15:07:44 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Mar 26 13:25:29 CET 2015
 
