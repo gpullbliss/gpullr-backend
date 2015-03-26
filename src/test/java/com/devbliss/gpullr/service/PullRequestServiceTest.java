@@ -60,6 +60,8 @@ public class PullRequestServiceTest {
 
   private static final int PR_ID = 1;
 
+  private static final int BLACKLISTED_REPO_ID = 501231;
+
   private static final int OLD_PR_ID = 2;
 
   @Autowired
@@ -268,7 +270,7 @@ public class PullRequestServiceTest {
   @Test
   public void regardsUserBlacklist() {
     User user = initUser();
-    user.userSettings = new UserSettings(UserSettings.OrderOption.DESC, Arrays.asList(testPr.repo.id));
+    user.userSettings = new UserSettings(UserSettings.OrderOption.DESC, Arrays.asList(BLACKLISTED_REPO_ID));
     userService.insertOrUpdate(user);
     userService.login(user.id);
     userService.updateUserSession(user);
@@ -278,7 +280,7 @@ public class PullRequestServiceTest {
 
     // create pr that will _not_ be filtered
     testPr.id = 500000;
-    testPr.repo = initRepo(500, "another repo");
+    testPr.repo = initRepo(BLACKLISTED_REPO_ID, "another repo");
     prService.insertOrUpdate(testPr);
 
     List<PullRequest> allOpen = prService.findAllOpen();
@@ -324,6 +326,40 @@ public class PullRequestServiceTest {
     // assign to a non existing user:
     User assignee = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
     prService.assignPullRequest(assignee, pullRequest.id);
+  }
+
+  @Test
+  public void unassignPullRequest() {
+    // create new PR w/o owner:
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 3121;
+    pullRequest.repo = testPr.repo;
+    pullRequest.state = State.OPEN;
+    pullRequest.author = testPr.author;
+    pullRequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullRequest);
+
+    // assign to an existing user:
+    User assignee = new User(USER_ID + 4564, USER_NAME_2, AVATAR_2);
+    userRepository.save(assignee);
+    prService.assignPullRequest(assignee, pullRequest.id);
+    prService.unassignPullRequest(assignee, pullRequest.id);
+
+    // verify GitHub-API is called:
+    verify(githubApi).unassignUserFromPullRequest(assignee, pullRequest);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void unassignUnkownPullRequestFails() {
+    User user = new User(USER_ID, USER_NAME_2, AVATAR_2);
+
+    prService.unassignPullRequest(user, 1);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void unassignUnkownUserFails() {
+    User user = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
+    prService.unassignPullRequest(user, PR_ID);
   }
 
   @Test

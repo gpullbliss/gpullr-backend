@@ -56,9 +56,9 @@ public class RepoService {
 
     repos.stream().filter(r -> !existingRepos.contains(r)).forEach(r -> {
       LOGGER.info("Firing repo created event for new repo '{}'", r.name);
+      repoRepository.save(r);
       applicationContext.publishEvent(new RepoCreatedEvent(this, r));
     });
-    repoRepository.save(repos);
   }
 
   public List<Repo> findAllActive() {

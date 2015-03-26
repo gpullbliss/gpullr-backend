@@ -72,4 +72,10 @@ public class PullRequestController {
     pullRequestService.assignPullRequest(userService.whoAmI(), pullRequestId);
   }
 
+  @RequestMapping(method = RequestMethod.PUT, value = "/{pullRequestId}")
+  @ResponseStatus(value = HttpStatus.NO_CONTENT)
+  public void unassignPullRequest(@PathVariable @NotNull Integer pullRequestId) {
+    pullRequestService.unassignPullRequest(userService.whoAmI(), pullRequestId);
+  }
+
 }
