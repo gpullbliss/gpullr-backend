@@ -5,6 +5,7 @@ import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.devbliss.gpullr.util.http.GithubHttpClient;
@@ -64,6 +65,7 @@ public class GithubApi {
   private static final String FIELD_KEY_MERGED_AT = "merged_at";
 
   private static final String ERR_MSG_RESPONSE = "Request to '%s' returned unexpected status code: %d.";
+  public static final String FIELD_KEY_LOGIN = "login";
 
   @Log
   private Logger logger;
@@ -125,9 +127,7 @@ public class GithubApi {
   }
 
   public List<User> fetchAllOrgaMembers() throws IOException {
-    // TODO (Michael Diodone 2015-03-25): extra methode für user details holen und user.fullName + avatarUrl setzen (diese benutzt this::parseUser)
-    // außerdem user.canLogin = true; hier rein ziehen aus GithubUserFetcher::handleUser
-    return loadAllPages("/orgs/devbliss/members", this::parseUser);
+    return loadAllPages("/orgs/devbliss/members", this::getUserWithDetailsFromJson);
   }
 
   public void assignUserToPullRequest(User user, PullRequest pull) {
@@ -136,9 +136,9 @@ public class GithubApi {
 
     try {
       Request req = client.entry()
-        .method(Request.PATCH).body().set(json)
-        .back().uri().path(uri)
-        .back();
+          .method(Request.PATCH).body().set(json)
+          .back().uri().path(uri)
+          .back();
 
       req.fetch();
 
@@ -147,23 +147,29 @@ public class GithubApi {
     }
   }
 
-  // TODO (Michael Diodone 2015-03-25): nur id und username übergeben und getUserReferenceFromJson
   private User parseUser(JsonObject userJson) {
     logger.debug(userJson.toString());
-//    User user = new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"));
-    // TODO (Michael Diodone 2015-03-25): anreichern über api call
-    GetUserDetailsRequest req = new GetUserDetailsRequest(userJson.getString("url"));
-    GithubHttpResponse resp = githubClient.execute(req);
-    User detailUser = handleResponse(resp, this::getUserDetails); // TODO (Michael Diodone new method):
-
-    return detailUser;
+    return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString(FIELD_KEY_LOGIN));
   }
 
-  private User getUserDetails(JsonObject userJson) {
+  private User getUserWithDetailsFromJson(JsonObject userJson) {
+    GetUserDetailsRequest req = new GetUserDetailsRequest(userJson.getString("url"));
+    GithubHttpResponse resp = githubClient.execute(req);
+    try {
+      Optional<User> user = handleResponse(resp, this::parseUserDetails);
+      return user.orElseThrow(() -> new UnexpectedException(
+          "User details could not be found for user '" + userJson.getString("FIELD_KEY_LOGIN") + "'."));
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    }
+  }
+
+  private User parseUserDetails(JsonObject userJson) {
+    logger.debug(userJson.toString());
     return new User(
         userJson.getInt(FIELD_KEY_ID),
-        userJson.getString("login"),
-        userJson.getString(FIELD_KEY_NAME),
+        userJson.getString(FIELD_KEY_LOGIN),
+        userJson.getString(FIELD_KEY_NAME, ""),
         userJson.getString("avatar_url")
     );
   }
@@ -289,9 +295,9 @@ public class GithubApi {
 
     try {
       return resp.jsonObjects.get()
-        .stream()
-        .map(mapper)
-        .collect(Collectors.toList());
+          .stream()
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -303,12 +309,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-        .readArray()
-        .stream()
-        .filter(v -> v.getValueType() == ValueType.OBJECT)
-        .map(v -> (JsonObject) v)
-        .map(mapper)
-        .collect(Collectors.toList());
+          .readArray()
+          .stream()
+          .filter(v -> v.getValueType() == ValueType.OBJECT)
+          .map(v -> (JsonObject) v)
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }

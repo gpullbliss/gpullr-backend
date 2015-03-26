@@ -1,11 +1,13 @@
 package com.devbliss.gpullr.service.github;
 
+import java.util.Optional;
+
 public class GetUserDetailsRequest extends AbstractGithubRequest {
 
   private final String userDetailsUrl;
 
   public GetUserDetailsRequest(String userDetailsUrl) {
-    super(null);
+    super(Optional.empty());
     this.userDetailsUrl = userDetailsUrl;
   }
 
