@@ -2,6 +2,9 @@ package com.devbliss.gpullr.service.github;
 
 import java.util.Optional;
 
+/**
+ * Fetches user details from eg. https://api.github.com/users/octocat
+ */
 public class GetUserDetailsRequest extends AbstractGithubRequest {
 
   private final String userDetailsUrl;
