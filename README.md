@@ -8,6 +8,8 @@ pullrequest administration tool - backend
  -  [Updating schema.sql] (#updating-schema)
  -  [Jenkins] (#jenkins)
 - [Deployment] (#deployment)
+ - [Running the application] (#running-the-application)
+ - [Profiles] (#profiles)
 - [Technologies] (#technologies)
 
 # Introduction
@@ -48,7 +50,15 @@ Make sure to rename `schema.sql` to any other name before temporarily switching 
 [Jenkins view] (http://jenkins.devbliss.com/view/gPullR)
 
 # Deployment
-The `build.gradle` is configured to build a fatJar, when executing `gradle build` (or `./gradlew build`). This jar is all you need to deploy gpullR backend. You can run it, executing `java -jar gpullr-backend-{version}.jar`.
+## Running the application
+The `build.gradle` is configured to build a fatJar, when executing `gradle build` (or `./gradlew build`). This jar is all you need to deploy gpullR backend. You can run it, executing `java -jar gpullr-backend-{version}.jar -Dspring.profiles.active={profile} -Xms64m -Xmx256m`.
+
+## Profiles
+The application supports several profiles, which are supposed to ease the handling of different environments. Supported profiles are:
+
+* test
+* dev
+* prod
 
 # Technologies
 The project depends on the following key technologies:
