@@ -7,6 +7,7 @@ pullrequest administration tool - backend
  -  [Login using CURL] (#login-using-curl)
  -  [Updating schema.sql] (#updating-schema)
  -  [Jenkins] (#jenkins)
+- [Deployment] (#deployment)
 - [Technologies] (#technologies)
 
 # Introduction
@@ -45,6 +46,9 @@ Make sure to rename `schema.sql` to any other name before temporarily switching 
 
 ## Jenkins
 [Jenkins view] (http://jenkins.devbliss.com/view/gPullR)
+
+# Deployment
+The `build.gradle` is configured to build a fatJar, when executing `gradle build` (or `./gradlew build`). This jar is all you need to deploy gpullR backend. You can run it, executing `java -jar gpullr-backend-{version}.jar`.
 
 # Technologies
 The project depends on the following key technologies:
