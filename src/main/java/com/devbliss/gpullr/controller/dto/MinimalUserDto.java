@@ -7,4 +7,6 @@ public class MinimalUserDto {
   public String username;
 
   public String avatarUrl;
+  
+  public String fullName;
 }

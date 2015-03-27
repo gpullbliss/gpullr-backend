@@ -64,11 +64,6 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
     }
   }
 
-  /**
-   * Adds new repo to the fetching loop.
-   * 
-   * @param repo
-   */
   @Override
   public void onApplicationEvent(RepoCreatedEvent event) {
     logger.debug("Added new repo to fetch events loop: " + event.createdRepo.name);

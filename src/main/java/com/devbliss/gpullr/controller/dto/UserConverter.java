@@ -22,10 +22,12 @@ public class UserConverter {
   }
 
   public UserDto toDto(User entity) {
+
     UserDto dto = new UserDto();
     dto.id = entity.id;
     dto.username = entity.username;
     dto.avatarUrl = entity.avatarUrl;
+    dto.fullName = entity.fullName;
 
     if (entity.userSettings != null) {
       dto.userSettingsDto = userSettingsConverter.toDto(entity.userSettings);
