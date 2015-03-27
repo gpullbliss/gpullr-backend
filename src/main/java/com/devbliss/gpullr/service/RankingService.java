@@ -1,6 +1,5 @@
 package com.devbliss.gpullr.service;
 
-import com.devbliss.gpullr.domain.MinimalUser;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
@@ -107,7 +106,7 @@ public class RankingService {
       rankings.put(numberOfMergedPullRequests, ranking);
     }
 
-    ranking.users.add(new MinimalUser(user.username, user.avatarUrl));
+    ranking.users.add(user);
   }
 
   private long getRanking(User user, RankingScope rankingScope) {
