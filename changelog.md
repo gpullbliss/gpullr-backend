@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] Added User.fullName
  - [refactor] readme
  - [refactor] H2 mixed mode
  - [feature] unassign myself from pull request
@@ -39,5 +40,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Fri Mar 27 09:22:41 CET 2015
+-- Last change by: Michael Diodone <michael.diodone@devbliss.com> Fri Mar 27 13:29:27 CET 2015
 

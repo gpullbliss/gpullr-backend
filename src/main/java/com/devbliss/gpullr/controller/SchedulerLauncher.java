@@ -1,6 +1,5 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.service.github.PullRequestAssigneeWatcher;
 import java.time.Instant;
 import java.util.Date;
 import javax.annotation.PostConstruct;
@@ -32,9 +31,6 @@ public class SchedulerLauncher {
 
   @Autowired
   private GithubUserFetcher githubUserFetcher;
-
-  @Autowired
-  private PullRequestAssigneeWatcher pullrequestAssigneeWatcher;
 
   @Autowired
   private RankingRecalculator rankingRecalculator;

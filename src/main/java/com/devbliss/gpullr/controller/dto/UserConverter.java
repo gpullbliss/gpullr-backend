@@ -17,6 +17,7 @@ public class UserConverter {
     UserDto userDto = new UserDto();
     userDto.id = entity.id;
     userDto.username = entity.username;
+    userDto.fullName = entity.fullName;
     userDto.avatarUrl = entity.avatarUrl;
 
     if (entity.userSettings != null) {

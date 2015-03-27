@@ -45,6 +45,8 @@ public class GithubApi {
 
   private static final String FIELD_KEY_ID = "id";
 
+  public static final String FIELD_KEY_LOGIN = "login";
+
   private static final String HEADER_MARKER_MORE_PAGES = "next";
 
   private static final String FIELD_KEY_NAME = "name";
@@ -95,13 +97,13 @@ public class GithubApi {
    * @param etagHeader
    * @return response object containing the actual pull request plus response meta data required for next request
    */
-  public GithubPullrequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
+  public GithubPullRequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestDetailsRequest req = new GetPullRequestDetailsRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
 
     try {
-      Optional<PullRequest> fetchedPullRequest = handleResponse(resp, jo -> parsePullRequestPayload(jo));
-      return new GithubPullrequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
+      Optional<PullRequest> fetchedPullRequest = handleResponse(resp, this::parsePullRequestPayload);
+      return new GithubPullRequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -125,7 +127,7 @@ public class GithubApi {
   }
 
   public List<User> fetchAllOrgaMembers() throws IOException {
-    return loadAllPages("/orgs/devbliss/members", this::parseUser);
+    return loadAllPages("/orgs/devbliss/members", this::getUserWithDetailsFromJson);
   }
 
   public void assignUserToPullRequest(User user, PullRequest pull) {
@@ -151,9 +153,9 @@ public class GithubApi {
 
     try {
       Request req = client.entry()
-        .method(Request.PATCH).body().set(json)
-        .back().uri().path(uri)
-        .back();
+          .method(Request.PATCH).body().set(json)
+          .back().uri().path(uri)
+          .back();
 
       req.fetch();
 
@@ -163,7 +165,28 @@ public class GithubApi {
   }
 
   private User parseUser(JsonObject userJson) {
-    return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString("login"), userJson.getString("avatar_url"));
+    return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString(FIELD_KEY_LOGIN));
+  }
+
+  private User getUserWithDetailsFromJson(JsonObject userJson) {
+    GetUserDetailsRequest req = new GetUserDetailsRequest(userJson.getString("url"));
+    GithubHttpResponse resp = githubClient.execute(req);
+    try {
+      Optional<User> user = handleResponse(resp, this::parseUserDetails);
+      return user.orElseThrow(() -> new UnexpectedException(
+          "User details could not be found for user '" + userJson.getString(FIELD_KEY_LOGIN) + "'."));
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    }
+  }
+
+  private User parseUserDetails(JsonObject userJson) {
+    return new User(
+        userJson.getInt(FIELD_KEY_ID),
+        userJson.getString(FIELD_KEY_LOGIN),
+        userJson.getString(FIELD_KEY_NAME, ""),
+        userJson.getString("avatar_url")
+    );
   }
 
   private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
@@ -207,7 +230,7 @@ public class GithubApi {
       pullRequest.closedAt = ZonedDateTime.parse(pullRequestJson.getString(FIELD_KEY_MERGED_AT));
       logger.debug("parsed merged-date of PR event: {} in pr {}", pullRequest.closedAt, pullRequest.url);
     } else {
-      logger.debug("Neither close-date nor merged-date found in pullrequest payload of " + pullRequest.url);
+      logger.debug("Neither close-date nor merged-date found in pull request payload of " + pullRequest.url);
     }
 
     return pullRequest;
@@ -287,9 +310,9 @@ public class GithubApi {
 
     try {
       return resp.jsonObjects.get()
-        .stream()
-        .map(mapper)
-        .collect(Collectors.toList());
+          .stream()
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -301,12 +324,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-        .readArray()
-        .stream()
-        .filter(v -> v.getValueType() == ValueType.OBJECT)
-        .map(v -> (JsonObject) v)
-        .map(mapper)
-        .collect(Collectors.toList());
+          .readArray()
+          .stream()
+          .filter(v -> v.getValueType() == ValueType.OBJECT)
+          .map(v -> (JsonObject) v)
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }

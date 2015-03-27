@@ -244,17 +244,17 @@ public class PullRequestService {
 
     if (update.assignee == null) {
       update.assignee = existing.assignee;
-      LOGGER.debug("kept existing assignee {} from database for pullrequest {}", existing.assignee, existing);
+      LOGGER.debug("kept existing assignee {} from database for pull request {}", existing.assignee, existing);
     }
 
     if (update.assignedAt == null) {
       update.assignedAt = existing.assignedAt;
-      LOGGER.debug("kept existing assignedAt '{}' from database for pullrequest {}", existing.assignedAt, existing);
+      LOGGER.debug("kept existing assignedAt '{}' from database for pull request {}", existing.assignedAt, existing);
     }
 
     if (update.closedAt == null) {
       update.closedAt = existing.closedAt;
-      LOGGER.debug("kept existing closedAt '{}' from database for pullrequest {}", existing.closedAt, existing);
+      LOGGER.debug("kept existing closedAt '{}' from database for pull request {}", existing.closedAt, existing);
     }
 
     if (update.state == null) {
@@ -272,7 +272,7 @@ public class PullRequestService {
   private PullRequest ensureClosedAtIfClosed(PullRequest pullRequest) {
     if (pullRequest.state == State.CLOSED && pullRequest.closedAt == null) {
       pullRequest.closedAt = ZonedDateTime.now();
-      LOGGER.debug("Set current date as fallback closedAt for pullrequest " + pullRequest);
+      LOGGER.debug("Set current date as fallback closedAt for pull request " + pullRequest);
     }
 
     return pullRequest;

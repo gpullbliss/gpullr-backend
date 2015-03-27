@@ -35,6 +35,8 @@ public class UserServiceTest {
 
   private static final String AVATAR_URL = "http://jira.de";
 
+  private static final String FULL_NAME = "Anton aus Tirol";
+
   private static final String USERNAME = "antonaustirol";
 
   @Autowired
@@ -61,7 +63,7 @@ public class UserServiceTest {
     assertEquals(0, userService.findAll().size());
 
     // insert new user:
-    userService.insertOrUpdate(new User(ID, USERNAME, AVATAR_URL));
+    userService.insertOrUpdate(new User(ID, USERNAME, FULL_NAME, AVATAR_URL));
 
     // verify successful insert:
     List<User> users = userService.findAll();
@@ -73,8 +75,9 @@ public class UserServiceTest {
 
     // update user:
     final String updatedAvatarUrl = AVATAR_URL + "_/updated";
+    final String updatedFullName = FULL_NAME + " (genauer: St. Johann)";
     final String updatedUsername = USERNAME + "_fromAustria";
-    userService.insertOrUpdate(new User(ID, updatedUsername, updatedAvatarUrl));
+    userService.insertOrUpdate(new User(ID, updatedUsername, updatedFullName, updatedAvatarUrl));
 
     // verify update:
     users = userService.findAll();
@@ -88,13 +91,17 @@ public class UserServiceTest {
   @Test
   public void findAllOrgaMembers() {
     // create one user that is NOT allowed to login:
-    userService.insertOrUpdate(new User(ID, USERNAME, AVATAR_URL));
+    userService.insertOrUpdate(new User(ID, USERNAME, FULL_NAME, AVATAR_URL));
     User user = userRepository.findOne(ID);
     assertFalse(user.canLogin);
 
     // create three users that are allowed - with unsorted usernames:
     final List<String> usernames = Arrays.asList("lalala", "bla", "blubb");
-    usernames.forEach(u -> userService.insertOrUpdate(new User(u.length(), u, "", true)));
+    usernames.forEach(u -> {
+      User orgUser = new User(u.length(), u);
+      orgUser.canLogin = true;
+      userService.insertOrUpdate(orgUser);
+    });
 
     // verify the three allowed users are returned:
     List<User> orgaMembers = userService.findAllOrgaMembers();
@@ -111,20 +118,20 @@ public class UserServiceTest {
 
   @Test
   public void login() {
-    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, FULL_NAME, AVATAR_URL));
     userService.login(ID);
     assertNotNull(userSession.getUser());
   }
 
   @Test
   public void requireLoginWithoutException() {
-    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, FULL_NAME, AVATAR_URL));
     userService.requireLogin();
   }
 
   @Test
   public void whoAmIWorksFine() {
-    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, AVATAR_URL));
+    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, FULL_NAME, AVATAR_URL));
 
     User iam = userService.whoAmI();
     assertNotNull(iam);
@@ -144,19 +151,19 @@ public class UserServiceTest {
   @Test(expected = DataIntegrityViolationException.class)
   public void usernameUnique() {
     // create a user:
-    userService.insertOrUpdate(new User(ID, USERNAME, AVATAR_URL));
+    userService.insertOrUpdate(new User(ID, USERNAME, FULL_NAME, AVATAR_URL));
 
     // saving another user with same username but different id should fail:
-    userService.insertOrUpdate(new User(ID + 7, USERNAME, AVATAR_URL + "_blah"));
+    userService.insertOrUpdate(new User(ID + 7, USERNAME, FULL_NAME + " von Foo", AVATAR_URL + "_blah"));
   }
 
   @Test(expected = JpaSystemException.class)
   public void userNeedsId() {
-    userService.insertOrUpdate(new User(null, USERNAME, AVATAR_URL));
+    userService.insertOrUpdate(new User(null, USERNAME, FULL_NAME, AVATAR_URL));
   }
 
   @Test(expected = TransactionSystemException.class)
   public void userNeedsUsername() {
-    userService.insertOrUpdate(new User(ID, "", AVATAR_URL));
+    userService.insertOrUpdate(new User(ID, "", FULL_NAME, AVATAR_URL));
   }
 }
