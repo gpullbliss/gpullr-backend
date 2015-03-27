@@ -263,7 +263,7 @@ public class PullRequestServiceTest {
     allOpen = prService.findAllOpen();
     assertEquals(OLD_PR_ID, allOpen.get(0).id.intValue());
 
-    // after changing user preference to descneding order, the order changes again:
+    // after changing user preference to descending order, the order changes again:
     user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.DESC;
     userService.updateUserSettings(user.id, user.userSettings);
     userService.updateUserSession(user);
@@ -344,7 +344,7 @@ public class PullRequestServiceTest {
     prService.insertOrUpdate(pullRequest);
 
     // assign to an existing user:
-    User assignee = new User(USER_ID + 4564, USER_NAME_2, AVATAR_2);
+    User assignee = new User(USER_ID + 4564, USER_NAME_2);
     userRepository.save(assignee);
     prService.assignPullRequest(assignee, pullRequest.id);
     prService.unassignPullRequest(assignee, pullRequest.id);
@@ -354,15 +354,15 @@ public class PullRequestServiceTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void unassignUnkownPullRequestFails() {
-    User user = new User(USER_ID, USER_NAME_2, AVATAR_2);
+  public void unassignUnknownPullRequestFails() {
+    User user = new User(USER_ID, USER_NAME_2);
 
     prService.unassignPullRequest(user, 1);
   }
 
   @Test(expected = NotFoundException.class)
-  public void unassignUnkownUserFails() {
-    User user = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
+  public void unassignUnknownUserFails() {
+    User user = new User(USER_ID + 1, USER_NAME_2);
     prService.unassignPullRequest(user, PR_ID);
   }
 
