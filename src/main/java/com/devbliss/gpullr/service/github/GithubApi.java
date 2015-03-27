@@ -148,7 +148,6 @@ public class GithubApi {
   }
 
   private User parseUser(JsonObject userJson) {
-    logger.debug(userJson.toString());
     return new User(userJson.getInt(FIELD_KEY_ID), userJson.getString(FIELD_KEY_LOGIN));
   }
 
@@ -165,7 +164,6 @@ public class GithubApi {
   }
 
   private User parseUserDetails(JsonObject userJson) {
-    logger.debug(userJson.toString());
     return new User(
         userJson.getInt(FIELD_KEY_ID),
         userJson.getString(FIELD_KEY_LOGIN),
