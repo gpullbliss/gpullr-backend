@@ -1,5 +1,5 @@
 # gpullr-backend
-pullrequest administration tool - backend
+pull request administration tool - backend
 
 # Getting started
 

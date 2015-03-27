@@ -279,7 +279,7 @@ public class RankingServiceIntegrationTest {
   public void dontCalculateRankingsForUsersThatDontBelongToUs() {
     // create a user that is NOT part of our company:
     final int strangerId = 19;
-    User stranger = userRepository.save(new User(strangerId, "stranger"));
+    User stranger = createUser(strangerId, "stranger", false);
 
     createSomeClosedPullRequests();
 
