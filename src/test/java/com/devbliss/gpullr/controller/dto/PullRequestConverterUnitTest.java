@@ -17,7 +17,6 @@ import org.junit.Test;
  * Unittest for {@link PullRequestConverter}.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
- *
  */
 public class PullRequestConverterUnitTest {
 
@@ -67,7 +66,8 @@ public class PullRequestConverterUnitTest {
 
   private static final String ASSIGNEE_AVATAR_URL = "http://you.jpg";
 
-  private static final User ASSIGNEE = new User(ASSIGNEE_ID, ASSIGNEE_USERNAME, ASSIGNEE_FULL_NAME, ASSIGNEE_AVATAR_URL);
+  private static final User ASSIGNEE =
+      new User(ASSIGNEE_ID, ASSIGNEE_USERNAME, ASSIGNEE_FULL_NAME, ASSIGNEE_AVATAR_URL);
 
   private static final Integer NUMBER = 97;
 
