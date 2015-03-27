@@ -5,7 +5,6 @@ import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.Log;
 import com.devbliss.gpullr.util.http.GithubHttpClient;
@@ -46,6 +45,8 @@ public class GithubApi {
 
   private static final String FIELD_KEY_ID = "id";
 
+  public static final String FIELD_KEY_LOGIN = "login";
+
   private static final String HEADER_MARKER_MORE_PAGES = "next";
 
   private static final String FIELD_KEY_NAME = "name";
@@ -65,7 +66,6 @@ public class GithubApi {
   private static final String FIELD_KEY_MERGED_AT = "merged_at";
 
   private static final String ERR_MSG_RESPONSE = "Request to '%s' returned unexpected status code: %d.";
-  public static final String FIELD_KEY_LOGIN = "login";
 
   @Log
   private Logger logger;
@@ -158,7 +158,7 @@ public class GithubApi {
     try {
       Optional<User> user = handleResponse(resp, this::parseUserDetails);
       return user.orElseThrow(() -> new UnexpectedException(
-          "User details could not be found for user '" + userJson.getString("FIELD_KEY_LOGIN") + "'."));
+          "User details could not be found for user '" + userJson.getString(FIELD_KEY_LOGIN) + "'."));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
