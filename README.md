@@ -1,35 +1,25 @@
 # gpullr-backend
 pullrequest administration tool - backend
 
-The purpose of gpullR is to provide a handy tool, to visualize and organize pull requests and the process of code
-review. This project provides the backend and its underlying business logic. It stores data like all concerned users,
-repositories, pull requests and so on. The backend provides a RESTful interface for information exchange.
+The purpose of gpullR is to provide a handy tool for visualization and organization of pull requests and the process of code review. This project provides the backend and its underlying business logic. It stores data like all concerned users, repositories, pull requests and so on. The backend provides a RESTful interface for information exchange with the frontend(s).
 
 # Getting started
 
-## Gradle tasks
+### Gradle tasks
 To run the application, type
 `./gradlew run`
 
 To build the application, type
 `./gradlew build`
 
-## Technologies
-The project depends on the following key technologies:
-
-* [Spring Boot] (http://projects.spring.io/spring-boot/) (including web, jetty, actuator, data-jpa)
-* [Hibernate] (http://hibernate.org/)
-* [H2 Database Enging] (http://www.h2database.com/html/main.html)
-* [Apache HttpClient] (http://hc.apache.org/httpclient-3.x/) for communication with [Github] (https://github.com/)
-
-## Login using curl
-### login
+### Login using curl
+#### login
 curl -b cookies.txt -c cookies.txt -v -XPOST http://127.0.0.1:8888/users/login/95374
 
-### check session
+#### check session
 curl -b cookies.txt -c cookies.txt -v http://127.0.0.1:8888/users/me
 
-## Updating schema.sql
+### Updating schema.sql
 The application stores its local data in a file-based H2 database, accessed via JPA (Hibernate) through Spring Data
 JPA (see technologies).
 
@@ -45,6 +35,14 @@ Make sure to rename `schema.sql` to any other name before temporarily switching 
 `SCRIPT NODATA NOPASSWORDS NOSETTINGS TO '/tmp/schema-export-h2.sql' CHARSET 'UTF-8';`
 
  and copy-paste the relevant parts to `schema.sql`. Don't forget to deactivate generate-ddl afterwards again!
+
+## Technologies
+The project depends on the following key technologies:
+
+* [Spring Boot] (http://projects.spring.io/spring-boot/) (including web, jetty, actuator, data-jpa)
+* [Hibernate] (http://hibernate.org/)
+* [H2 Database Enging] (http://www.h2database.com/html/main.html)
+* [Apache HttpClient] (http://hc.apache.org/httpclient-3.x/) for communication with [Github] (https://github.com/)
 
 ## Jenkins
 [Jenkins view] (http://jenkins.devbliss.com/view/gPullR)
