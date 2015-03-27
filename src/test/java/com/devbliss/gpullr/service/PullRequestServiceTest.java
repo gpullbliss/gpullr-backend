@@ -333,6 +333,40 @@ public class PullRequestServiceTest {
   }
 
   @Test
+  public void unassignPullRequest() {
+    // create new PR w/o owner:
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 3121;
+    pullRequest.repo = testPr.repo;
+    pullRequest.state = State.OPEN;
+    pullRequest.author = testPr.author;
+    pullRequest.createdAt = ZonedDateTime.now();
+    prService.insertOrUpdate(pullRequest);
+
+    // assign to an existing user:
+    User assignee = new User(USER_ID + 4564, USER_NAME_2, AVATAR_2);
+    userRepository.save(assignee);
+    prService.assignPullRequest(assignee, pullRequest.id);
+    prService.unassignPullRequest(assignee, pullRequest.id);
+
+    // verify GitHub-API is called:
+    verify(githubApi).unassignUserFromPullRequest(assignee, pullRequest);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void unassignUnkownPullRequestFails() {
+    User user = new User(USER_ID, USER_NAME_2, AVATAR_2);
+
+    prService.unassignPullRequest(user, 1);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void unassignUnkownUserFails() {
+    User user = new User(USER_ID + 1, USER_NAME_2, AVATAR_2);
+    prService.unassignPullRequest(user, PR_ID);
+  }
+
+  @Test
   public void findById() {
     // create a pull request:
     PullRequest pullRequest = new PullRequest();
