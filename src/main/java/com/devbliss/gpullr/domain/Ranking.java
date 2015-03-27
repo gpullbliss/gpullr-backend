@@ -1,27 +1,33 @@
 package com.devbliss.gpullr.domain;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Embeddable;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
 
 @Embeddable
 public class Ranking {
 
-  @ManyToOne(optional = false)
-  public User user;
+  @ManyToMany
+  public List<User> users;
 
   @NotNull
   public Long closedCount;
+  
+  public Integer rank;
 
-  public Ranking() {}
+  public Ranking() {
+    users = new ArrayList<>();
+  }
 
-  public Ranking(User user, Long closedCount) {
-    this.user = user;
+  public Ranking(Long closedCount, List<User> users) {
+    this.users = users;
     this.closedCount = closedCount;
   }
 
   @Override
   public String toString() {
-    return "Ranking {username=" + user.username + ", closedCount=" + closedCount + "}";
+    return "Ranking {closedCount=" + closedCount + ", " + users + "}";
   }
 }

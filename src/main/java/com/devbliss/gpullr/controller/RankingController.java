@@ -38,11 +38,13 @@ public class RankingController {
   public ListDto<RankingDto> getRankingsForScope(
       @RequestParam(value = "rankingScope", required = true) String rankingScopeString) {
     RankingScope rankingScope = RankingScope.parse(rankingScopeString);
-    return new ListDto<>(rankingConverter.toDtoListWithRank(rankingService
+    return new ListDto<>(rankingService
       .findAllWithRankingScope(rankingScope)
       .orElse(new RankingList())
       .getRankings()
-      ));
+      .stream()
+      .map(r -> rankingConverter.toDto(r))
+      .collect(Collectors.toList()));
   }
 
   @RequestMapping(value = "/_debug", method = RequestMethod.GET)

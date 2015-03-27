@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.controller.dto;
 
 import com.devbliss.gpullr.domain.Ranking;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,30 +14,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class RankingConverter {
 
+  @Autowired
+  private UserConverter userConverter;
+
   public RankingDto toDto(Ranking entity) {
     RankingDto dto = new RankingDto();
-    dto.avatarUrl = entity.user.avatarUrl;
+    dto.rank = entity.rank;
     dto.closedCount = entity.closedCount;
-    dto.username = entity.user.username;
+    dto.users = entity.users.stream().map(u -> userConverter.toMinimalDto(u)).collect(Collectors.toList());
     return dto;
   }
 
-  /**
-   * Converts a list of {@link Ranking} entities to a list of {@link RankingDto}, and adds an ascending numeric 
-   * "rank" to each dto according to the order of the given entities list.
-   * 
-   * @param entities
-   * @return
-   */
-  public List<RankingDto> toDtoListWithRank(List<Ranking> entities) {
-    List<RankingDto> dtos = new ArrayList<>();
-
-    for (int rank = 0; rank < entities.size(); rank++) {
-      RankingDto dto = toDto(entities.get(rank));
-      dto.rank = rank + 1;
-      dtos.add(dto);
-    }
-
-    return dtos;
-  }
 }

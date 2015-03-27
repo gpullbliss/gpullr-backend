@@ -1,12 +1,12 @@
 package com.devbliss.gpullr.controller.dto;
 
+import java.util.List;
+
 public class RankingDto {
-  
+
   public int rank;
-  
-  public String username;
-  
+
   public long closedCount;
-  
-  public String avatarUrl;
+
+  public List<MinimalUserDto> users;
 }
