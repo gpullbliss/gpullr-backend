@@ -31,3 +31,5 @@ build/
 
 /gpullrDb.trace.db
 cookies.txt
+
+/gpullrDb.lock.db

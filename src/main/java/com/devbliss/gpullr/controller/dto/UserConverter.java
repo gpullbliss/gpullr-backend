@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.controller.dto;
 
+import com.devbliss.gpullr.domain.MinimalUser;
 import com.devbliss.gpullr.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,13 @@ public class UserConverter {
 
   @Autowired
   private UserSettingsConverter userSettingsConverter;
+
+  public MinimalUserDto toMinimalDto(MinimalUser entity) {
+    MinimalUserDto dto = new MinimalUserDto();
+    dto.username = entity.username;
+    dto.avatarUrl = entity.avatarUrl;
+    return dto;
+  }
 
   public MinimalUserDto toMinimalDto(User entity) {
     MinimalUserDto dto = new MinimalUserDto();

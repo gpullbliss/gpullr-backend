@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.service;
 
-import java.util.stream.IntStream;
-
+import com.devbliss.gpullr.domain.MinimalUser;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +107,7 @@ public class RankingService {
       rankings.put(numberOfMergedPullRequests, ranking);
     }
 
-    ranking.users.add(user);
+    ranking.users.add(new MinimalUser(user.username, user.avatarUrl));
   }
 
   private long getRanking(User user, RankingScope rankingScope) {
