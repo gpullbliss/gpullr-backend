@@ -97,7 +97,11 @@ public class UserServiceTest {
 
     // create three users that are allowed - with unsorted usernames:
     final List<String> usernames = Arrays.asList("lalala", "bla", "blubb");
-    usernames.forEach(u -> userService.insertOrUpdate(new User(u.length(), u, "", "", true)));
+    usernames.forEach(u -> {
+      User orgUser = new User(u.length(), u);
+      orgUser.canLogin = true;
+      userService.insertOrUpdate(orgUser);
+    });
 
     // verify the three allowed users are returned:
     List<User> orgaMembers = userService.findAllOrgaMembers();

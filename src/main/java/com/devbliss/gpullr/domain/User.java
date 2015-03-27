@@ -46,17 +46,12 @@ public class User {
     this(id, username, null, null, false, null);
   }
 
-  // TODO (Michael Diodone 2015-03-25): wird der noch gebraucht?
   public User(Integer id, String username, String fullName, String avatarUrl) {
     this(id, username, fullName, avatarUrl, false, null);
   }
 
-  // TODO (Michael Diodone 2015-03-25): entfernen weil nur noch in test benutzt?
-  public User(Integer id, String username, String fullName, String avatarUrl, boolean canLogin) {
-    this(id, username, fullName, avatarUrl, canLogin, null);
-  }
-
-  public User(Integer id, String username, String fullName, String avatarUrl, Boolean canLogin, UserSettings userSettings) {
+  public User(Integer id, String username, String fullName, String avatarUrl, Boolean canLogin,
+      UserSettings userSettings) {
     this.id = id;
     this.username = username;
     this.fullName = fullName;

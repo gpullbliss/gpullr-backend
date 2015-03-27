@@ -74,12 +74,12 @@ public class RankingServiceIntegrationTest {
     rankingService = new RankingService(rankingListRepository, pullRequestRepository, userRepository);
 
     // create 3 users that close pull requests:
-    userAlpha = userRepository.save(new User(14, "alpha", "Alpha Bet", "http://alpha", true));
-    userBeta = userRepository.save(new User(13, "Beta", "Beta Carotin", "http://beta", true)); // yes, upper case!
-    userGamma = userRepository.save(new User(17, "gamma", "Mike Wilson", "http://gamma", true));
+    userAlpha = createUser(14, "alpha", true);
+    userBeta = createUser(13, "Beta", true); // yes, upper case!
+    userGamma = createUser(17, "gamma", true);
 
     // and one author of all pull requests:
-    author = userRepository.save(new User(1, "megaauthor", "Dr. Bruce Banner", "http://author", true));
+    author = createUser(1, "megaauthor", true);
 
     // and one repo for all pull requests:
     repo = repoRepository.save(new Repo(1, "Some Repo", "Some description"));
@@ -279,7 +279,7 @@ public class RankingServiceIntegrationTest {
   public void dontCalculateRankingsForUsersThatDontBelongToUs() {
     // create a user that is NOT part of our company:
     final int strangerId = 19;
-    User stranger = userRepository.save(new User(strangerId, "stranger", "Joe Stranger", "http://stranger", false));
+    User stranger = userRepository.save(new User(strangerId, "stranger"));
 
     createSomeClosedPullRequests();
 
@@ -342,5 +342,10 @@ public class RankingServiceIntegrationTest {
     pullRequestRepository.save(createPullRequest(userGamma, ZonedDateTime.now().minusDays(34)));
     pullRequestRepository.save(createPullRequest(userGamma, ZonedDateTime.now().minusDays(38)));
     pullRequestRepository.save(createPullRequest(userGamma, ZonedDateTime.now().minusDays(41)));
+  }
+
+  private User createUser(Integer id, String username, Boolean canLogin) {
+    User user = new User(id, username, null, null, canLogin, null);
+    return userRepository.save(user);
   }
 }
