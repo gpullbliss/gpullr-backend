@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] Added pull_request.md
  - [feature] Added User.fullName
  - [refactor] readme
  - [refactor] H2 mixed mode
@@ -40,5 +41,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Michael Diodone <michael.diodone@devbliss.com> Fri Mar 27 13:29:27 CET 2015
+-- Last change by: Michael Diodone <michael.diodone@devbliss.com> Fri Mar 27 17:26:53 CET 2015
 
