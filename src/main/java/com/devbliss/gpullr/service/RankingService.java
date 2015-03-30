@@ -30,6 +30,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class RankingService {
 
+  /**
+   * Compares user by full name if set or username otherwise.
+   */
   private final Comparator<User> userByFullnameAndUsernameComparator = new Comparator<User>() {
 
     @Override

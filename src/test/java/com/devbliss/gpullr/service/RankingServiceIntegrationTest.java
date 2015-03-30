@@ -74,12 +74,12 @@ public class RankingServiceIntegrationTest {
     rankingService = new RankingService(rankingListRepository, pullRequestRepository, userRepository);
 
     // create 3 users that close pull requests:
-    userAlpha = createUser(14, "alpha", true);
-    userBeta = createUser(13, "Beta", true); // yes, upper case!
-    userGamma = createUser(17, "gamma", true);
+    userAlpha = createUser(14, "zzz_alpha", true, "Alpha");
+    userBeta = createUser(13, "Beta", true, null); // yes, upper case!
+    userGamma = createUser(17, "gamma", true, null);
 
     // and one author of all pull requests:
-    author = createUser(1, "megaauthor", true);
+    author = createUser(1, "megaauthor", true, null);
 
     // and one repo for all pull requests:
     repo = repoRepository.save(new Repo(1, "Some Repo", "Some description"));
@@ -129,7 +129,7 @@ public class RankingServiceIntegrationTest {
     assertEquals(3, rankings.get(0).closedCount.longValue());
     assertEquals(1, rankings.get(1).closedCount.longValue());
     assertEquals(0, rankings.get(2).closedCount.longValue());
-    
+
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
     assertEquals(2, rankings.get(1).rank.intValue());
@@ -165,7 +165,7 @@ public class RankingServiceIntegrationTest {
     assertEquals(6, rankings.get(0).closedCount.longValue());
     assertEquals(4, rankings.get(1).closedCount.longValue());
     assertEquals(1, rankings.get(2).closedCount.longValue());
-    
+
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
     assertEquals(2, rankings.get(1).rank.intValue());
@@ -200,7 +200,7 @@ public class RankingServiceIntegrationTest {
     assertEquals(6, rankings.get(0).closedCount.longValue());
     assertEquals(4, rankings.get(1).closedCount.longValue());
     assertEquals(0, rankings.get(2).closedCount.longValue());
-    
+
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
     assertEquals(2, rankings.get(1).rank.intValue());
@@ -235,7 +235,7 @@ public class RankingServiceIntegrationTest {
     assertEquals(12, rankings.get(0).closedCount.longValue());
     assertEquals(7, rankings.get(1).closedCount.longValue());
     assertEquals(6, rankings.get(2).closedCount.longValue());
-    
+
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
     assertEquals(2, rankings.get(1).rank.intValue());
@@ -332,7 +332,7 @@ public class RankingServiceIntegrationTest {
   public void dontCalculateRankingsForUsersThatDontBelongToUs() {
     // create a user that is NOT part of our company:
     final int strangerId = 19;
-    User stranger = createUser(strangerId, "stranger", false);
+    User stranger = createUser(strangerId, "stranger", false, null);
 
     createSomeClosedPullRequests();
 
@@ -399,8 +399,8 @@ public class RankingServiceIntegrationTest {
     pullRequestRepository.save(createPullRequest(userGamma, ZonedDateTime.now().minusDays(41)));
   }
 
-  private User createUser(Integer id, String username, Boolean canLogin) {
-    User user = new User(id, username, null, null, canLogin, null);
+  private User createUser(Integer id, String username, Boolean canLogin, String fullName) {
+    User user = new User(id, username, fullName, null, canLogin, null);
     return userRepository.save(user);
   }
 }
