@@ -104,7 +104,7 @@ public class RankingService {
       .sorted((n1, n2) -> n2.compareTo(n1))
       .map(n -> numberOfMergedPullRequestsToUsers.get(n))
       .collect(Collectors.toList());
-    IntStream.range(0, rankings.size()).forEach(i -> rankings.get(i).rank = i);
+    IntStream.range(0, rankings.size()).forEach(i -> rankings.get(i).rank = i + 1);
     return rankings;
   }
 
