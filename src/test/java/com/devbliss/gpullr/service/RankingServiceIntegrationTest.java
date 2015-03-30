@@ -129,6 +129,11 @@ public class RankingServiceIntegrationTest {
     assertEquals(3, rankings.get(0).closedCount.longValue());
     assertEquals(1, rankings.get(1).closedCount.longValue());
     assertEquals(0, rankings.get(2).closedCount.longValue());
+    
+    // the numeric rank values should be set in ascending order starting with 0:
+    assertEquals(1, rankings.get(0).rank.intValue());
+    assertEquals(2, rankings.get(1).rank.intValue());
+    assertEquals(3, rankings.get(2).rank.intValue());
   }
 
   @Test
@@ -160,6 +165,12 @@ public class RankingServiceIntegrationTest {
     assertEquals(6, rankings.get(0).closedCount.longValue());
     assertEquals(4, rankings.get(1).closedCount.longValue());
     assertEquals(1, rankings.get(2).closedCount.longValue());
+    
+    // the numeric rank values should be set in ascending order starting with 0:
+    assertEquals(1, rankings.get(0).rank.intValue());
+    assertEquals(2, rankings.get(1).rank.intValue());
+    assertEquals(3, rankings.get(2).rank.intValue());
+    assertEquals(4, rankings.get(3).rank.intValue());
   }
 
   @Test
@@ -189,6 +200,11 @@ public class RankingServiceIntegrationTest {
     assertEquals(6, rankings.get(0).closedCount.longValue());
     assertEquals(4, rankings.get(1).closedCount.longValue());
     assertEquals(0, rankings.get(2).closedCount.longValue());
+    
+    // the numeric rank values should be set in ascending order starting with 0:
+    assertEquals(1, rankings.get(0).rank.intValue());
+    assertEquals(2, rankings.get(1).rank.intValue());
+    assertEquals(3, rankings.get(2).rank.intValue());
   }
 
   @Test
@@ -219,6 +235,12 @@ public class RankingServiceIntegrationTest {
     assertEquals(12, rankings.get(0).closedCount.longValue());
     assertEquals(7, rankings.get(1).closedCount.longValue());
     assertEquals(6, rankings.get(2).closedCount.longValue());
+    
+    // the numeric rank values should be set in ascending order starting with 0:
+    assertEquals(1, rankings.get(0).rank.intValue());
+    assertEquals(2, rankings.get(1).rank.intValue());
+    assertEquals(3, rankings.get(2).rank.intValue());
+    assertEquals(4, rankings.get(3).rank.intValue());
   }
 
   @Test
