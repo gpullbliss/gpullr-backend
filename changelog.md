@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] grouped rankings
  - [feature] Added pull_request.md
  - [feature] Added User.fullName
  - [refactor] readme
@@ -41,5 +42,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Michael Diodone <michael.diodone@devbliss.com> Fri Mar 27 17:26:53 CET 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 30 15:44:25 CEST 2015
 
