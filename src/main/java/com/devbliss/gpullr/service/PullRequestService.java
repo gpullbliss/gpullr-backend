@@ -240,7 +240,7 @@ public class PullRequestService {
   }
 
   private boolean isUserUnknown(User user) {
-    return user != null && userRepository.exists(user.id);
+    return user != null && !userRepository.exists(user.id);
   }
 
   private PullRequest syncPullRequestData(PullRequest existing, PullRequest update) {

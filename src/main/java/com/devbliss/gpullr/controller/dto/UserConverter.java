@@ -18,6 +18,7 @@ public class UserConverter {
     dto.id = entity.id;
     dto.username = entity.username;
     dto.avatarUrl = entity.avatarUrl;
+    dto.fullName = entity.fullName;
     return dto;
   }
 
