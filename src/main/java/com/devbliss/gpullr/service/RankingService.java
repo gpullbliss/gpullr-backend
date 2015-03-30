@@ -9,6 +9,7 @@ import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RankingListRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RankingService {
+
+  private final Comparator<User> userByFullnameAndUsernameComparator = new Comparator<User>() {
+
+    @Override
+    public int compare(User u1, User u2) {
+      String name1 = u1.fullName != null && !u1.fullName.isEmpty() ? u1.fullName : u1.username;
+      String name2 = u2.fullName != null && !u2.fullName.isEmpty() ? u2.fullName : u2.username;
+      return name1.toLowerCase().compareTo(name2.toLowerCase());
+    }
+  };
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RankingService.class);
 
@@ -53,6 +64,7 @@ public class RankingService {
     if (!rankingLists.isEmpty()) {
       RankingList rankingList = rankingLists.get(0);
       LOGGER.debug("Returning rankings calculated at " + rankingList.calculationDate.toString());
+      rankingList.getRankings().forEach(r -> r.users.sort(userByFullnameAndUsernameComparator));
       return Optional.of(rankingList);
     }
 
@@ -85,7 +97,7 @@ public class RankingService {
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
     List<User> users = userRepository.findByCanLoginIsTrue();
     Map<Long, Ranking> numberOfMergedPullRequestsToUsers = new HashMap<>();
-    users.forEach(u -> addUsersRankingToMap(numberOfMergedPullRequestsToUsers, u, rankingScope));
+    users.forEach(u -> addRankingOfUserToMap(numberOfMergedPullRequestsToUsers, u, rankingScope));
     List<Ranking> rankings = numberOfMergedPullRequestsToUsers
       .keySet()
       .stream()
@@ -96,7 +108,7 @@ public class RankingService {
     return rankings;
   }
 
-  private void addUsersRankingToMap(Map<Long, Ranking> rankings, User user, RankingScope rankingScope) {
+  private void addRankingOfUserToMap(Map<Long, Ranking> rankings, User user, RankingScope rankingScope) {
     long numberOfMergedPullRequests = getRanking(user, rankingScope);
     Ranking ranking = rankings.get(numberOfMergedPullRequests);
 
