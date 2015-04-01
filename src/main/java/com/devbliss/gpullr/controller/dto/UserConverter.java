@@ -19,6 +19,7 @@ public class UserConverter {
     dto.username = entity.username;
     dto.avatarUrl = entity.avatarUrl;
     dto.fullName = entity.fullName;
+    dto.profileUrl = entity.profileUrl;
     return dto;
   }
 
@@ -28,6 +29,7 @@ public class UserConverter {
     dto.id = entity.id;
     dto.username = entity.username;
     dto.avatarUrl = entity.avatarUrl;
+    dto.profileUrl = entity.profileUrl;
     dto.fullName = entity.fullName;
 
     if (entity.userSettings != null) {
