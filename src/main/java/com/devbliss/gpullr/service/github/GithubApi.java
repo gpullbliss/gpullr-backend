@@ -54,6 +54,8 @@ public class GithubApi {
   private static final String FIELD_KEY_AVATAR_URL = "avatar_url";
   
   private static final String FIELD_KEY_PROFILE_URL = "html_url";
+  
+  private static final String FIELD_KEY_PULLREQUEST_URL = "html_url";
 
   private static final String FIELD_KEY_DESCRIPTION = "description";
 
@@ -213,7 +215,7 @@ public class GithubApi {
 
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = pullRequestJson.getInt(FIELD_KEY_ID);
-    pullRequest.url = pullRequestJson.getString("html_url");
+    pullRequest.url = pullRequestJson.getString(FIELD_KEY_PULLREQUEST_URL);
     pullRequest.title = pullRequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullRequestJson.getString("created_at"));
     pullRequest.author = parseUser(pullRequestJson.getJsonObject("user"));
