@@ -60,6 +60,10 @@ public class PullRequestServiceTest {
 
   private static final String AVATAR_2 = "what.ever.jpg";
 
+  private static final String PROFILE_URL = "http://link.to.my.profile.example.com";
+
+  private static final String PROFILE_URL_2 = "http://link.to.my.profile2.example.com";
+
   private static final int USER_ID = 1000;
 
   private static final int PR_ID = 1;
@@ -191,9 +195,9 @@ public class PullRequestServiceTest {
 
     // expecting to retrieve three pull requests:
     List<PullRequest> pullRequests = prService.findAllOpen(repo2Title,
-      Integer.toString(repo1Id),
-      repo3Title,
-      Integer.toString(repo4Id));
+        Integer.toString(repo1Id),
+        repo3Title,
+        Integer.toString(repo4Id));
     assertEquals(3, pullRequests.size());
     assertTrue(pullRequests.contains(openPullRequest1));
     assertTrue(pullRequests.contains(openPullRequest2));
@@ -305,7 +309,7 @@ public class PullRequestServiceTest {
     prService.insertOrUpdate(pullRequest);
 
     // assign to an existing user:
-    User assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2);
+    User assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2, PROFILE_URL);
     userRepository.save(assignee);
     prService.assignPullRequest(assignee, pullRequest.id);
 
@@ -328,7 +332,7 @@ public class PullRequestServiceTest {
     prService.insertOrUpdate(pullRequest);
 
     // assign to a non existing user:
-    User assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2);
+    User assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2, PROFILE_URL_2);
     prService.assignPullRequest(assignee, pullRequest.id);
   }
 
@@ -401,7 +405,7 @@ public class PullRequestServiceTest {
   }
 
   private User initUser() {
-    User prOwner = new User(USER_ID, USER_NAME, FULL_NAME, AVATAR);
+    User prOwner = new User(USER_ID, USER_NAME, FULL_NAME, AVATAR, PROFILE_URL);
     return userRepository.save(prOwner);
   }
 }

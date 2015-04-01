@@ -50,6 +50,10 @@ public class GithubApi {
   private static final String HEADER_MARKER_MORE_PAGES = "next";
 
   private static final String FIELD_KEY_NAME = "name";
+  
+  private static final String FIELD_KEY_AVATAR_URL = "avatar_url";
+  
+  private static final String FIELD_KEY_PROFILE_URL = "html_url";
 
   private static final String FIELD_KEY_DESCRIPTION = "description";
 
@@ -185,7 +189,8 @@ public class GithubApi {
         userJson.getInt(FIELD_KEY_ID),
         userJson.getString(FIELD_KEY_LOGIN),
         userJson.getString(FIELD_KEY_NAME, ""),
-        userJson.getString("avatar_url")
+        userJson.getString(FIELD_KEY_AVATAR_URL),
+        userJson.getString(FIELD_KEY_PROFILE_URL)
     );
   }
 
