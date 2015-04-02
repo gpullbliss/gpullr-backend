@@ -122,8 +122,8 @@ public class GithubApi {
     }
   }
 
-  public GithubPullRequestBuildStatusResponse fetchCiStatus(PullRequest pullRequest) {
-    GetPullRequestBuildStatusRequest req = new GetPullRequestBuildStatusRequest(pullRequest, Optional.empty());
+  public GithubPullRequestBuildStatusResponse fetchCiStatus(PullRequest pullRequest, Optional<String> etagHeader) {
+    GetPullRequestBuildStatusRequest req = new GetPullRequestBuildStatusRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
     return pullRequestBuildStatusParser.parse(resp, pullRequest);
 

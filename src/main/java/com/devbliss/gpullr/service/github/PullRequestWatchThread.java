@@ -57,7 +57,7 @@ public class PullRequestWatchThread extends Thread {
       .findById(pullRequestId)
       .ifPresent(pr -> {
         handleResponse(githubApi.fetchPullRequest(pr, etagHeader));
-        handleResponse(githubApi.fetchCiStatus(pr));
+        handleResponse(githubApi.fetchCiStatus(pr, etagHeader));
       });
   }
 

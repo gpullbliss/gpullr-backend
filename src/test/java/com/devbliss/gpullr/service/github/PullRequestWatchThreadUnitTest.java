@@ -6,12 +6,18 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.devbliss.gpullr.domain.BuildStatus;
+import com.devbliss.gpullr.domain.BuildStatus.State;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.PullRequestService;
+import com.devbliss.gpullr.util.http.GithubHttpResponse;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +56,9 @@ public class PullRequestWatchThreadUnitTest {
   @Mock
   private Repo repo;
 
+  @Mock
+  private GithubHttpResponse resp;
+
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
 
@@ -62,9 +71,13 @@ public class PullRequestWatchThreadUnitTest {
 
   private GithubPullRequestResponse githubPullRequestResponse;
 
+  private GithubPullRequestBuildStatusResponse githubPullRequestBuildStatusResponse;
+
   private Optional<String> emptyEtagHeader;
 
   private Optional<String> nonEmptyEtagHeader;
+
+  private List<BuildStatus> buildStates;
 
   @Before
   public void setup() {
@@ -77,8 +90,12 @@ public class PullRequestWatchThreadUnitTest {
         Optional.of(pullRequest),
         Instant.now().plusSeconds(60),
         nonEmptyEtagHeader);
+    buildStates = Arrays.asList(new BuildStatus(State.PENDING, ZonedDateTime.now()));
+    githubPullRequestBuildStatusResponse = new GithubPullRequestBuildStatusResponse(buildStates, resp);
     when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullRequestResponse);
     when(githubApi.fetchPullRequest(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullRequestResponse);
+    when(githubApi.fetchCiStatus(pullRequest, emptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
+    when(githubApi.fetchCiStatus(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
     when(pullRequestService.findById(PULLREQUEST_ID)).thenReturn(Optional.of(pullRequest));
     pullRequestWatchThread = new PullRequestWatchThread(pullRequest.id, taskScheduler, githubApi,
         pullRequestService);
