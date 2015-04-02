@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] do not count closed pull request if the author and assignee are the same person.
  - [feature] grouped rankings
  - [feature] Added pull_request.md
  - [feature] Added User.fullName
@@ -42,5 +43,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 30 15:44:25 CEST 2015
+-- Last change by: Alexander Bluem <alexander.bluem@devbliss.com> Thu Apr 02 11:52:59 CEST 2015
 
