@@ -14,7 +14,9 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 /**
- * Holds threads refreshing the assignee for each open pull request.
+ * Holds threads refreshing certain data for each open pull request which are not delivered in the regular
+ * pull request event data.
+ * 
  * Reason: pull request events returned by GitHub API do NOT contain the assignee in all cases.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
@@ -22,45 +24,45 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class PullRequestAssigneeWatcher {
+public class PullRequestWatcher {
 
   @Log
   Logger logger;
 
   private final TaskScheduler taskScheduler;
 
-  private final PullRequestAssigneeWatchThreadProducer pullRequestAssigneeWatchThreadProducer;
+  private final PullRequestWatchThreadProducer pullRequestWatchThreadProducer;
 
   /**
    * Map with pullRequest-id as key and the watcher thread as value
    */
-  private final Map<Integer, PullRequestAssigneeWatchThread> activeWatchers = new HashMap<>();
+  private final Map<Integer, PullRequestWatchThread> activeWatchers = new HashMap<>();
 
   @Autowired
-  public PullRequestAssigneeWatcher(
+  public PullRequestWatcher(
       TaskScheduler taskScheduler,
-      PullRequestAssigneeWatchThreadProducer pullRequestAssigneeWatchThreadProducer) {
+      PullRequestWatchThreadProducer pullRequestWatchThreadProducer) {
     this.taskScheduler = taskScheduler;
-    this.pullRequestAssigneeWatchThreadProducer = pullRequestAssigneeWatchThreadProducer;
+    this.pullRequestWatchThreadProducer = pullRequestWatchThreadProducer;
   }
 
   /**
    * Starts an assignee watcher for the given pull request which periodically fetches
-   * the current assignee for the PR from GitHub API.
+   * certain data for the PR from GitHub API.
    * 
    * Does nothing in case there is already such a watcher for the given pull request
    *   
    * @param pullRequest pull request to watch the assignee for
    */
   public void startWatching(PullRequest pullRequest) {
-    PullRequestAssigneeWatchThread thread = activeWatchers.get(pullRequest.id);
+    PullRequestWatchThread thread = activeWatchers.get(pullRequest.id);
 
     if (thread == null) {
-      synchronized (PullRequestAssigneeWatcher.class) {
+      synchronized (PullRequestWatcher.class) {
         thread = activeWatchers.get(pullRequest.id);
 
         if (thread == null) {
-          thread = pullRequestAssigneeWatchThreadProducer.createThread(pullRequest);
+          thread = pullRequestWatchThreadProducer.createThread(pullRequest);
           activeWatchers.put(pullRequest.id, thread);
           taskScheduler.schedule(thread, Date.from(Instant.now()));
           logger.debug("started assignee watcher for pull request " + pullRequest + " thread: " + this);
@@ -76,7 +78,7 @@ public class PullRequestAssigneeWatcher {
    * @param pullRequest pull request to stop the watcher for
    */
   public void stopWatching(PullRequest pullRequest) {
-    PullRequestAssigneeWatchThread watcherToStop = activeWatchers.remove(pullRequest.id);
+    PullRequestWatchThread watcherToStop = activeWatchers.remove(pullRequest.id);
 
     if (watcherToStop != null) {
       watcherToStop.pleaseStop();

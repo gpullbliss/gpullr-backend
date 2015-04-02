@@ -23,13 +23,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.scheduling.TaskScheduler;
 
 /**
- * Unit test with mocks for {@link PullRequestAssigneeWatchThread}.
+ * Unit test with mocks for {@link PullRequestWatchThread}.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PullRequestAssigneeWatchThreadUnitTest {
+public class PullRequestWatchThreadUnitTest {
 
   private static final String ETAG = "abc123def";
 
@@ -58,7 +58,7 @@ public class PullRequestAssigneeWatchThreadUnitTest {
 
   private PullRequest pullRequest;
 
-  private PullRequestAssigneeWatchThread pullRequestAssigneeWatchThread;
+  private PullRequestWatchThread pullRequestWatchThread;
 
   private GithubPullRequestResponse githubPullRequestResponse;
 
@@ -80,14 +80,14 @@ public class PullRequestAssigneeWatchThreadUnitTest {
     when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullRequestResponse);
     when(githubApi.fetchPullRequest(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullRequestResponse);
     when(pullRequestService.findById(PULLREQUEST_ID)).thenReturn(Optional.of(pullRequest));
-    pullRequestAssigneeWatchThread = new PullRequestAssigneeWatchThread(pullRequest.id, taskScheduler, githubApi,
+    pullRequestWatchThread = new PullRequestWatchThread(pullRequest.id, taskScheduler, githubApi,
         pullRequestService);
   }
 
   @Test
   public void fetchAndHandleResponseWithAssignee() {
     pullRequest.assignee = assignee;
-    pullRequestAssigneeWatchThread.run();
+    pullRequestWatchThread.run();
     verify(githubApi).fetchPullRequest(pullRequest, emptyEtagHeader);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
     assertEquals(assignee, pullRequestCaptor.getValue().assignee);
@@ -96,7 +96,7 @@ public class PullRequestAssigneeWatchThreadUnitTest {
   @Test
   public void scheduleNextFetchIfNotStopped() {
     // verify that a task is scheduled after fetching:
-    pullRequestAssigneeWatchThread.run();
+    pullRequestWatchThread.run();
     verify(githubApi).fetchPullRequest(pullRequest, emptyEtagHeader);
     verify(taskScheduler).schedule(runnableCaptor.capture(), any(Date.class));
 
@@ -107,8 +107,8 @@ public class PullRequestAssigneeWatchThreadUnitTest {
 
   @Test
   public void dontScheduleNextFetchIfStopped() {
-    pullRequestAssigneeWatchThread.pleaseStop();
-    pullRequestAssigneeWatchThread.run();
+    pullRequestWatchThread.pleaseStop();
+    pullRequestWatchThread.run();
     verify(githubApi).fetchPullRequest(pullRequest, emptyEtagHeader);
     verify(taskScheduler, never()).schedule(any(Runnable.class), any(Date.class));
   }

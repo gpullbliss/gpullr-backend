@@ -30,12 +30,12 @@ public class PullRequestEventHandler {
 
   private final PullRequestService pullRequestService;
 
-  private final PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
+  private final PullRequestWatcher pullRequestAssigneeWatcher;
 
   @Autowired
   public PullRequestEventHandler(
       PullRequestService pullRequestService,
-      PullRequestAssigneeWatcher pullRequestAssigneeWatcher) {
+      PullRequestWatcher pullRequestAssigneeWatcher) {
     this.pullRequestService = pullRequestService;
     this.pullRequestAssigneeWatcher = pullRequestAssigneeWatcher;
   }

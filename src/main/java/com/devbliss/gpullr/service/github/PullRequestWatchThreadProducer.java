@@ -7,13 +7,13 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 /**
- * Creates instances of {@link PullRequestAssigneeWatchThread}.
+ * Creates instances of {@link PullRequestWatchThread}.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
 @Component
-public class PullRequestAssigneeWatchThreadProducer {
+public class PullRequestWatchThreadProducer {
 
   @Autowired
   private TaskScheduler taskScheduler;
@@ -24,7 +24,7 @@ public class PullRequestAssigneeWatchThreadProducer {
   @Autowired
   private PullRequestService pullRequestService;
 
-  public PullRequestAssigneeWatchThread createThread(PullRequest pullRequest) {
-    return new PullRequestAssigneeWatchThread(pullRequest.id, taskScheduler, githubApi, pullRequestService);
+  public PullRequestWatchThread createThread(PullRequest pullRequest) {
+    return new PullRequestWatchThread(pullRequest.id, taskScheduler, githubApi, pullRequestService);
   }
 }

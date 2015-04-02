@@ -35,7 +35,7 @@ public class PullRequestEventHandlerTest {
   private PullRequestService pullRequestService;
 
   @Mock
-  private PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
+  private PullRequestWatcher pullRequestAssigneeWatcher;
 
   @Mock
   private RankingService rankingService;

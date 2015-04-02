@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.springframework.scheduling.TaskScheduler;
 
 /**
- * Unit test with mocks for {@link PullRequestAssigneeWatcher}.
+ * Unit test with mocks for {@link PullRequestWatcher}.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
@@ -37,14 +37,14 @@ public class PullRequestAssigneeWatcherUnitTest {
   private Logger logger;
 
   @Mock
-  private PullRequestAssigneeWatchThreadProducer pullRequestAssigneeWatchThreadProducer;
+  private PullRequestWatchThreadProducer pullRequestAssigneeWatchThreadProducer;
 
   @Mock
-  private PullRequestAssigneeWatchThread pullRequestAssigneeWatchThread;
+  private PullRequestWatchThread pullRequestAssigneeWatchThread;
 
   private PullRequest pullRequest;
 
-  private PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
+  private PullRequestWatcher pullRequestAssigneeWatcher;
 
   @Before
   public void setup() {
@@ -52,7 +52,7 @@ public class PullRequestAssigneeWatcherUnitTest {
     pullRequest.id = PR_ID;
     pullRequest.repo = repo;
     when(pullRequestAssigneeWatchThreadProducer.createThread(pullRequest)).thenReturn(pullRequestAssigneeWatchThread);
-    pullRequestAssigneeWatcher = new PullRequestAssigneeWatcher(taskScheduler, pullRequestAssigneeWatchThreadProducer);
+    pullRequestAssigneeWatcher = new PullRequestWatcher(taskScheduler, pullRequestAssigneeWatchThreadProducer);
     pullRequestAssigneeWatcher.logger = logger;
   }
 
