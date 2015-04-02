@@ -134,6 +134,8 @@ public class GithubApi {
     JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, user.username).build();
     final String uri = buildIssueUri(pull.repo.name, pull.number);
 
+    logger.debug("assign user {} to pr {}", user.username, pull.title);
+
     try {
       Request req = client.entry()
         .method(Request.PATCH).body().set(json)
@@ -143,6 +145,8 @@ public class GithubApi {
       req.fetch();
 
     } catch (IOException e) {
+      logger.error("assigning user {} to pr {} FAILED - what a shame!",
+        user.username, pull.title);
       throw new UnexpectedException(e);
     }
   }
@@ -153,9 +157,9 @@ public class GithubApi {
 
     try {
       Request req = client.entry()
-          .method(Request.PATCH).body().set(json)
-          .back().uri().path(uri)
-          .back();
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
 
       req.fetch();
 
@@ -174,7 +178,7 @@ public class GithubApi {
     try {
       Optional<User> user = handleResponse(resp, this::parseUserDetails);
       return user.orElseThrow(() -> new UnexpectedException(
-          "User details could not be found for user '" + userJson.getString(FIELD_KEY_LOGIN) + "'."));
+        "User details could not be found for user '" + userJson.getString(FIELD_KEY_LOGIN) + "'."));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -182,10 +186,10 @@ public class GithubApi {
 
   private User parseUserDetails(JsonObject userJson) {
     return new User(
-        userJson.getInt(FIELD_KEY_ID),
-        userJson.getString(FIELD_KEY_LOGIN),
-        userJson.getString(FIELD_KEY_NAME, ""),
-        userJson.getString("avatar_url")
+      userJson.getInt(FIELD_KEY_ID),
+      userJson.getString(FIELD_KEY_LOGIN),
+      userJson.getString(FIELD_KEY_NAME, ""),
+      userJson.getString("avatar_url")
     );
   }
 
@@ -250,7 +254,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
-    GetGithubEventsRequest nextRequest) throws IOException {
+                                     GetGithubEventsRequest nextRequest) throws IOException {
 
     int statusCode = resp.statusCode;
 
@@ -310,9 +314,9 @@ public class GithubApi {
 
     try {
       return resp.jsonObjects.get()
-          .stream()
-          .map(mapper)
-          .collect(Collectors.toList());
+        .stream()
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -324,12 +328,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }
