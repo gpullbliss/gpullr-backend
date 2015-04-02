@@ -430,7 +430,7 @@ public class RankingServiceIntegrationTest {
   }
 
   private User createUser(Integer id, String username, Boolean canLogin, String fullName) {
-    User user = new User(id, username, fullName, null, canLogin, null);
+    User user = new User(id, username, fullName, null, canLogin, null, null);
     return userRepository.save(user);
   }
 }

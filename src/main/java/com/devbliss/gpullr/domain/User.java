@@ -30,6 +30,8 @@ public class User {
 
   public String avatarUrl;
 
+  public String profileUrl;
+
   public Boolean canLogin = false;
 
   @OneToOne(
@@ -43,20 +45,21 @@ public class User {
   public User() {}
 
   public User(Integer id, String username) {
-    this(id, username, null, null, false, null);
+    this(id, username, null, null, false, null, null);
   }
 
-  public User(Integer id, String username, String fullName, String avatarUrl) {
-    this(id, username, fullName, avatarUrl, false, null);
+  public User(Integer id, String username, String fullName, String avatarUrl, String profileUrl) {
+    this(id, username, fullName, avatarUrl, false, profileUrl, null);
   }
 
   public User(Integer id, String username, String fullName, String avatarUrl, Boolean canLogin,
-      UserSettings userSettings) {
+      String profileUrl, UserSettings userSettings) {
     this.id = id;
     this.username = username;
     this.fullName = fullName;
     this.avatarUrl = avatarUrl;
     this.canLogin = canLogin;
+    this.profileUrl = profileUrl;
     this.userSettings = userSettings;
   }
 

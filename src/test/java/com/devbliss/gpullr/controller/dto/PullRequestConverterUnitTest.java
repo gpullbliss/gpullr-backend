@@ -38,7 +38,10 @@ public class PullRequestConverterUnitTest {
 
   private static final String OWNER_AVATAR_URL = "http://myse.lf";
 
-  private static final User OWNER = new User(OWNER_ID, OWNER_USERNAME, OWNER_FULL_NAME, OWNER_AVATAR_URL);
+  private static final String OWNER_PROFILE_URL = "http://coolowner.example.com";
+
+  private static final User OWNER = new User(OWNER_ID, OWNER_USERNAME, OWNER_FULL_NAME, OWNER_AVATAR_URL,
+      OWNER_PROFILE_URL);
 
   private static final ZonedDateTime CREATED_AT = ZonedDateTime.of(LocalDateTime.of(2015, Month.APRIL, 1, 17, 15),
       ZoneId.of("Europe/Paris"));
@@ -66,8 +69,10 @@ public class PullRequestConverterUnitTest {
 
   private static final String ASSIGNEE_AVATAR_URL = "http://you.jpg";
 
+  private static final String ASSSIGNEE_PROFILE_URL = "http://assign.yourself.example.com";
+
   private static final User ASSIGNEE =
-      new User(ASSIGNEE_ID, ASSIGNEE_USERNAME, ASSIGNEE_FULL_NAME, ASSIGNEE_AVATAR_URL);
+      new User(ASSIGNEE_ID, ASSIGNEE_USERNAME, ASSIGNEE_FULL_NAME, ASSIGNEE_AVATAR_URL, ASSSIGNEE_PROFILE_URL);
 
   private static final Integer NUMBER = 97;
 
