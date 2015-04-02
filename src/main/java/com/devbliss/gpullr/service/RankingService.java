@@ -131,6 +131,7 @@ public class RankingService {
       ZonedDateTime boarder = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
       numberOfMergedPullRequests = pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
         .stream()
+        .filter(pr -> !pr.assignee.id.equals(pr.author.id))
         .filter(pr -> !pr.closedAt.isBefore(boarder))
         .count();
     } else {

@@ -134,6 +134,8 @@ public class GithubApi {
     JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, user.username).build();
     final String uri = buildIssueUri(pull.repo.name, pull.number);
 
+    logger.debug(String.format("assign user [%s] to pr [%s]", user.username, pull.title));
+
     try {
       Request req = client.entry()
         .method(Request.PATCH).body().set(json)
@@ -143,6 +145,9 @@ public class GithubApi {
       req.fetch();
 
     } catch (IOException e) {
+      logger.error(String.format("assigning user [%s] to pr [%s] FAILED - what a fukking a shaaame.",
+          user.username,
+          pull.title));
       throw new UnexpectedException(e);
     }
   }
