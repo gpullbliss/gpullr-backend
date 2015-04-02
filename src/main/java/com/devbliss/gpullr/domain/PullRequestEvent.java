@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.domain;
 
+
 /**
  * Event referring to a pullRequest as received from GitHub API. Contains the pull request itself and the type of
  * event, e.g. <code>PULLREQUEST_CREATED</code>.

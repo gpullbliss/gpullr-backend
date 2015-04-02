@@ -54,7 +54,10 @@ public class PullRequestAssigneeWatchThread extends Thread {
   private void fetch(Optional<String> etagHeader) {
     pullRequestService
       .findById(pullRequestId)
-      .ifPresent(pr -> handleResponse(githubApi.fetchPullRequest(pr, etagHeader)));
+      .ifPresent(pr -> {
+        handleResponse(githubApi.fetchPullRequest(pr, etagHeader));
+        handleResponse(githubApi.fetchCiStatus(pr));
+      });
   }
 
   private void handleResponse(GithubPullRequestResponse resp) {
@@ -63,6 +66,14 @@ public class PullRequestAssigneeWatchThread extends Thread {
     if (!stopped) {
       Date nextFetch = Date.from(resp.nextFetch);
       taskScheduler.schedule(() -> fetch(resp.etagHeader), nextFetch);
+    }
+  }
+
+  private void handleResponse(GithubPullRequestBuildStatusResponse resp) {
+    if (resp.payload.size() > 0) {
+      resp.payload.get(0);
+    } else {
+      // log
     }
   }
 }

@@ -2,6 +2,7 @@ package com.devbliss.gpullr.domain;
 
 import java.time.ZonedDateTime;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -44,7 +45,7 @@ public class PullRequest {
   public String url;
 
   public ZonedDateTime createdAt;
-  
+
   public ZonedDateTime closedAt;
 
   @NotNull
@@ -64,6 +65,14 @@ public class PullRequest {
 
   @Column(nullable = true)
   public ZonedDateTime assignedAt;
+
+  @Embedded
+  public BuildStatus buildStatus;
+
+  /**
+   * Very often, but  NOT necessarily equal to the pull request title
+   */
+  public String branchName;
 
   @Override
   public int hashCode() {

@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.domain.BuildStatus;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
@@ -237,6 +238,14 @@ public class PullRequestService {
     }
 
     pullRequestRepository.save(pullRequest);
+  }
+
+  public void saveBuildstatus(int pullrequestId, BuildStatus buildStatus) {
+    PullRequest pullRequest = pullRequestRepository
+      .findById(pullrequestId)
+      .orElseThrow(
+          () -> new NotFoundException("Cannot save build status: no pull request found with id " + pullrequestId));
+    pullRequest.buildStatus = buildStatus;
   }
 
   private boolean isUserUnknown(User user) {

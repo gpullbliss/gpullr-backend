@@ -50,14 +50,18 @@ public class GithubApi {
   private static final String HEADER_MARKER_MORE_PAGES = "next";
 
   private static final String FIELD_KEY_NAME = "name";
-  
+
   private static final String FIELD_KEY_AVATAR_URL = "avatar_url";
-  
+
   private static final String FIELD_KEY_PROFILE_URL = "html_url";
-  
+
   private static final String FIELD_KEY_PULLREQUEST_URL = "html_url";
 
   private static final String FIELD_KEY_DESCRIPTION = "description";
+
+  private static final String OBJECT_KEY_HEAD = "head";
+
+  private static final String FIELD_KEY_BRANCHNAME = "ref";
 
   private static final String FIELD_KEY_PAYLOAD = "payload";
 
@@ -82,6 +86,9 @@ public class GithubApi {
   @Autowired
   private GithubHttpClient githubClient;
 
+  @Autowired
+  private PullRequestBuildStatusParser pullRequestBuildStatusParser;
+
   /**
    * Retrieves all repositories (public, private, forked, etc.) belonging to our organization, from GitHub.
    *
@@ -90,7 +97,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-        jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
+          jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -115,6 +122,20 @@ public class GithubApi {
     }
   }
 
+  public GithubPullRequestBuildStatusResponse fetchCiStatus(PullRequest pullRequest) {
+    GetPullRequestBuildStatusRequest req = new GetPullRequestBuildStatusRequest(pullRequest, Optional.empty());
+    GithubHttpResponse resp = githubClient.execute(req);
+    return pullRequestBuildStatusParser.parse(resp, pullRequest);
+
+    // if (resp.jsonObjects.isPresent()) {
+    // logger.debug("jsonObjectS:: " + resp.jsonObjects.get());
+    // } else if (resp.jsonObject.isPresent()) {
+    // logger.debug("jsonObject_:: " + resp.jsonObject.get());
+    // } else {
+    // logger.debug("** nüscht");
+    // }
+  }
+
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
 
     try {
@@ -125,7 +146,7 @@ public class GithubApi {
       Instant nextFetch = resp.getNextFetch();
       GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
-        ope -> ope.ifPresent(result.payload::add));
+          ope -> ope.ifPresent(result.payload::add));
       return result;
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -159,9 +180,9 @@ public class GithubApi {
 
     try {
       Request req = client.entry()
-          .method(Request.PATCH).body().set(json)
-          .back().uri().path(uri)
-          .back();
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
 
       req.fetch();
 
@@ -192,8 +213,7 @@ public class GithubApi {
         userJson.getString(FIELD_KEY_LOGIN),
         userJson.getString(FIELD_KEY_NAME, ""),
         userJson.getString(FIELD_KEY_AVATAR_URL),
-        userJson.getString(FIELD_KEY_PROFILE_URL)
-    );
+        userJson.getString(FIELD_KEY_PROFILE_URL));
   }
 
   private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
@@ -240,6 +260,15 @@ public class GithubApi {
       logger.debug("Neither close-date nor merged-date found in pull request payload of " + pullRequest.url);
     }
 
+    JsonValue headValue = pullRequestJson.get(OBJECT_KEY_HEAD);
+
+    if (headValue != null && headValue.getValueType() == ValueType.OBJECT) {
+      pullRequest.branchName = ((JsonObject) headValue).getString(FIELD_KEY_BRANCHNAME);
+      logger.debug("Fetched branchname " + pullRequest.branchName + " for pull request " + pullRequest.title);
+    } else {
+      logger.warn("No HEAD set in pull request " + pullRequest.title);
+    }
+
     return pullRequest;
   }
 
@@ -257,7 +286,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
-    GetGithubEventsRequest nextRequest) throws IOException {
+      GetGithubEventsRequest nextRequest) throws IOException {
 
     int statusCode = resp.statusCode;
 
@@ -292,7 +321,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-    throws IOException {
+      throws IOException {
 
     List<T> result = responseToList(resp, mapper);
 
@@ -305,7 +334,7 @@ public class GithubApi {
 
   private boolean hasMorePages(JsonResponse resp) {
     return resp.headers().keySet().contains(HEADER_LINK)
-      && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains(HEADER_MARKER_MORE_PAGES));
+        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains(HEADER_MARKER_MORE_PAGES));
   }
 
   private boolean hasMorePages(GithubHttpResponse resp) {
@@ -317,9 +346,9 @@ public class GithubApi {
 
     try {
       return resp.jsonObjects.get()
-          .stream()
-          .map(mapper)
-          .collect(Collectors.toList());
+        .stream()
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -331,12 +360,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }
