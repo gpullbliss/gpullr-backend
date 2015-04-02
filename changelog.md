@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] added user profile url to user
  - [feature] grouped rankings
  - [feature] Added pull_request.md
  - [feature] Added User.fullName
@@ -42,5 +43,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Mar 30 15:44:25 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 02 14:17:59 CEST 2015
 
