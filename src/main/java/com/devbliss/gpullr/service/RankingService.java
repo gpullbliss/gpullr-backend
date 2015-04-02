@@ -23,9 +23,8 @@ import org.springframework.stereotype.Service;
 
 /**
  * Business logic for {@link RankingList} objects.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Service
 public class RankingService {
@@ -53,9 +52,9 @@ public class RankingService {
 
   @Autowired
   public RankingService(
-      RankingListRepository rankingListRepository,
-      PullRequestRepository pullRequestRepository,
-      UserRepository userRepository) {
+    RankingListRepository rankingListRepository,
+    PullRequestRepository pullRequestRepository,
+    UserRepository userRepository) {
     this.rankingListRepository = rankingListRepository;
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
@@ -84,16 +83,16 @@ public class RankingService {
 
     for (RankingScope rankingScope : RankingScope.values()) {
       rankingListRepository.save(new RankingList(
-          calculateRankingsForScope(rankingScope),
-          now,
-          rankingScope));
+        calculateRankingsForScope(rankingScope),
+        now,
+        rankingScope));
       deleteRankingListsOlderThan(now, rankingScope);
     }
   }
 
   private void deleteRankingListsOlderThan(ZonedDateTime calculationDate, RankingScope rankingScope) {
     List<RankingList> rankingsToDelete = rankingListRepository.findByCalculationDateBeforeAndRankingScope(
-        calculationDate, rankingScope);
+      calculationDate, rankingScope);
     rankingListRepository.delete(rankingsToDelete);
   }
 
@@ -136,7 +135,7 @@ public class RankingService {
         .count();
     } else {
       numberOfMergedPullRequests =
-          Long.valueOf(pullRequestRepository.findByAssigneeAndState(user, State.CLOSED).size());
+        Long.valueOf(pullRequestRepository.findByAssigneeAndState(user, State.CLOSED).size());
     }
 
     return numberOfMergedPullRequests;

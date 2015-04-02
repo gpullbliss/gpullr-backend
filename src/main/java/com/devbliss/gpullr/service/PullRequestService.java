@@ -62,11 +62,11 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-      PullRequestRepository pullRequestRepository,
-      UserRepository userRepository,
-      GithubApi githubApi,
-      UserService userService,
-      RepoRepository repoRepository) {
+    PullRequestRepository pullRequestRepository,
+    UserRepository userRepository,
+    GithubApi githubApi,
+    UserService userService,
+    RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -76,10 +76,10 @@ public class PullRequestService {
 
   public List<PullRequest> findAll() {
     return pullRequestRepository
-        .findAll()
-        .stream()
-        .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
-        .collect(Collectors.toList());
+      .findAll()
+      .stream()
+      .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
+      .collect(Collectors.toList());
   }
 
   /**
@@ -95,9 +95,9 @@ public class PullRequestService {
    */
   public List<PullRequest> findAllOpen() {
     List<PullRequest> prs = pullRequestRepository.findAllByState(State.OPEN)
-        .stream()
-        .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
-        .collect(Collectors.toList());
+      .stream()
+      .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
+      .collect(Collectors.toList());
 
     Optional<User> user = userService.getCurrentUserIfLoggedIn();
 
@@ -105,9 +105,9 @@ public class PullRequestService {
       UserSettings userSettings = user.get().userSettings;
       if (hasBlacklistedRepos(user.get())) {
         prs = prs
-            .stream()
-            .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
-            .collect(Collectors.toList());
+          .stream()
+          .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
+          .collect(Collectors.toList());
       }
     }
 
@@ -116,15 +116,15 @@ public class PullRequestService {
 
   public List<PullRequest> findAllOpen(String... repoIdsOrNames) {
     List<Repo> repos = Stream.of(repoIdsOrNames)
-        .map(ion -> findRepoByIdOrName(ion))
-        .collect(Collectors.toList());
+      .map(ion -> findRepoByIdOrName(ion))
+      .collect(Collectors.toList());
 
     List<PullRequest> openPullRequests = findAllOpen();
 
     return openPullRequests
-        .stream()
-        .filter(pr -> repos.contains(pr.repo))
-        .collect(Collectors.toList());
+      .stream()
+      .filter(pr -> repos.contains(pr.repo))
+      .collect(Collectors.toList());
   }
 
   private boolean hasBlacklistedRepos(User user) {
@@ -145,10 +145,10 @@ public class PullRequestService {
    */
   public List<PullRequest> findAllClosed() {
     List<PullRequest> pullRequests = pullRequestRepository
-        .findAllByState(PullRequest.State.CLOSED)
-        .stream()
-        .sorted((p1, p2) -> p1.closedAt.compareTo(p2.closedAt))
-        .collect(Collectors.toList());
+      .findAllByState(PullRequest.State.CLOSED)
+      .stream()
+      .sorted((p1, p2) -> p1.closedAt.compareTo(p2.closedAt))
+      .collect(Collectors.toList());
 
     return pullRequests;
   }
@@ -190,8 +190,8 @@ public class PullRequestService {
 
   public void assignPullRequest(User user, Integer pullRequestId) {
     PullRequest pullRequest = pullRequestRepository
-        .findById(pullRequestId)
-        .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
+      .findById(pullRequestId)
+      .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
 
     if (isUserUnknown(user)) {
       throw new NotFoundException("Cannot assign unknown user " + user.username + " to a pullRequest.");
@@ -205,8 +205,8 @@ public class PullRequestService {
 
   public void unassignPullRequest(User user, Integer pullRequestId) {
     PullRequest pullRequest = pullRequestRepository
-        .findById(pullRequestId)
-        .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
+      .findById(pullRequestId)
+      .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
 
     if (isUserUnknown(user)) {
       throw new NotFoundException("Cannot unassign unknown user " + user.username + " from a pullRequest.");
