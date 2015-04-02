@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.domain;
 
+import javax.persistence.Column;
+
 import java.time.ZonedDateTime;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
@@ -23,7 +25,9 @@ public class BuildStatus {
   }
 
   @Enumerated(EnumType.STRING)
+  @Column(name="build_state")
   public State state;
 
+  @Column(name="build_timestamp")
   public ZonedDateTime timestamp;
 }
