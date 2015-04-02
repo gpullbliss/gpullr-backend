@@ -32,9 +32,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
  * Integration test that tests ranking service with non-mocked persistence layer.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -99,6 +98,37 @@ public class RankingServiceIntegrationTest {
     assertFalse(rankingService.findAllWithRankingScope(RankingScope.LAST_7_DAYS).isPresent());
     assertFalse(rankingService.findAllWithRankingScope(RankingScope.LAST_30_DAYS).isPresent());
     assertFalse(rankingService.findAllWithRankingScope(RankingScope.ALL_TIME).isPresent());
+  }
+
+  @Test
+  public void noPrCountWithoutPrs() {
+
+    // trigger ranking calculation:
+    rankingService.recalculateRankings();
+
+    // fetch calculated rankings:
+    Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
+    assertTrue(rankingList.isPresent());
+
+    List<Ranking> rankings = rankingList.get().getRankings();
+    rankings.forEach(r -> assertTrue(r.closedCount == 0L));
+  }
+
+  @Test
+  public void dontCalculateRankingsForUsersThatAssignedThemselves() {
+    // create four pull requests
+    pullRequestRepository.save(createPullRequest(author, ZonedDateTime.now().minusHours(1)));
+    pullRequestRepository.save(createPullRequest(author, ZonedDateTime.now().minusHours(2)));
+    pullRequestRepository.save(createPullRequest(author, ZonedDateTime.now().minusHours(3)));
+    pullRequestRepository.save(createPullRequest(author, ZonedDateTime.now().minusHours(4)));
+
+    // trigger ranking calculation:
+    rankingService.recalculateRankings();
+
+    Optional<RankingList> allWithRankingScope = rankingService.findAllWithRankingScope(RankingScope.TODAY);
+    assertTrue(allWithRankingScope.isPresent());
+    List<Ranking> rankings = allWithRankingScope.get().getRankings();
+    rankings.forEach(r -> assertTrue(r.closedCount == 0L));
   }
 
   @Test

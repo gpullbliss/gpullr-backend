@@ -50,11 +50,11 @@ public class GithubApi {
   private static final String HEADER_MARKER_MORE_PAGES = "next";
 
   private static final String FIELD_KEY_NAME = "name";
-  
+
   private static final String FIELD_KEY_AVATAR_URL = "avatar_url";
-  
+
   private static final String FIELD_KEY_PROFILE_URL = "html_url";
-  
+
   private static final String FIELD_KEY_PULLREQUEST_URL = "html_url";
 
   private static final String FIELD_KEY_DESCRIPTION = "description";
@@ -90,7 +90,7 @@ public class GithubApi {
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
       return loadAllPages("/orgs/devbliss/repos",
-        jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
+          jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
@@ -125,7 +125,7 @@ public class GithubApi {
       Instant nextFetch = resp.getNextFetch();
       GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
-        ope -> ope.ifPresent(result.payload::add));
+          ope -> ope.ifPresent(result.payload::add));
       return result;
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -140,6 +140,8 @@ public class GithubApi {
     JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, user.username).build();
     final String uri = buildIssueUri(pull.repo.name, pull.number);
 
+    logger.debug("assign user {} to pr {}", user.username, pull.title);
+
     try {
       Request req = client.entry()
         .method(Request.PATCH).body().set(json)
@@ -149,6 +151,8 @@ public class GithubApi {
       req.fetch();
 
     } catch (IOException e) {
+      logger.error("assigning user {} to pr {} FAILED - what a shame!",
+          user.username, pull.title);
       throw new UnexpectedException(e);
     }
   }
@@ -159,9 +163,9 @@ public class GithubApi {
 
     try {
       Request req = client.entry()
-          .method(Request.PATCH).body().set(json)
-          .back().uri().path(uri)
-          .back();
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
 
       req.fetch();
 
@@ -192,8 +196,7 @@ public class GithubApi {
         userJson.getString(FIELD_KEY_LOGIN),
         userJson.getString(FIELD_KEY_NAME, ""),
         userJson.getString(FIELD_KEY_AVATAR_URL),
-        userJson.getString(FIELD_KEY_PROFILE_URL)
-    );
+        userJson.getString(FIELD_KEY_PROFILE_URL));
   }
 
   private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
@@ -257,7 +260,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
-    GetGithubEventsRequest nextRequest) throws IOException {
+      GetGithubEventsRequest nextRequest) throws IOException {
 
     int statusCode = resp.statusCode;
 
@@ -292,7 +295,7 @@ public class GithubApi {
   }
 
   private <T> List<T> handleResponse(JsonResponse resp, Function<JsonObject, T> mapper, String path, int page)
-    throws IOException {
+      throws IOException {
 
     List<T> result = responseToList(resp, mapper);
 
@@ -305,7 +308,7 @@ public class GithubApi {
 
   private boolean hasMorePages(JsonResponse resp) {
     return resp.headers().keySet().contains(HEADER_LINK)
-      && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains(HEADER_MARKER_MORE_PAGES));
+        && resp.headers().get(HEADER_LINK).stream().anyMatch(s -> s.contains(HEADER_MARKER_MORE_PAGES));
   }
 
   private boolean hasMorePages(GithubHttpResponse resp) {
@@ -317,9 +320,9 @@ public class GithubApi {
 
     try {
       return resp.jsonObjects.get()
-          .stream()
-          .map(mapper)
-          .collect(Collectors.toList());
+        .stream()
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -331,12 +334,12 @@ public class GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }
