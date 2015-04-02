@@ -145,7 +145,7 @@ public class GithubApi {
       req.fetch();
 
     } catch (IOException e) {
-      logger.error("assigning user {} to pr {} FAILED - what a fukking a shaaame.",
+      logger.error("assigning user {} to pr {} FAILED - what a shame!",
         user.username, pull.title);
       throw new UnexpectedException(e);
     }
