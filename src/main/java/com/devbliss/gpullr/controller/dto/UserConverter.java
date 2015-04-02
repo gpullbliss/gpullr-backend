@@ -13,17 +13,27 @@ public class UserConverter {
   @Autowired
   private UserSettingsConverter userSettingsConverter;
 
+  public MinimalUserDto toMinimalDto(User entity) {
+    MinimalUserDto dto = new MinimalUserDto();
+    dto.id = entity.id;
+    dto.username = entity.username;
+    dto.avatarUrl = entity.avatarUrl;
+    dto.fullName = entity.fullName;
+    return dto;
+  }
+
   public UserDto toDto(User entity) {
-    UserDto userDto = new UserDto();
-    userDto.id = entity.id;
-    userDto.username = entity.username;
-    userDto.fullName = entity.fullName;
-    userDto.avatarUrl = entity.avatarUrl;
+
+    UserDto dto = new UserDto();
+    dto.id = entity.id;
+    dto.username = entity.username;
+    dto.avatarUrl = entity.avatarUrl;
+    dto.fullName = entity.fullName;
 
     if (entity.userSettings != null) {
-      userDto.userSettingsDto = userSettingsConverter.toDto(entity.userSettings);
+      dto.userSettingsDto = userSettingsConverter.toDto(entity.userSettings);
     }
 
-    return userDto;
+    return dto;
   }
 }

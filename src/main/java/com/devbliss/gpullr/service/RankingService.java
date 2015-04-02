@@ -9,9 +9,13 @@ import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RankingListRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,19 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RankingService {
+
+  /**
+   * Compares user by full name if set or username otherwise.
+   */
+  private final Comparator<User> userByFullnameAndUsernameComparator = new Comparator<User>() {
+
+    @Override
+    public int compare(User u1, User u2) {
+      String name1 = u1.fullName != null && !u1.fullName.isEmpty() ? u1.fullName : u1.username;
+      String name2 = u2.fullName != null && !u2.fullName.isEmpty() ? u2.fullName : u2.username;
+      return name1.toLowerCase().compareTo(name2.toLowerCase());
+    }
+  };
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RankingService.class);
 
@@ -50,6 +67,7 @@ public class RankingService {
     if (!rankingLists.isEmpty()) {
       RankingList rankingList = rankingLists.get(0);
       LOGGER.debug("Returning rankings calculated at " + rankingList.calculationDate.toString());
+      rankingList.getRankings().forEach(r -> r.users.sort(userByFullnameAndUsernameComparator));
       return Optional.of(rankingList);
     }
 
@@ -80,18 +98,33 @@ public class RankingService {
   }
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
-
-    List<User> userStatistics = userRepository.findByCanLoginIsTrue();
-
-    List<Ranking> rankingsForScope = userStatistics
+    List<User> users = userRepository.findByCanLoginIsTrue();
+    Map<Long, Ranking> numberOfMergedPullRequestsToUsers = new HashMap<>();
+    users.forEach(u -> addRankingOfUserToMap(numberOfMergedPullRequestsToUsers, u, rankingScope));
+    List<Ranking> rankings = numberOfMergedPullRequestsToUsers
+      .keySet()
       .stream()
-      .map(u -> getRanking(u, rankingScope))
-      .sorted((r1, r2) -> r2.closedCount.compareTo(r1.closedCount))
+      .sorted((n1, n2) -> n2.compareTo(n1))
+      .map(n -> numberOfMergedPullRequestsToUsers.get(n))
       .collect(Collectors.toList());
-    return rankingsForScope;
+    IntStream.range(0, rankings.size()).forEach(i -> rankings.get(i).rank = i + 1);
+    return rankings;
   }
 
-  private Ranking getRanking(User user, RankingScope rankingScope) {
+  private void addRankingOfUserToMap(Map<Long, Ranking> rankings, User user, RankingScope rankingScope) {
+    long numberOfMergedPullRequests = getRanking(user, rankingScope);
+    Ranking ranking = rankings.get(numberOfMergedPullRequests);
+
+    if (ranking == null) {
+      ranking = new Ranking();
+      ranking.closedCount = numberOfMergedPullRequests;
+      rankings.put(numberOfMergedPullRequests, ranking);
+    }
+
+    ranking.users.add(user);
+  }
+
+  private long getRanking(User user, RankingScope rankingScope) {
     long numberOfMergedPullRequests;
 
     if (rankingScope.daysInPast.isPresent()) {
@@ -105,6 +138,6 @@ public class RankingService {
           Long.valueOf(pullRequestRepository.findByAssigneeAndState(user, State.CLOSED).size());
     }
 
-    return new Ranking(user, numberOfMergedPullRequests);
+    return numberOfMergedPullRequests;
   }
 }

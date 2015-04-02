@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.ElementCollection;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -21,8 +22,7 @@ public class RankingList {
   @GeneratedValue(strategy = GenerationType.AUTO)
   public long id;
 
-  @ElementCollection(fetch = FetchType.EAGER)
-  @NotNull
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   private List<Ranking> rankings = new ArrayList<>();
 
   @NotNull
@@ -43,13 +43,7 @@ public class RankingList {
   public List<Ranking> getRankings() {
     return rankings
       .stream()
-      .sorted((r1, r2) -> {
-        int result = r2.closedCount.compareTo(r1.closedCount);
-        if (result == 0) {
-          result = r1.user.username.toLowerCase().compareTo(r2.user.username.toLowerCase());
-        }
-        return result;
-      })
+      .sorted((r1, r2) -> r2.closedCount.compareTo(r1.closedCount))
       .collect(Collectors.toList());
   }
 }

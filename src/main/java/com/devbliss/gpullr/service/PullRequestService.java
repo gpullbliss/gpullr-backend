@@ -62,11 +62,11 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-    PullRequestRepository pullRequestRepository,
-    UserRepository userRepository,
-    GithubApi githubApi,
-    UserService userService,
-    RepoRepository repoRepository) {
+      PullRequestRepository pullRequestRepository,
+      UserRepository userRepository,
+      GithubApi githubApi,
+      UserService userService,
+      RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -224,6 +224,10 @@ public class PullRequestService {
       userRepository.save(pullRequest.author);
     }
 
+    if (isUserUnknown(pullRequest.assignee)) {
+      userRepository.save(pullRequest.assignee);
+    }
+
     Optional<PullRequest> existing = pullRequestRepository.findById(pullRequest.id);
 
     if (existing.isPresent()) {
@@ -236,7 +240,7 @@ public class PullRequestService {
   }
 
   private boolean isUserUnknown(User user) {
-    return userRepository.findOne(user.id) == null;
+    return user != null && !userRepository.exists(user.id);
   }
 
   private PullRequest syncPullRequestData(PullRequest existing, PullRequest update) {
