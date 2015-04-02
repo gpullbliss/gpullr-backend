@@ -3,6 +3,7 @@
 
 
  - [feature] added user profile url to user
+ - [feature] do not count closed pull request if the author and assignee are the same person.
  - [feature] grouped rankings
  - [feature] Added pull_request.md
  - [feature] Added User.fullName
