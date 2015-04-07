@@ -11,7 +11,6 @@ import java.util.Optional;
  */
 public class GetPullRequestBuildStatusRequest extends AbstractGithubRequest {
 
-//  private static final String URI_TEMPLATE = "https://api.github.com/repos/devbliss/%s/pulls/%d";
   private static final String URI_TEMPLATE = "https://api.github.com/repos/devbliss/%s/statuses/%s";
 
   private final PullRequest pullRequest;

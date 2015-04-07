@@ -23,7 +23,7 @@ import org.springframework.scheduling.TaskScheduler;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PullRequestAssigneeWatcherUnitTest {
+public class PullRequestWatcherUnitTest {
 
   private static final int PR_ID = 15;
 
@@ -37,42 +37,42 @@ public class PullRequestAssigneeWatcherUnitTest {
   private Logger logger;
 
   @Mock
-  private PullRequestWatchThreadProducer pullRequestAssigneeWatchThreadProducer;
+  private PullRequestWatchThreadProducer pullRequestWatchThreadProducer;
 
   @Mock
-  private PullRequestWatchThread pullRequestAssigneeWatchThread;
+  private PullRequestWatchThread pullRequestWatchThread;
 
   private PullRequest pullRequest;
 
-  private PullRequestWatcher pullRequestAssigneeWatcher;
+  private PullRequestWatcher pullRequestWatcher;
 
   @Before
   public void setup() {
     pullRequest = new PullRequest();
     pullRequest.id = PR_ID;
     pullRequest.repo = repo;
-    when(pullRequestAssigneeWatchThreadProducer.createThread(pullRequest)).thenReturn(pullRequestAssigneeWatchThread);
-    pullRequestAssigneeWatcher = new PullRequestWatcher(taskScheduler, pullRequestAssigneeWatchThreadProducer);
-    pullRequestAssigneeWatcher.logger = logger;
+    when(pullRequestWatchThreadProducer.createThread(pullRequest)).thenReturn(pullRequestWatchThread);
+    pullRequestWatcher = new PullRequestWatcher(taskScheduler, pullRequestWatchThreadProducer);
+    pullRequestWatcher.logger = logger;
   }
 
   @Test
   public void startWatching() {
-    pullRequestAssigneeWatcher.startWatching(pullRequest);
-    verify(taskScheduler).schedule(eq(pullRequestAssigneeWatchThread), any(Date.class));
+    pullRequestWatcher.startWatching(pullRequest);
+    verify(taskScheduler).schedule(eq(pullRequestWatchThread), any(Date.class));
 
     // calling the method with the same pull request once more should have no effect:
-    pullRequestAssigneeWatcher.startWatching(pullRequest);
-    verify(taskScheduler).schedule(eq(pullRequestAssigneeWatchThread), any(Date.class));
+    pullRequestWatcher.startWatching(pullRequest);
+    verify(taskScheduler).schedule(eq(pullRequestWatchThread), any(Date.class));
   }
 
   @Test
   public void stopWatching() {
     // first we have to start something before we can stop it:
-    pullRequestAssigneeWatcher.startWatching(pullRequest);
-    verify(taskScheduler).schedule(eq(pullRequestAssigneeWatchThread), any(Date.class));
+    pullRequestWatcher.startWatching(pullRequest);
+    verify(taskScheduler).schedule(eq(pullRequestWatchThread), any(Date.class));
 
-    pullRequestAssigneeWatcher.stopWatching(pullRequest);
-    verify(pullRequestAssigneeWatchThread).pleaseStop();
+    pullRequestWatcher.stopWatching(pullRequest);
+    verify(pullRequestWatchThread).pleaseStop();
   }
 }

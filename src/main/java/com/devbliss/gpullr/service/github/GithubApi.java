@@ -122,18 +122,10 @@ public class GithubApi {
     }
   }
 
-  public GithubPullRequestBuildStatusResponse fetchCiStatus(PullRequest pullRequest, Optional<String> etagHeader) {
+  public GithubPullRequestBuildStatusResponse fetchBuildStatus(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestBuildStatusRequest req = new GetPullRequestBuildStatusRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
     return pullRequestBuildStatusParser.parse(resp, pullRequest);
-
-    // if (resp.jsonObjects.isPresent()) {
-    // logger.debug("jsonObjectS:: " + resp.jsonObjects.get());
-    // } else if (resp.jsonObject.isPresent()) {
-    // logger.debug("jsonObject_:: " + resp.jsonObject.get());
-    // } else {
-    // logger.debug("** nüscht");
-    // }
   }
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {

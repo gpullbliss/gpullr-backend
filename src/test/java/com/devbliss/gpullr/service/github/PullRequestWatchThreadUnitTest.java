@@ -41,6 +41,10 @@ public class PullRequestWatchThreadUnitTest {
 
   private static final int PULLREQUEST_ID = 999;
 
+  private static final ZonedDateTime NOW = ZonedDateTime.now();
+
+  private static final ZonedDateTime TEN_MINUTES_AGO = NOW.minusMinutes(10);
+
   @Mock
   private TaskScheduler taskScheduler;
 
@@ -79,6 +83,10 @@ public class PullRequestWatchThreadUnitTest {
 
   private List<BuildStatus> buildStates;
 
+  private BuildStatus latestBuildStatus;
+
+  private BuildStatus earlierBuildStatus;
+
   @Before
   public void setup() {
     emptyEtagHeader = Optional.empty();
@@ -90,24 +98,30 @@ public class PullRequestWatchThreadUnitTest {
         Optional.of(pullRequest),
         Instant.now().plusSeconds(60),
         nonEmptyEtagHeader);
-    buildStates = Arrays.asList(new BuildStatus(State.PENDING, ZonedDateTime.now()));
+    latestBuildStatus = new BuildStatus(State.PENDING, NOW);
+    earlierBuildStatus = new BuildStatus(State.FAILURE, TEN_MINUTES_AGO);
+    buildStates = Arrays.asList(latestBuildStatus, earlierBuildStatus);
     githubPullRequestBuildStatusResponse = new GithubPullRequestBuildStatusResponse(buildStates, resp);
     when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullRequestResponse);
     when(githubApi.fetchPullRequest(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullRequestResponse);
-    when(githubApi.fetchCiStatus(pullRequest, emptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
-    when(githubApi.fetchCiStatus(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
+    when(githubApi.fetchBuildStatus(pullRequest, emptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
+    when(githubApi.fetchBuildStatus(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
     when(pullRequestService.findById(PULLREQUEST_ID)).thenReturn(Optional.of(pullRequest));
     pullRequestWatchThread = new PullRequestWatchThread(pullRequest.id, taskScheduler, githubApi,
         pullRequestService);
   }
 
   @Test
-  public void fetchAndHandleResponseWithAssignee() {
+  public void fetchAndHandleResponsesWithAssigneeAndBuildStatus() {
     pullRequest.assignee = assignee;
     pullRequestWatchThread.run();
+
     verify(githubApi).fetchPullRequest(pullRequest, emptyEtagHeader);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
     assertEquals(assignee, pullRequestCaptor.getValue().assignee);
+
+    verify(githubApi).fetchBuildStatus(pullRequest, emptyEtagHeader);
+    verify(pullRequestService).saveBuildstatus(PULLREQUEST_ID, latestBuildStatus);
   }
 
   @Test
@@ -120,6 +134,7 @@ public class PullRequestWatchThreadUnitTest {
     // make sure it is the right task, i.e. it makes a new request, this time with ETAG header:
     runnableCaptor.getValue().run();
     verify(githubApi).fetchPullRequest(pullRequest, nonEmptyEtagHeader);
+    verify(githubApi).fetchBuildStatus(pullRequest, nonEmptyEtagHeader);
   }
 
   @Test

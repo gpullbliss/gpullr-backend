@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequestEvent;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
