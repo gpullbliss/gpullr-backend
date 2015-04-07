@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.devbliss.gpullr.Application;
+import com.devbliss.gpullr.domain.BuildStatus;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
@@ -72,6 +73,12 @@ public class PullRequestServiceTest {
 
   private static final int OLD_PR_ID = 2;
 
+  private static final String BRANCH_NAME = "feature/somethingReallyCool";
+
+  private static final BuildStatus.State BUILD_STATUS = BuildStatus.State.PENDING;
+
+  private static final ZonedDateTime BUILD_STATUS_TIMESTAMP = ZonedDateTime.now().minusMinutes(10);
+
   @Autowired
   private PullRequestRepository prRepository;
 
@@ -100,6 +107,8 @@ public class PullRequestServiceTest {
     testPr.repo = initRepo();
     testPr.state = PullRequest.State.OPEN;
     testPr.createdAt = ZonedDateTime.now();
+    testPr.branchName = BRANCH_NAME;
+    testPr.buildStatus = new BuildStatus(BUILD_STATUS, BUILD_STATUS_TIMESTAMP);
   }
 
   @After
@@ -118,15 +127,38 @@ public class PullRequestServiceTest {
     prService.insertOrUpdate(testPr);
     prs = prService.findAll();
     assertEquals(1, prs.size());
-    int fetchedPrId = prs.get(0).id;
-    int fetchedPrUserId = prs.get(0).author.id;
-    int fetchedPrRepoId = prs.get(0).repo.id;
-    State fetchedState = prs.get(0).state;
+    PullRequest fetched = prs.get(0);
 
-    assertEquals(PR_ID, fetchedPrId);
-    assertEquals(USER_ID, fetchedPrUserId);
-    assertEquals(REPO_ID, fetchedPrRepoId);
-    assertEquals(testPr.state, fetchedState);
+    assertEquals(PR_ID, fetched.id.intValue());
+    assertEquals(USER_ID, fetched.author.id.intValue());
+    assertEquals(REPO_ID, fetched.repo.id.intValue());
+    assertEquals(testPr.state, fetched.state);
+    assertEquals(BUILD_STATUS, fetched.buildStatus.state);
+    assertEquals(BUILD_STATUS_TIMESTAMP, fetched.buildStatus.timestamp);
+    assertEquals(BRANCH_NAME, fetched.branchName);
+  }
+
+  @Test
+  public void savePullRequestStatus() {
+    // create a pull request:
+    prService.insertOrUpdate(testPr);
+
+    // make sure it initially has the build status as expected:
+    List<PullRequest> fetchedList = prService.findAll();
+    assertEquals(BUILD_STATUS, fetchedList.get(0).buildStatus.state);
+    assertEquals(BUILD_STATUS_TIMESTAMP, fetchedList.get(0).buildStatus.timestamp);
+
+    // save new build status:
+    final BuildStatus.State state = BuildStatus.State.SUCCESS;
+    final ZonedDateTime timestamp = BUILD_STATUS_TIMESTAMP.plusMinutes(5);
+    final int pullRequestId = fetchedList.get(0).id;
+    BuildStatus status = new BuildStatus(state, timestamp);
+    prService.saveBuildstatus(pullRequestId, status);
+
+    // verify change:
+    fetchedList = prService.findAll();
+    assertEquals(state, fetchedList.get(0).buildStatus.state);
+    assertEquals(timestamp, fetchedList.get(0).buildStatus.timestamp);
   }
 
   @Test

@@ -63,11 +63,11 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-    PullRequestRepository pullRequestRepository,
-    UserRepository userRepository,
-    GithubApi githubApi,
-    UserService userService,
-    RepoRepository repoRepository) {
+      PullRequestRepository pullRequestRepository,
+      UserRepository userRepository,
+      GithubApi githubApi,
+      UserService userService,
+      RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -246,6 +246,7 @@ public class PullRequestService {
       .orElseThrow(
           () -> new NotFoundException("Cannot save build status: no pull request found with id " + pullrequestId));
     pullRequest.buildStatus = buildStatus;
+    pullRequestRepository.save(pullRequest);
   }
 
   private boolean isUserUnknown(User user) {
