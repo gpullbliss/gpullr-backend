@@ -29,14 +29,14 @@ public class PullRequestEventHandler {
 
   private final PullRequestService pullRequestService;
 
-  private final PullRequestWatcher pullRequestAssigneeWatcher;
+  private final PullRequestWatcher pullRequestWatcher;
 
   @Autowired
   public PullRequestEventHandler(
       PullRequestService pullRequestService,
-      PullRequestWatcher pullRequestAssigneeWatcher) {
+      PullRequestWatcher pullRequestWatcher) {
     this.pullRequestService = pullRequestService;
-    this.pullRequestAssigneeWatcher = pullRequestAssigneeWatcher;
+    this.pullRequestWatcher = pullRequestWatcher;
   }
 
   public void handlePullRequestEvent(PullRequestEvent event) {
@@ -61,9 +61,9 @@ public class PullRequestEventHandler {
     // unfortunately, the assignee is not set in GitHub PR event if state is OPEN, so we have to
     // fetch it manually:
     if (pullRequestFromEvent.state == State.OPEN) {
-      pullRequestAssigneeWatcher.startWatching(pullRequestFromEvent);
+      pullRequestWatcher.startWatching(pullRequestFromEvent);
     } else if (pullRequestFromEvent.state == State.CLOSED) {
-      pullRequestAssigneeWatcher.stopWatching(pullRequestFromEvent);
+      pullRequestWatcher.stopWatching(pullRequestFromEvent);
     }
   }
 }
