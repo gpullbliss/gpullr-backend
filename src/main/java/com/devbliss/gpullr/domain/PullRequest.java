@@ -74,6 +74,8 @@ public class PullRequest {
    */
   public String branchName;
 
+  public int numberOfComments;
+
   @Override
   public int hashCode() {
     final int prime = 31;
