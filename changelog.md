@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] branchname and build status in pull request data
  - [feature] added user profile url to user
  - [feature] do not count closed pull request if the author and assignee are the same person.
  - [feature] grouped rankings
@@ -44,5 +45,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 02 14:17:59 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Tue Apr 07 10:24:58 CEST 2015
 
