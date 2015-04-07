@@ -2,7 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
- - [feature] branchname and build status in pull request data
+ - [feature] number of comments and build status in pull request data
  - [feature] added user profile url to user
  - [feature] do not count closed pull request if the author and assignee are the same person.
  - [feature] grouped rankings
