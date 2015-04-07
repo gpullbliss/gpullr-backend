@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.domain.BuildStatus;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
@@ -62,11 +63,11 @@ public class PullRequestService {
 
   @Autowired
   public PullRequestService(
-    PullRequestRepository pullRequestRepository,
-    UserRepository userRepository,
-    GithubApi githubApi,
-    UserService userService,
-    RepoRepository repoRepository) {
+      PullRequestRepository pullRequestRepository,
+      UserRepository userRepository,
+      GithubApi githubApi,
+      UserService userService,
+      RepoRepository repoRepository) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
@@ -236,6 +237,15 @@ public class PullRequestService {
       pullRequest = ensureClosedAtIfClosed(pullRequest);
     }
 
+    pullRequestRepository.save(pullRequest);
+  }
+
+  public void saveBuildstatus(int pullrequestId, BuildStatus buildStatus) {
+    PullRequest pullRequest = pullRequestRepository
+      .findById(pullrequestId)
+      .orElseThrow(
+          () -> new NotFoundException("Cannot save build status: no pull request found with id " + pullrequestId));
+    pullRequest.buildStatus = buildStatus;
     pullRequestRepository.save(pullRequest);
   }
 

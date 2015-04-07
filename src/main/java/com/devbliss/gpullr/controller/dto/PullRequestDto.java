@@ -29,6 +29,10 @@ public class PullRequestDto {
   public Integer number;
 
   public String assignedAt;
-  
+
   public String closedAt;
+
+  public String buildStatus;
+
+  public Integer numberOfComments;
 }

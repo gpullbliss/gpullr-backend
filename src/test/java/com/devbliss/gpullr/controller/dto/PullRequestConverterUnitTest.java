@@ -2,6 +2,7 @@ package com.devbliss.gpullr.controller.dto;
 
 import static org.junit.Assert.assertEquals;
 
+import com.devbliss.gpullr.domain.BuildStatus;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Repo;
@@ -71,6 +72,12 @@ public class PullRequestConverterUnitTest {
 
   private static final String ASSSIGNEE_PROFILE_URL = "http://assign.yourself.example.com";
 
+  private static final int NUMBER_OF_COMMENTS = 14;
+
+  private static final BuildStatus BUILD_STATUS = new BuildStatus(
+      BuildStatus.State.PENDING,
+      ZonedDateTime.now().minusMinutes(10));
+
   private static final User ASSIGNEE =
       new User(ASSIGNEE_ID, ASSIGNEE_USERNAME, ASSIGNEE_FULL_NAME, ASSIGNEE_AVATAR_URL, ASSSIGNEE_PROFILE_URL);
 
@@ -97,6 +104,8 @@ public class PullRequestConverterUnitTest {
     entity.title = TITLE;
     entity.url = URL;
     entity.assignedAt = ASSIGNED_AT;
+    entity.buildStatus = BUILD_STATUS;
+    entity.numberOfComments = NUMBER_OF_COMMENTS;
   }
 
   @Test
@@ -119,5 +128,7 @@ public class PullRequestConverterUnitTest {
     assertEquals(TITLE, dto.title);
     assertEquals(URL, dto.url);
     assertEquals(ASSIGNED_AT_STRING, dto.assignedAt);
+    assertEquals(NUMBER_OF_COMMENTS, dto.numberOfComments.intValue());
+    assertEquals(BUILD_STATUS.state.name(), dto.buildStatus);
   }
 }

@@ -59,6 +59,10 @@ public class GithubApi {
 
   private static final String FIELD_KEY_DESCRIPTION = "description";
 
+  private static final String OBJECT_KEY_HEAD = "head";
+
+  private static final String FIELD_KEY_BRANCHNAME = "ref";
+
   private static final String FIELD_KEY_PAYLOAD = "payload";
 
   private static final String FIELD_KEY_TYPE = "type";
@@ -81,6 +85,9 @@ public class GithubApi {
 
   @Autowired
   private GithubHttpClient githubClient;
+
+  @Autowired
+  private PullRequestBuildStatusParser pullRequestBuildStatusParser;
 
   /**
    * Retrieves all repositories (public, private, forked, etc.) belonging to our organization, from GitHub.
@@ -113,6 +120,12 @@ public class GithubApi {
     } catch (IOException e) {
       throw new UnexpectedException(e);
     }
+  }
+
+  public GithubPullRequestBuildStatusResponse fetchBuildStatus(PullRequest pullRequest, Optional<String> etagHeader) {
+    GetPullRequestBuildStatusRequest req = new GetPullRequestBuildStatusRequest(pullRequest, etagHeader);
+    GithubHttpResponse resp = githubClient.execute(req);
+    return pullRequestBuildStatusParser.parse(resp, pullRequest.title);
   }
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
@@ -226,6 +239,7 @@ public class GithubApi {
     pullRequest.linesRemoved = pullRequestJson.getInt("deletions");
     pullRequest.filesChanged = pullRequestJson.getInt("changed_files");
     pullRequest.number = pullRequestJson.getInt("number");
+    pullRequest.numberOfComments = pullRequestJson.getInt("comments");
     JsonValue assigneeValue = pullRequestJson.get(FIELD_KEY_ASSIGNEE);
 
     // unfortunately, assignee is only set when PR is CLOSED - so it's useless for us!
@@ -241,6 +255,15 @@ public class GithubApi {
       logger.debug("parsed merged-date of PR event: {} in pr {}", pullRequest.closedAt, pullRequest.url);
     } else {
       logger.debug("Neither close-date nor merged-date found in pull request payload of " + pullRequest.url);
+    }
+
+    JsonValue headValue = pullRequestJson.get(OBJECT_KEY_HEAD);
+
+    if (headValue != null && headValue.getValueType() == ValueType.OBJECT) {
+      pullRequest.branchName = ((JsonObject) headValue).getString(FIELD_KEY_BRANCHNAME);
+      logger.debug("Fetched branchname " + pullRequest.branchName + " for pull request " + pullRequest.title);
+    } else {
+      logger.warn("No HEAD set in pull request " + pullRequest.title);
     }
 
     return pullRequest;
@@ -262,7 +285,7 @@ public class GithubApi {
   private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
       GetGithubEventsRequest nextRequest) throws IOException {
 
-    int statusCode = resp.statusCode;
+    int statusCode = resp.getStatusCode();
 
     if (statusCode == org.apache.http.HttpStatus.SC_OK) {
       List<T> result = responseToList(resp, mapper);
@@ -283,10 +306,10 @@ public class GithubApi {
 
   private <T> Optional<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper) throws IOException {
 
-    int statusCode = resp.statusCode;
+    int statusCode = resp.getStatusCode();
 
     if (statusCode == org.apache.http.HttpStatus.SC_OK) {
-      return Optional.of(mapper.apply(resp.jsonObject.get()));
+      return Optional.of(mapper.apply(resp.getJsonObject().get()));
     } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
       return Optional.empty();
     } else {
@@ -319,7 +342,7 @@ public class GithubApi {
   private <T> List<T> responseToList(GithubHttpResponse resp, Function<JsonObject, T> mapper) {
 
     try {
-      return resp.jsonObjects.get()
+      return resp.getJsonObjects().get()
         .stream()
         .map(mapper)
         .collect(Collectors.toList());

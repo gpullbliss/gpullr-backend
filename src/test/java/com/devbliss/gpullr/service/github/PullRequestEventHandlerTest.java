@@ -35,7 +35,7 @@ public class PullRequestEventHandlerTest {
   private PullRequestService pullRequestService;
 
   @Mock
-  private PullRequestAssigneeWatcher pullRequestAssigneeWatcher;
+  private PullRequestWatcher pullRequestWatcher;
 
   @Mock
   private RankingService rankingService;
@@ -51,9 +51,7 @@ public class PullRequestEventHandlerTest {
 
   @Before
   public void setup() {
-    pullRequestEventHandler = new PullRequestEventHandler(
-        pullRequestService,
-        pullRequestAssigneeWatcher);
+    pullRequestEventHandler = new PullRequestEventHandler(pullRequestService, pullRequestWatcher);
     pullRequestEventHandler.logger = LoggerFactory.getLogger(PullRequestEventHandler.class);
     existingPullRequest = new PullRequest();
     existingPullRequest.id = PR_ID;
@@ -76,7 +74,7 @@ public class PullRequestEventHandlerTest {
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
 
     // verify watcher is started for the pull request:
-    verify(pullRequestAssigneeWatcher).startWatching(pullRequestFromResponse);
+    verify(pullRequestWatcher).startWatching(pullRequestFromResponse);
   }
 
   @Test
@@ -95,7 +93,7 @@ public class PullRequestEventHandlerTest {
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
 
     // verify watcher is started for the pull request:
-    verify(pullRequestAssigneeWatcher).startWatching(pullRequestFromResponse);
+    verify(pullRequestWatcher).startWatching(pullRequestFromResponse);
   }
 
   @Test
@@ -114,7 +112,7 @@ public class PullRequestEventHandlerTest {
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
 
     // verify watcher is stopped for the pull request:
-    verify(pullRequestAssigneeWatcher).stopWatching(pullRequestFromResponse);
+    verify(pullRequestWatcher).stopWatching(pullRequestFromResponse);
   }
 
   @Test
@@ -133,7 +131,7 @@ public class PullRequestEventHandlerTest {
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
 
     // verify watcher is started for the pull request:
-    verify(pullRequestAssigneeWatcher).startWatching(pullRequestFromResponse);
+    verify(pullRequestWatcher).startWatching(pullRequestFromResponse);
   }
 
   @Test
@@ -152,6 +150,6 @@ public class PullRequestEventHandlerTest {
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
 
     // verify watcher is started for the pull request:
-    verify(pullRequestAssigneeWatcher).startWatching(pullRequestFromResponse);
+    verify(pullRequestWatcher).startWatching(pullRequestFromResponse);
   }
 }
