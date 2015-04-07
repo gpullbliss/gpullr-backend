@@ -125,7 +125,7 @@ public class GithubApi {
   public GithubPullRequestBuildStatusResponse fetchBuildStatus(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestBuildStatusRequest req = new GetPullRequestBuildStatusRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
-    return pullRequestBuildStatusParser.parse(resp, pullRequest);
+    return pullRequestBuildStatusParser.parse(resp, pullRequest.title);
   }
 
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
@@ -284,7 +284,7 @@ public class GithubApi {
   private <T> List<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper,
       GetGithubEventsRequest nextRequest) throws IOException {
 
-    int statusCode = resp.statusCode;
+    int statusCode = resp.getStatusCode();
 
     if (statusCode == org.apache.http.HttpStatus.SC_OK) {
       List<T> result = responseToList(resp, mapper);
@@ -305,10 +305,10 @@ public class GithubApi {
 
   private <T> Optional<T> handleResponse(GithubHttpResponse resp, Function<JsonObject, T> mapper) throws IOException {
 
-    int statusCode = resp.statusCode;
+    int statusCode = resp.getStatusCode();
 
     if (statusCode == org.apache.http.HttpStatus.SC_OK) {
-      return Optional.of(mapper.apply(resp.jsonObject.get()));
+      return Optional.of(mapper.apply(resp.getJsonObject().get()));
     } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
       return Optional.empty();
     } else {
@@ -341,7 +341,7 @@ public class GithubApi {
   private <T> List<T> responseToList(GithubHttpResponse resp, Function<JsonObject, T> mapper) {
 
     try {
-      return resp.jsonObjects.get()
+      return resp.getJsonObjects().get()
         .stream()
         .map(mapper)
         .collect(Collectors.toList());

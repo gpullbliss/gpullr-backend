@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.BuildStatus;
-import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.util.http.GithubHttpResponse;
 import java.time.ZonedDateTime;
@@ -33,22 +32,22 @@ public class PullRequestBuildStatusParser {
   private static final String ERR =
       "Github-Response for pullrequest build statuses did not return list of json objects, pull request was '%s'";
 
-  public GithubPullRequestBuildStatusResponse parse(GithubHttpResponse resp, PullRequest pullRequest) {
+  public GithubPullRequestBuildStatusResponse parse(GithubHttpResponse resp, String pullRequestTitle) {
 
     List<BuildStatus> buildStates;
 
-    if (resp.statusCode == HttpStatus.SC_OK) {
-      List<JsonObject> jsonObjects = resp.jsonObjects
-        .orElseThrow(() -> new UnexpectedException(String.format(ERR, pullRequest.title)));
+    if (resp.getStatusCode() == HttpStatus.SC_OK) {
+      List<JsonObject> jsonObjects = resp.getJsonObjects()
+        .orElseThrow(() -> new UnexpectedException(String.format(ERR, pullRequestTitle)));
       buildStates = jsonObjects.stream().map(this::parse).collect(Collectors.toList());
-    } else if (resp.statusCode == HttpStatus.SC_NOT_MODIFIED) {
+    } else if (resp.getStatusCode() == HttpStatus.SC_NOT_MODIFIED) {
       buildStates = new ArrayList<>();
-      LOGGER.debug("CI build status not modified for pull request '{}'", pullRequest.title);
+      LOGGER.debug("CI build status not modified for pull request '{}'", pullRequestTitle);
     } else {
       LOGGER.debug(
           "Unexpected response status {} when fetching build status of pull request '{}'",
-          resp.statusCode,
-          pullRequest.title);
+          resp.getStatusCode(),
+          pullRequestTitle);
       buildStates = new ArrayList<>();
     }
 

@@ -54,13 +54,13 @@ public class GithubHttpResponse {
 
   private static final String MSG_NO_HEADER_FOUND = "No %s header found in response.";
 
-  public final Optional<List<JsonObject>> jsonObjects;
+  private final Optional<List<JsonObject>> jsonObjects;
 
-  public final Optional<JsonObject> jsonObject;
+  private final Optional<JsonObject> jsonObject;
 
   public final Map<String, String> headers;
 
-  public final int statusCode;
+  private final int statusCode;
 
   public final int rateLimitRemaining;
 
@@ -156,6 +156,18 @@ public class GithubHttpResponse {
     }
   }
 
+  public int getStatusCode() {
+    return statusCode;
+  }
+
+  public Optional<List<JsonObject>> getJsonObjects() {
+    return jsonObjects;
+  }
+
+  public Optional<JsonObject> getJsonObject() {
+    return jsonObject;
+  }
+
   private int parseRemainingRateLimit(Map<String, String> headers) {
     String header = headers.get(REMAINING_RATE_LIMIT_HEADER_KEY);
 
@@ -232,4 +244,5 @@ public class GithubHttpResponse {
 
     headers.put(header.getName(), val);
   }
+
 }

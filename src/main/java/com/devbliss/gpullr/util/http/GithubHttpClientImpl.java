@@ -65,7 +65,7 @@ public class GithubHttpClientImpl implements GithubHttpClient {
 
   private void logResponse(GithubHttpResponse resp) {
     logger.debug("HTTP response from GitHub: "
-        + resp.statusCode
+        + resp.getStatusCode()
         + ", remaining rate limit: "
         + resp.rateLimitRemaining
         + ", reset at: "

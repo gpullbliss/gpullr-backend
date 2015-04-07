@@ -58,7 +58,7 @@ public class GithubHttpResponseUnitTest {
     GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri);
     assertEquals(RATE_LIMIT_REMAINING, githubHttpResponse.rateLimitRemaining);
     assertTrue(githubHttpResponse.rateLimitResetTime.isPresent());
-    assertEquals(STATUS_CODE, githubHttpResponse.statusCode);
+    assertEquals(STATUS_CODE, githubHttpResponse.getStatusCode());
     assertEquals(URI_STRING, githubHttpResponse.uri);
   }
 
