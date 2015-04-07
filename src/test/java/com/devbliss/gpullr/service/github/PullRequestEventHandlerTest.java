@@ -1,13 +1,13 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.PullRequestEvent;
-import com.devbliss.gpullr.domain.PullRequestEvent.Action;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
+import com.devbliss.gpullr.domain.PullRequestEvent;
+import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.service.RankingService;
 import java.util.Optional;

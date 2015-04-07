@@ -1,10 +1,9 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.PullRequestEvent;
-import com.devbliss.gpullr.domain.PullRequestEvent.Action;
-
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
+import com.devbliss.gpullr.domain.PullRequestEvent;
+import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.Log;
 import java.util.Optional;
