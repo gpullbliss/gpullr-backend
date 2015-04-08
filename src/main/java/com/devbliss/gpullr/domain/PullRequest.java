@@ -74,7 +74,7 @@ public class PullRequest {
    */
   public String branchName;
 
-  public int numberOfComments;
+  public int numberOfReviewComments;
 
   @Override
   public int hashCode() {

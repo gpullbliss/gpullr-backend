@@ -239,7 +239,7 @@ public class GithubApi {
     pullRequest.linesRemoved = pullRequestJson.getInt("deletions");
     pullRequest.filesChanged = pullRequestJson.getInt("changed_files");
     pullRequest.number = pullRequestJson.getInt("number");
-    pullRequest.numberOfComments = pullRequestJson.getInt("comments");
+    pullRequest.numberOfReviewComments = pullRequestJson.getInt("review_comments");
     JsonValue assigneeValue = pullRequestJson.get(FIELD_KEY_ASSIGNEE);
 
     // unfortunately, assignee is only set when PR is CLOSED - so it's useless for us!
