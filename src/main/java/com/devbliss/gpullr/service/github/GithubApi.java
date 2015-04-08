@@ -116,11 +116,6 @@ public class GithubApi {
 
     try {
       Optional<PullRequest> fetchedPullRequest = handleResponse(resp, this::parsePullRequestPayload);
-
-      if (fetchedPullRequest.isPresent()) {
-        logger.debug("********** FETCH_PULL_REQUEST__ # of cmts: " + fetchedPullRequest.get().numberOfComments + " / "
-            + fetchedPullRequest.get().title);
-      }
       return new GithubPullRequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -229,10 +224,6 @@ public class GithubApi {
     Action action = Action.parse(payloadJson.getString(FIELD_KEY_ACTION));
     PullRequest pullRequest = parsePullRequestPayload(payloadJson.getJsonObject("pull_request"));
     pullRequest.repo = repo;
-    if (pullRequest != null) {
-      logger.debug("********** PARSE_PULL_REQUEST_EV__ # of cmts: " + pullRequest.numberOfComments + " / "
-          + pullRequest.title);
-    }
     return Optional.of(new PullRequestEvent(action, pullRequest));
   }
 
@@ -248,7 +239,7 @@ public class GithubApi {
     pullRequest.linesRemoved = pullRequestJson.getInt("deletions");
     pullRequest.filesChanged = pullRequestJson.getInt("changed_files");
     pullRequest.number = pullRequestJson.getInt("number");
-    pullRequest.numberOfComments = pullRequestJson.getInt("review_comments");
+    pullRequest.numberOfReviewComments = pullRequestJson.getInt("review_comments");
     JsonValue assigneeValue = pullRequestJson.get(FIELD_KEY_ASSIGNEE);
 
     // unfortunately, assignee is only set when PR is CLOSED - so it's useless for us!
