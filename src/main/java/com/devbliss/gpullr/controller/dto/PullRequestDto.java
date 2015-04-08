@@ -35,4 +35,6 @@ public class PullRequestDto {
   public String buildStatus;
 
   public Integer numberOfComments;
+  
+  public String buildUri;
 }

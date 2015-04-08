@@ -76,7 +76,8 @@ public class PullRequestConverterUnitTest {
 
   private static final BuildStatus BUILD_STATUS = new BuildStatus(
       BuildStatus.State.PENDING,
-      ZonedDateTime.now().minusMinutes(10));
+      ZonedDateTime.now().minusMinutes(10),
+      "http://your.build.is.broken.example.com");
 
   private static final User ASSIGNEE =
       new User(ASSIGNEE_ID, ASSIGNEE_USERNAME, ASSIGNEE_FULL_NAME, ASSIGNEE_AVATAR_URL, ASSSIGNEE_PROFILE_URL);
@@ -130,5 +131,6 @@ public class PullRequestConverterUnitTest {
     assertEquals(ASSIGNED_AT_STRING, dto.assignedAt);
     assertEquals(NUMBER_OF_COMMENTS, dto.numberOfComments.intValue());
     assertEquals(BUILD_STATUS.state.name(), dto.buildStatus);
+    assertEquals(BUILD_STATUS.buildUri, dto.buildUri);
   }
 }

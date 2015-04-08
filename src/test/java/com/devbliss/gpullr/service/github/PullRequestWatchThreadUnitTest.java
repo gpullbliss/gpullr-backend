@@ -98,8 +98,8 @@ public class PullRequestWatchThreadUnitTest {
         Optional.of(pullRequest),
         Instant.now().plusSeconds(60),
         nonEmptyEtagHeader);
-    latestBuildStatus = new BuildStatus(State.PENDING, NOW);
-    earlierBuildStatus = new BuildStatus(State.FAILURE, TEN_MINUTES_AGO);
+    latestBuildStatus = new BuildStatus(State.PENDING, NOW, null);
+    earlierBuildStatus = new BuildStatus(State.FAILURE, TEN_MINUTES_AGO, null);
     buildStates = Arrays.asList(latestBuildStatus, earlierBuildStatus);
     githubPullRequestBuildStatusResponse = new GithubPullRequestBuildStatusResponse(buildStates, resp);
     when(githubApi.fetchPullRequest(pullRequest, emptyEtagHeader)).thenReturn(githubPullRequestResponse);

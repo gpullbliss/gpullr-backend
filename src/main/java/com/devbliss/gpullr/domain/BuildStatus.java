@@ -25,9 +25,10 @@ public class BuildStatus {
 
   public BuildStatus() {}
 
-  public BuildStatus(State state, ZonedDateTime timestamp) {
+  public BuildStatus(State state, ZonedDateTime timestamp, String buildUri) {
     this.state = state;
     this.timestamp = timestamp;
+    this.buildUri = buildUri;
   }
 
   @Enumerated(EnumType.STRING)
@@ -36,4 +37,10 @@ public class BuildStatus {
 
   @Column(name = "build_timestamp")
   public ZonedDateTime timestamp;
+
+  /**
+   * URI pointing to the CI build (e.g. Jenkins)
+   */
+  @Column(name = "build_uri")
+  public String buildUri;
 }

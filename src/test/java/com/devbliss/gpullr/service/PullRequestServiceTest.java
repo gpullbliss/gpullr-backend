@@ -110,7 +110,7 @@ public class PullRequestServiceTest {
     testPr.state = PullRequest.State.OPEN;
     testPr.createdAt = ZonedDateTime.now();
     testPr.branchName = BRANCH_NAME;
-    testPr.buildStatus = new BuildStatus(BUILD_STATUS, BUILD_STATUS_TIMESTAMP);
+    testPr.buildStatus = new BuildStatus(BUILD_STATUS, BUILD_STATUS_TIMESTAMP, null);
     testPr.numberOfComments = NUMBER_OF_COMMENTS;
   }
 
@@ -156,7 +156,7 @@ public class PullRequestServiceTest {
     final BuildStatus.State state = BuildStatus.State.SUCCESS;
     final ZonedDateTime timestamp = BUILD_STATUS_TIMESTAMP.plusMinutes(5);
     final int pullRequestId = fetchedList.get(0).id;
-    BuildStatus status = new BuildStatus(state, timestamp);
+    BuildStatus status = new BuildStatus(state, timestamp, null);
     prService.saveBuildstatus(pullRequestId, status);
 
     // verify change:
