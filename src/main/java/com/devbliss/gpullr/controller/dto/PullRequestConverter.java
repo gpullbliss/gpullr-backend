@@ -29,6 +29,7 @@ public class PullRequestConverter {
     dto.closedAt = entity.closedAt != null ? entity.closedAt.toString() : null;
     dto.numberOfComments = entity.numberOfComments;
     dto.buildStatus = entity.buildStatus != null ? entity.buildStatus.state.name() : null;
+    dto.buildUri = entity.buildStatus != null ? entity.buildStatus.buildUri : null;
     return dto;
   }
 

@@ -25,9 +25,10 @@ public class BuildStatus {
 
   public BuildStatus() {}
 
-  public BuildStatus(State state, ZonedDateTime timestamp) {
+  public BuildStatus(State state, ZonedDateTime timestamp, String buildUri) {
     this.state = state;
     this.timestamp = timestamp;
+    this.buildUri = buildUri;
   }
 
   @Enumerated(EnumType.STRING)
