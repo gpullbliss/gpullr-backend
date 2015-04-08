@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.json.JsonObject;
+import javax.json.JsonValue.ValueType;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ public class PullRequestBuildStatusParser {
   private static final String FIELD_KEY_TIMESTAMP = "created_at";
 
   private static final String FIELD_KEY_STATE = "state";
+
+  private static final String FIELD_KEY_URI = "target_url";
 
   private static final String ERR =
       "Github-Response for pullrequest build statuses did not return list of json objects, pull request was '%s'";
@@ -58,6 +61,11 @@ public class PullRequestBuildStatusParser {
     BuildStatus pullRequestBuildStatus = new BuildStatus();
     pullRequestBuildStatus.timestamp = ZonedDateTime.parse(jsonObject.getString(FIELD_KEY_TIMESTAMP));
     pullRequestBuildStatus.state = BuildStatus.State.parse(jsonObject.getString(FIELD_KEY_STATE));
+
+    if (jsonObject.get(FIELD_KEY_URI).getValueType() == ValueType.STRING) {
+      pullRequestBuildStatus.buildUri = jsonObject.getString(FIELD_KEY_URI);
+    }
+
     return pullRequestBuildStatus;
   }
 }

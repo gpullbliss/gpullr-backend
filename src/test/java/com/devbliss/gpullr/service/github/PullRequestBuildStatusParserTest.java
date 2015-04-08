@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -78,6 +79,13 @@ public class PullRequestBuildStatusParserTest {
     assertEquals(
         ZonedDateTime.of(LocalDateTime.of(2015, 3, 30, 15, 35, 34), ZoneId.of("Z")),
         buildStatusResponse.payload.get(2).timestamp);
+    assertEquals(
+        "http://jenkins.devbliss.com/job/gPullR-backend-pullrequest/131/",
+        buildStatusResponse.payload.get(0).buildUri);
+    assertEquals(
+        "http://jenkins.devbliss.com/job/gPullR-backend-pullrequest/131/",
+        buildStatusResponse.payload.get(1).buildUri);
+    assertNull(buildStatusResponse.payload.get(2).buildUri);
     assertEquals(ETAG, buildStatusResponse.etagHeader.get());
   }
 

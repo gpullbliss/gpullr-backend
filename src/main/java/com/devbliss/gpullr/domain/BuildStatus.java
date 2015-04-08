@@ -36,4 +36,10 @@ public class BuildStatus {
 
   @Column(name = "build_timestamp")
   public ZonedDateTime timestamp;
+
+  /**
+   * URI pointing to the CI build (e.g. Jenkins)
+   */
+  @Column(name = "build_uri")
+  public String buildUri;
 }
