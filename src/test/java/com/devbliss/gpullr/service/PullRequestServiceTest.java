@@ -79,7 +79,7 @@ public class PullRequestServiceTest {
 
   private static final ZonedDateTime BUILD_STATUS_TIMESTAMP = ZonedDateTime.now().minusMinutes(10);
 
-  private static final int NUMBER_OF_COMMENTS = 17;
+  private static final int NUMBER_OF_REVIEW_COMMENTS = 17;
 
   @Autowired
   private PullRequestRepository prRepository;
@@ -111,7 +111,7 @@ public class PullRequestServiceTest {
     testPr.createdAt = ZonedDateTime.now();
     testPr.branchName = BRANCH_NAME;
     testPr.buildStatus = new BuildStatus(BUILD_STATUS, BUILD_STATUS_TIMESTAMP);
-    testPr.numberOfComments = NUMBER_OF_COMMENTS;
+    testPr.numberOfReviewComments = NUMBER_OF_REVIEW_COMMENTS;
   }
 
   @After
@@ -139,7 +139,7 @@ public class PullRequestServiceTest {
     assertEquals(BUILD_STATUS, fetched.buildStatus.state);
     assertEquals(BUILD_STATUS_TIMESTAMP, fetched.buildStatus.timestamp);
     assertEquals(BRANCH_NAME, fetched.branchName);
-    assertEquals(NUMBER_OF_COMMENTS, fetched.numberOfComments);
+    assertEquals(NUMBER_OF_REVIEW_COMMENTS, fetched.numberOfReviewComments);
   }
 
   @Test

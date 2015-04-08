@@ -74,11 +74,7 @@ public class PullRequest {
    */
   public String branchName;
 
-  /**
-   * Sum of number of "review comments" (=refering to certain lines of code) and "comments" (belonging to the
-   * pull request itself). 
-   */
-  public int numberOfComments;
+  public int numberOfReviewComments;
 
   @Override
   public int hashCode() {
