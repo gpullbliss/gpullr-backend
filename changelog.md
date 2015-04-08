@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [bug] correct field for fetching number of review comments
  - [feature] number of comments and build status in pull request data
  - [feature] added user profile url to user
  - [feature] do not count closed pull request if the author and assignee are the same person.
@@ -45,5 +46,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Tue Apr 07 10:24:58 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed Apr 08 09:14:25 CEST 2015
 
