@@ -74,6 +74,9 @@ public class PullRequest {
    */
   public String branchName;
 
+  /**
+   * Review comments.
+   */
   public int numberOfComments;
 
   @Override
