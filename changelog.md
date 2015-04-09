@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] session timeout 9 hrs
  - [feature] storing build uri in pullrequest when fetching pullrequest status from Github
  - [bug] number of comments in a pullrequest is now the sum of both normal and review comments
  - [bug] correct field for fetching number of review comments
@@ -48,5 +49,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed Apr 08 13:45:58 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 09 14:40:50 CEST 2015
 
