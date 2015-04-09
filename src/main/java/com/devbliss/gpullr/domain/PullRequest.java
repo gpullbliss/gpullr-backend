@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.domain;
 
+import static java.lang.Math.log;
+
 import java.time.ZonedDateTime;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -8,8 +10,11 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a pullRequest persisted in our application.
@@ -20,6 +25,8 @@ import javax.validation.constraints.NotNull;
 public class PullRequest {
 
   private static final String SEPARATOR = " / ";
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PullRequest.class);
 
   public enum State {
     OPEN, CLOSED
@@ -117,5 +124,16 @@ public class PullRequest {
   @Override
   public String toString() {
     return "[id=" + repo.id + SEPARATOR + repo.name + SEPARATOR + number + "]";
+  }
+
+  @Transient
+  public double calculateGrading() {
+    LOGGER.debug("               ****************                ");
+    LOGGER.debug("ln von linesAdded=" + linesAdded + " => " + log(linesAdded));
+    LOGGER.debug("ln von linesRemoved=" + linesRemoved + " => " + log(linesRemoved));
+    LOGGER.debug("ln von filesChanged=" + filesChanged + " => " + log(filesChanged));
+    LOGGER.debug("");
+    LOGGER.debug("");
+    return 0d;
   }
 }

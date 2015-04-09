@@ -237,6 +237,7 @@ public class PullRequestService {
       pullRequest = ensureClosedAtIfClosed(pullRequest);
     }
 
+    pullRequest.calculateGrading();
     pullRequestRepository.save(pullRequest);
   }
 

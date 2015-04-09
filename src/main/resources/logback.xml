@@ -25,7 +25,8 @@
     </encoder>
   </appender>
 
-  <logger name="com.devbliss.gpullr" level="debug" />
+  <logger name="com.devbliss.gpullr" level="error" />
+  <logger name="com.devbliss.gpullr.domain.PullRequest" level="debug" />
   <logger name="org.springframework.context.support" level="error" />
   
   <root level="warn">
