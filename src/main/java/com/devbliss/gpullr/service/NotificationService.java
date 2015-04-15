@@ -5,10 +5,12 @@ import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.NotificationRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by abluem on 15/04/15.
  */
+@Service
 public class NotificationService {
 
   private final NotificationRepository notificationRepository;
@@ -38,5 +40,4 @@ public class NotificationService {
     notifications.forEach(n -> n.seen = true);
     notificationRepository.save(notifications);
   }
-
 }
