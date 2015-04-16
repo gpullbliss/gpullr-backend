@@ -93,7 +93,7 @@ public class PullRequestServiceUnitTest {
     anotherAssignee = new User();
     anotherAssignee.id = ANOTHER_ASSIGNEE_ID;
     pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService,
-      repoRepository);
+      repoRepository, notificationService);
     pullRequestFromLocalStorage = new PullRequest();
     pullRequestFromLocalStorage.id = ID;
     pullRequestFromLocalStorage.repo = repo;

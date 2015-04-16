@@ -11,7 +11,7 @@ public class NotificationConverter {
 
   public NotificationDto toDto(Notification entity) {
     NotificationDto dto = new NotificationDto();
-    dto.createdAt = entity.createdAt.toString();
+    dto.createdAt = entity.timestamp.toString();
     dto.id = entity.id;
     dto.type = entity.notificationType;
     dto.actorName = (entity.actor != null) ? entity.actor.fullName : "";

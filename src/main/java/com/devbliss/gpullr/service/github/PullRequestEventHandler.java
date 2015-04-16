@@ -4,11 +4,16 @@ import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
+import com.devbliss.gpullr.service.NotificationService;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.Log;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +26,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PullRequestEventHandler {
 
+  private final ZonedDateTime applicationStartupDatetime;
+
   @Log
   Logger logger;
 
@@ -31,12 +38,22 @@ public class PullRequestEventHandler {
 
   private final PullRequestWatcher pullRequestWatcher;
 
+  private final NotificationService notificationService;
+
   @Autowired
   public PullRequestEventHandler(
       PullRequestService pullRequestService,
-      PullRequestWatcher pullRequestWatcher) {
+      PullRequestWatcher pullRequestWatcher,
+      NotificationService notificationService,
+      ApplicationContext applicationContext) {
     this.pullRequestService = pullRequestService;
     this.pullRequestWatcher = pullRequestWatcher;
+    this.notificationService = notificationService;
+
+    long startupDateTimeEpochMillis = applicationContext.getStartupDate();
+    Instant instant = Instant.ofEpochMilli(startupDateTimeEpochMillis);
+    ZoneId zone = ZoneId.systemDefault();
+    applicationStartupDatetime = ZonedDateTime.ofInstant(instant, zone);
   }
 
   public void handlePullRequestEvent(PullRequestEvent event) {
@@ -51,6 +68,11 @@ public class PullRequestEventHandler {
       }
     } else if (event.action == Action.CLOSED) {
       pullRequestFromEvent.state = State.CLOSED;
+
+      if (applicationStartupDatetime.isBefore(pullRequestFromEvent.closedAt)) {
+        logger.debug(">>>>>>>>>>> sending notification for closed pull request " + pullRequestFromEvent.toString());
+        notificationService.createClosedPullRequestNotification(pullRequestFromEvent);
+      }
     } else if (event.action == Action.REOPENED) {
       pullRequestFromEvent.state = State.OPEN;
     }

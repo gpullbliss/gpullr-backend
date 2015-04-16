@@ -102,7 +102,7 @@ public class PullRequestServiceTest {
   @Before
   public void setup() {
     githubApi = mock(GithubApi.class);
-    prService = new PullRequestService(prRepository, userRepository, githubApi, userService, repoRepository);
+    prService = new PullRequestService(prRepository, userRepository, githubApi, userService, repoRepository, notificationService);
     testPr = new PullRequest();
     testPr.id = PR_ID;
     testPr.author = initUser();

@@ -14,5 +14,7 @@ public interface NotificationRepository extends CrudRepository<Notification, Lon
 
   Optional<Notification> findById(Long notificationId);
 
+//  Optional<Notification> findById(Long notificationId);
+
   List<Notification> findByReceivingUserIdAndSeenIsFalse(Long receivingUserId);
 }

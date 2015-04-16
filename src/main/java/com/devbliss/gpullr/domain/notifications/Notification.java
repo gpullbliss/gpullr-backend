@@ -3,6 +3,7 @@ package com.devbliss.gpullr.domain.notifications;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.User;
 import java.time.ZonedDateTime;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -23,7 +24,8 @@ public class Notification {
   @GeneratedValue(strategy = GenerationType.AUTO)
   public long id;
 
-  public ZonedDateTime createdAt;
+  @Column(name = "TMSTMP")
+  public ZonedDateTime timestamp;
 
   public Boolean seen;
 
