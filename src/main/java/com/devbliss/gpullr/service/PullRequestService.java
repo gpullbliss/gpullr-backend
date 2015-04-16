@@ -11,19 +11,15 @@ import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javafx.application.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 /**
@@ -65,26 +61,31 @@ public class PullRequestService {
 
   private final RepoRepository repoRepository;
 
+  private final NotificationService notificationService;
+
   @Autowired
   public PullRequestService(
       PullRequestRepository pullRequestRepository,
       UserRepository userRepository,
       GithubApi githubApi,
       UserService userService,
-      RepoRepository repoRepository) {
+      RepoRepository repoRepository,
+      NotificationService notificationService) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
     this.userService = userService;
     this.repoRepository = repoRepository;
+    this.notificationService = notificationService;
+
   }
 
   public List<PullRequest> findAll() {
     return pullRequestRepository
-        .findAll()
-        .stream()
-        .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
-        .collect(Collectors.toList());
+      .findAll()
+      .stream()
+      .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
+      .collect(Collectors.toList());
   }
 
   /**
@@ -100,9 +101,9 @@ public class PullRequestService {
    */
   public List<PullRequest> findAllOpen() {
     List<PullRequest> prs = pullRequestRepository.findAllByState(State.OPEN)
-        .stream()
-        .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
-        .collect(Collectors.toList());
+      .stream()
+      .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
+      .collect(Collectors.toList());
 
     Optional<User> user = userService.getCurrentUserIfLoggedIn();
 
@@ -110,9 +111,9 @@ public class PullRequestService {
       UserSettings userSettings = user.get().userSettings;
       if (hasBlacklistedRepos(user.get())) {
         prs = prs
-            .stream()
-            .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
-            .collect(Collectors.toList());
+          .stream()
+          .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
+          .collect(Collectors.toList());
       }
     }
 
@@ -121,15 +122,15 @@ public class PullRequestService {
 
   public List<PullRequest> findAllOpen(String... repoIdsOrNames) {
     List<Repo> repos = Stream.of(repoIdsOrNames)
-        .map(ion -> findRepoByIdOrName(ion))
-        .collect(Collectors.toList());
+      .map(ion -> findRepoByIdOrName(ion))
+      .collect(Collectors.toList());
 
     List<PullRequest> openPullRequests = findAllOpen();
 
     return openPullRequests
-        .stream()
-        .filter(pr -> repos.contains(pr.repo))
-        .collect(Collectors.toList());
+      .stream()
+      .filter(pr -> repos.contains(pr.repo))
+      .collect(Collectors.toList());
   }
 
   private boolean hasBlacklistedRepos(User user) {
@@ -150,10 +151,10 @@ public class PullRequestService {
    */
   public List<PullRequest> findAllClosed() {
     List<PullRequest> pullRequests = pullRequestRepository
-        .findAllByState(PullRequest.State.CLOSED)
-        .stream()
-        .sorted((p1, p2) -> p1.closedAt.compareTo(p2.closedAt))
-        .collect(Collectors.toList());
+      .findAllByState(PullRequest.State.CLOSED)
+      .stream()
+      .sorted((p1, p2) -> p1.closedAt.compareTo(p2.closedAt))
+      .collect(Collectors.toList());
 
     return pullRequests;
   }
@@ -195,8 +196,8 @@ public class PullRequestService {
 
   public void assignPullRequest(User user, Integer pullRequestId) {
     PullRequest pullRequest = pullRequestRepository
-        .findById(pullRequestId)
-        .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
+      .findById(pullRequestId)
+      .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
 
     if (isUserUnknown(user)) {
       throw new NotFoundException("Cannot assign unknown user " + user.username + " to a pullRequest.");
@@ -210,8 +211,8 @@ public class PullRequestService {
 
   public void unassignPullRequest(User user, Integer pullRequestId) {
     PullRequest pullRequest = pullRequestRepository
-        .findById(pullRequestId)
-        .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
+      .findById(pullRequestId)
+      .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
 
     if (isUserUnknown(user)) {
       throw new NotFoundException("Cannot unassign unknown user " + user.username + " from a pullRequest.");
@@ -241,14 +242,18 @@ public class PullRequestService {
       pullRequest = ensureClosedAtIfClosed(pullRequest);
     }
 
+    if (pullRequest.state == State.CLOSED) {
+      notificationService.createClosedPullRequestNotification(pullRequest);
+    }
+    
     pullRequestRepository.save(pullRequest);
   }
 
   public void saveBuildstatus(int pullrequestId, BuildStatus buildStatus) {
     PullRequest pullRequest = pullRequestRepository
-        .findById(pullrequestId)
-        .orElseThrow(
-            () -> new NotFoundException("Cannot save build status: no pull request found with id " + pullrequestId));
+      .findById(pullrequestId)
+      .orElseThrow(
+          () -> new NotFoundException("Cannot save build status: no pull request found with id " + pullrequestId));
     pullRequest.buildStatus = buildStatus;
     pullRequestRepository.save(pullRequest);
   }
