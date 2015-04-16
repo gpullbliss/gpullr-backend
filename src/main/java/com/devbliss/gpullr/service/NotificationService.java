@@ -40,7 +40,7 @@ public class NotificationService {
     return notificationRepository.findByReceivingUserIdAndSeenIsFalse(receivingUserId);
   }
 
-  public void insertOrUpdate(Notification notification) {
+  private void insertOrUpdate(Notification notification) {
     notificationRepository.save(notification);
   }
 
@@ -77,16 +77,12 @@ public class NotificationService {
   }
 
   private boolean isDateAfterApplicationStartup(PullRequest pullRequest) {
-    LOGGER.debug("############# isdatedafter app start time: " + applicationStartupDatetime);
-    LOGGER.debug("############# isdatedafter closedat: " + pullRequest.closedAt);
     boolean before = applicationStartupDatetime.isBefore(pullRequest.closedAt);
-    LOGGER.debug("############# isdatedafter isbefore: " + before);
     return before;
   }
 
   private boolean closedPullRequestNotificationDoesNotExist(PullRequest pullRequest) {
     boolean doesNotExist = !notificationRepository.findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt).isPresent();
-    LOGGER.debug("############# notification does NOT exist: " + doesNotExist + " for " + pullRequest);
     return doesNotExist;
   }
 
