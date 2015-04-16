@@ -242,11 +242,11 @@ public class PullRequestService {
       pullRequest = ensureClosedAtIfClosed(pullRequest);
     }
 
+    pullRequestRepository.save(pullRequest);
+
     if (pullRequest.state == State.CLOSED) {
       notificationService.createClosedPullRequestNotification(pullRequest);
     }
-    
-    pullRequestRepository.save(pullRequest);
   }
 
   public void saveBuildstatus(int pullrequestId, BuildStatus buildStatus) {
