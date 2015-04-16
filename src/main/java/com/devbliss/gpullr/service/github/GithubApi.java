@@ -11,6 +11,7 @@ import com.devbliss.gpullr.util.http.GithubHttpClient;
 import com.devbliss.gpullr.util.http.GithubHttpResponse;
 import com.jcabi.github.Github;
 import com.jcabi.http.Request;
+import com.jcabi.http.Response;
 import com.jcabi.http.response.JsonResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -161,7 +162,12 @@ public class GithubApi {
         .back().uri().path(uri)
         .back();
 
-      req.fetch();
+      Response resp = req.fetch();
+
+      if (resp.status() != 200) {
+        throw new UnexpectedException("Assigning user to pullrequest returned unexpected HTTP status from GH: "
+            + resp.status());
+      }
 
     } catch (IOException e) {
       logger.error("assigning user {} to pr {} FAILED - what a shame!",
