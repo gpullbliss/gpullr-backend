@@ -93,6 +93,9 @@ public class PullRequestServiceTest {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private NotificationService notificationService;
+
   private GithubApi githubApi;
 
   private PullRequestService prService;
@@ -102,7 +105,8 @@ public class PullRequestServiceTest {
   @Before
   public void setup() {
     githubApi = mock(GithubApi.class);
-    prService = new PullRequestService(prRepository, userRepository, githubApi, userService, repoRepository, notificationService);
+    prService = new PullRequestService(prRepository, userRepository, githubApi, userService, repoRepository,
+        notificationService);
     testPr = new PullRequest();
     testPr.id = PR_ID;
     testPr.author = initUser();

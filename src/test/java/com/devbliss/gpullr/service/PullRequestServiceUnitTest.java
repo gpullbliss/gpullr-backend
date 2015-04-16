@@ -77,6 +77,9 @@ public class PullRequestServiceUnitTest {
   @Mock
   private RepoRepository repoRepository;
 
+  @Mock
+  private NotificationService notificationService;
+
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
 
@@ -93,7 +96,7 @@ public class PullRequestServiceUnitTest {
     anotherAssignee = new User();
     anotherAssignee.id = ANOTHER_ASSIGNEE_ID;
     pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService,
-      repoRepository, notificationService);
+        repoRepository, notificationService);
     pullRequestFromLocalStorage = new PullRequest();
     pullRequestFromLocalStorage.id = ID;
     pullRequestFromLocalStorage.repo = repo;
