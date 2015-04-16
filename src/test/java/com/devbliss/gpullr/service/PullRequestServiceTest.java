@@ -13,6 +13,7 @@ import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.NotFoundException;
+import com.devbliss.gpullr.repository.NotificationRepository;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -94,6 +95,9 @@ public class PullRequestServiceTest {
   private UserService userService;
 
   @Autowired
+  private NotificationRepository notificationRepository;
+
+  @Autowired
   private NotificationService notificationService;
 
   private GithubApi githubApi;
@@ -120,6 +124,7 @@ public class PullRequestServiceTest {
 
   @After
   public void teardown() {
+    notificationRepository.deleteAll();
     prRepository.deleteAll();
     repoRepository.deleteAll();
     userRepository.deleteAll();
