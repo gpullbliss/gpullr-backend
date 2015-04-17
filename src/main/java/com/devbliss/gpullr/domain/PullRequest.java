@@ -76,7 +76,7 @@ public class PullRequest {
 
   /**
    * Sum of number of "review comments" (=refering to certain lines of code) and "comments" (belonging to the
-   * pull request itself). 
+   * pull request itself).
    */
   public int numberOfComments;
 
@@ -116,6 +116,7 @@ public class PullRequest {
 
   @Override
   public String toString() {
+    System.err.println("repo: " + repo + " SEPARATOR: " + SEPARATOR + " number: " + number);
     return "[id=" + repo.id + SEPARATOR + repo.name + SEPARATOR + number + "]";
   }
 }
