@@ -17,7 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by abluem on 15/04/15.
+ * Notification Service. Notifying the user of any merged / closed pull requests.
  */
 @Service
 public class NotificationService {
