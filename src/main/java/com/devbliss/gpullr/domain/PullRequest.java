@@ -116,7 +116,6 @@ public class PullRequest {
 
   @Override
   public String toString() {
-    System.err.println("repo: " + repo + " SEPARATOR: " + SEPARATOR + " number: " + number);
     return "[id=" + repo.id + SEPARATOR + repo.name + SEPARATOR + number + "]";
   }
 }
