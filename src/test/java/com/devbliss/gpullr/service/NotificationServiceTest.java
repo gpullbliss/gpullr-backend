@@ -53,7 +53,9 @@ public class NotificationServiceTest {
   private NotificationService notificationService;
 
   private Repo repo;
+  
   private User assignee;
+  
   private User receivingUser;
 
   @Before
