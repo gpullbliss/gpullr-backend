@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
+/**
+ * Persists {@link Notification} entities.
+ * 
+ */
 public interface NotificationRepository extends CrudRepository<Notification, Long> {
 
   List<Notification> findAll();
