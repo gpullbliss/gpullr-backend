@@ -53,9 +53,9 @@ public class NotificationServiceTest {
   private NotificationService notificationService;
 
   private Repo repo;
-  
+
   private User assignee;
-  
+
   private User receivingUser;
 
   @Before
@@ -76,7 +76,8 @@ public class NotificationServiceTest {
 
   @Test
   public void notificationsAvailable() {
-    PullRequest pullRequest = createAndSaveClosedPullRequest(0xBABE, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L));
+    PullRequest pullRequest = createAndSaveClosedPullRequest(0xBABE, assignee, receivingUser,
+        ZonedDateTime.now().plusMinutes(1L));
     notificationService.createClosedPullRequestNotification(pullRequest);
 
     List<Notification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
@@ -87,7 +88,8 @@ public class NotificationServiceTest {
 
   @Test
   public void markNotificationAsSeen() {
-    PullRequest pullRequest = createAndSaveClosedPullRequest(0xBABE, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L));
+    PullRequest pullRequest = createAndSaveClosedPullRequest(0xBABE, assignee, receivingUser,
+        ZonedDateTime.now().plusMinutes(1L));
 
     notificationService.createClosedPullRequestNotification(pullRequest);
     List<Notification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
@@ -145,9 +147,11 @@ public class NotificationServiceTest {
   public void oldEventsBeforeAppStartupNotEvaluated() {
     PullRequest pullRequest;
 
-    pullRequest = createAndSaveClosedPullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L));
+    pullRequest =
+        createAndSaveClosedPullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L));
     notificationService.createClosedPullRequestNotification(pullRequest);
-    pullRequest = createAndSaveClosedPullRequest(0xC002, assignee, receivingUser, ZonedDateTime.now().minusMinutes(1L));
+    pullRequest =
+        createAndSaveClosedPullRequest(0xC002, assignee, receivingUser, ZonedDateTime.now().minusMinutes(1L));
     notificationService.createClosedPullRequestNotification(pullRequest);
 
     List<Notification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
@@ -161,11 +165,11 @@ public class NotificationServiceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void pullRequestMustBeClosedToCreateClosedPullRequestNotification() {
-    PullRequest pullRequest = createAndSaveClosedPullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L));
+    PullRequest pullRequest =
+        createAndSaveClosedPullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L));
     pullRequest.state = PullRequest.State.OPEN;
     notificationService.createClosedPullRequestNotification(pullRequest);
   }
-
 
   private PullRequest createAndSaveClosedPullRequest(Integer id,
       User assignee,

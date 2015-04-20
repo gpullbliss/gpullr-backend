@@ -22,8 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController {
+
   private final NotificationService notificationService;
+
   private final NotificationConverter notificationConverter;
+
   private final UserService userService;
 
   @Autowired
@@ -39,11 +42,11 @@ public class NotificationController {
   public ListDto<NotificationDto> getMyNotifications() {
     User user = userService.whoAmI();
     return new ListDto<>(
-        notificationService.
-            allUnseenNotificationsForUser(user.id).
-            stream().
-            map(notificationConverter::toDto).
-            collect(Collectors.toList()));
+        notificationService
+          .allUnseenNotificationsForUser(user.id)
+          .stream()
+          .map(notificationConverter::toDto)
+          .collect(Collectors.toList()));
   }
 
   @RequestMapping(method = RequestMethod.DELETE)

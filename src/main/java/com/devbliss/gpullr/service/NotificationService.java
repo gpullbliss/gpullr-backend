@@ -41,8 +41,10 @@ public class NotificationService {
   }
 
   public void markAsSeen(long notificationId) {
-    Notification notification = notificationRepository.findById(notificationId)
-      .orElseThrow(() -> new NotFoundException(String.format("Notification with id=%s not found. :(", notificationId)));
+    Notification notification = notificationRepository
+      .findById(notificationId)
+      .orElseThrow(() -> new NotFoundException(
+          String.format("Notification with id=%s not found.", notificationId)));
     notification.seen = true;
     notificationRepository.save(notification);
   }
@@ -78,8 +80,7 @@ public class NotificationService {
   }
 
   private boolean closedPullRequestNotificationDoesNotExist(PullRequest pullRequest) {
-    boolean doesNotExist = !notificationRepository.findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt).isPresent();
-    return doesNotExist;
+    return !notificationRepository.findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt).isPresent();
   }
 
   private ZonedDateTime calculateApplicationStartupTime(ApplicationContext applicationContext) {
