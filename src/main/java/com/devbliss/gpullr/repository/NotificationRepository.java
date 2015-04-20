@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
-/**
- * Created by abluem on 15/04/15.
- */
 public interface NotificationRepository extends CrudRepository<Notification, Long> {
 
   List<Notification> findAll();

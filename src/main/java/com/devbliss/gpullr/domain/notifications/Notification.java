@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
 
 /**
+ * Notification persisted in the repository.
  * Created by Alexander Bluem and Henning Schuetz on 15/04/15.
  */
 @Entity

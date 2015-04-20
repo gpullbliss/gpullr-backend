@@ -4,7 +4,9 @@ import com.devbliss.gpullr.domain.notifications.Notification;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by abluem on 15/04/15.
+ * Converter for {@link com.devbliss.gpullr.domain.notifications.Notification} entity to DTO {@link NotificationDto}
+ * to be transferred by the {@link com.devbliss.gpullr.controller.NotificationController} to the calling client. Some
+ * information is purposely left out.
  */
 @Component
 public class NotificationConverter {

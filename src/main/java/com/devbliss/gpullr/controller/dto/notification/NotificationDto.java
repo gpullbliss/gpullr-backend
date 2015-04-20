@@ -3,7 +3,8 @@ package com.devbliss.gpullr.controller.dto.notification;
 import com.devbliss.gpullr.domain.notifications.NotificationType;
 
 /**
- * Created by abluem on 15/04/15.
+ * DTO {@link NotificationDto} to be transferred by the {@link com.devbliss.gpullr.controller.NotificationController}
+ * to the calling client.
  */
 public class NotificationDto {
 

@@ -16,13 +16,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Created by abluem on 15/04/15.
+ * Notification Controller delegating data between {@link com.devbliss.gpullr.service.NotificationService} and user
+ * by REST means.
  */
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController {
+
   private final NotificationService notificationService;
+
   private final NotificationConverter notificationConverter;
+
   private final UserService userService;
 
   @Autowired
@@ -38,11 +42,11 @@ public class NotificationController {
   public ListDto<NotificationDto> getMyNotifications() {
     User user = userService.whoAmI();
     return new ListDto<>(
-        notificationService.
-          allUnseenNotificationsForUser(user.id).
-          stream().
-          map(notificationConverter::toDto).
-          collect(Collectors.toList()));
+        notificationService
+          .allUnseenNotificationsForUser(user.id)
+          .stream()
+          .map(notificationConverter::toDto)
+          .collect(Collectors.toList()));
   }
 
   @RequestMapping(method = RequestMethod.DELETE)
@@ -52,7 +56,8 @@ public class NotificationController {
     notificationService.allUnseenNotificationsForUser(user.id);
   }
 
-  @RequestMapping(value = "/{notificationId}", method = RequestMethod.DELETE)
+  @RequestMapping(value = "/{notificationId}",
+      method = RequestMethod.DELETE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void markMyNotificationAsRead(@RequestParam("notificationId") long notificationId) {
     notificationService.markAsSeen(notificationId);

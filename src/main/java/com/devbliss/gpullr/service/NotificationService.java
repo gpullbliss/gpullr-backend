@@ -10,19 +10,15 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by abluem on 15/04/15.
+ * Notification Service. Notifying the user of any merged / closed pull requests.
  */
 @Service
 public class NotificationService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(NotificationService.class);
 
   private final NotificationRepository notificationRepository;
 
@@ -45,8 +41,10 @@ public class NotificationService {
   }
 
   public void markAsSeen(long notificationId) {
-    Notification notification = notificationRepository.findById(notificationId)
-      .orElseThrow(() -> new NotFoundException(String.format("Notification with id=%s not found. :(", notificationId)));
+    Notification notification = notificationRepository
+      .findById(notificationId)
+      .orElseThrow(() -> new NotFoundException(
+          String.format("Notification with id=%s not found.", notificationId)));
     notification.seen = true;
     notificationRepository.save(notification);
   }
@@ -82,8 +80,7 @@ public class NotificationService {
   }
 
   private boolean closedPullRequestNotificationDoesNotExist(PullRequest pullRequest) {
-    boolean doesNotExist = !notificationRepository.findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt).isPresent();
-    return doesNotExist;
+    return !notificationRepository.findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt).isPresent();
   }
 
   private ZonedDateTime calculateApplicationStartupTime(ApplicationContext applicationContext) {
