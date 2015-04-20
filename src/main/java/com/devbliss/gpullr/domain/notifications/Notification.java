@@ -16,8 +16,9 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
 
 /**
- * Notification persisted in the repository.
- * Created by Alexander Bluem and Henning Schuetz on 15/04/15.
+ * A notification addressed to a single user that will show up until the user marks it as "seen".
+ * Informs the user about events he might be interested in, e.g. that one of his pull requests have been merged.
+ * 
  */
 @Entity
 public class Notification {
