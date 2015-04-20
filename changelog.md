@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] PR-closed-notification: backend part (w/o WebSocket support)
  - [feature] session timeout 9 hrs
  - [feature] storing build uri in pullrequest when fetching pullrequest status from Github
  - [bug] number of comments in a pullrequest is now the sum of both normal and review comments
@@ -49,5 +50,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 09 14:40:50 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Apr 20 10:24:31 CEST 2015
 

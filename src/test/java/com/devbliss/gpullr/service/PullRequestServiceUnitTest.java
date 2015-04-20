@@ -3,9 +3,11 @@ package com.devbliss.gpullr.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,6 +79,9 @@ public class PullRequestServiceUnitTest {
   @Mock
   private RepoRepository repoRepository;
 
+  @Mock
+  private NotificationService notificationService;
+
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
 
@@ -93,7 +98,7 @@ public class PullRequestServiceUnitTest {
     anotherAssignee = new User();
     anotherAssignee.id = ANOTHER_ASSIGNEE_ID;
     pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService,
-      repoRepository);
+        repoRepository, notificationService);
     pullRequestFromLocalStorage = new PullRequest();
     pullRequestFromLocalStorage.id = ID;
     pullRequestFromLocalStorage.repo = repo;
@@ -226,6 +231,22 @@ public class PullRequestServiceUnitTest {
 
     verify(userService, atLeastOnce()).getCurrentUserIfLoggedIn();
     assertEquals(NEW_PR_TITLE, allOpen.get(0).title);
+  }
+
+  @Test
+  public void callCreateClosedPullRequestNotificationWhenPullRequestIsInClosedState() {
+    pullRequestFromGitHub.state = State.CLOSED;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(notificationService).createClosedPullRequestNotification(pullRequestFromGitHub);
+  }
+
+  @Test
+  public void dontCallCreateClosedPullRequestNotificationWhenPullRequestIsInOpenState() {
+    pullRequestFromGitHub.state = State.OPEN;
+    when(pullRequestRepository.findById(ID)).thenReturn(Optional.of(pullRequestFromLocalStorage));
+    pullRequestService.insertOrUpdate(pullRequestFromGitHub);
+    verify(notificationService, never()).createClosedPullRequestNotification(any(PullRequest.class));
   }
 
   private void mockFindOpenPullRequests() {

@@ -61,18 +61,23 @@ public class PullRequestService {
 
   private final RepoRepository repoRepository;
 
+  private final NotificationService notificationService;
+
   @Autowired
   public PullRequestService(
       PullRequestRepository pullRequestRepository,
       UserRepository userRepository,
       GithubApi githubApi,
       UserService userService,
-      RepoRepository repoRepository) {
+      RepoRepository repoRepository,
+      NotificationService notificationService) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;
     this.userService = userService;
     this.repoRepository = repoRepository;
+    this.notificationService = notificationService;
+
   }
 
   public List<PullRequest> findAll() {
@@ -238,6 +243,10 @@ public class PullRequestService {
     }
 
     pullRequestRepository.save(pullRequest);
+
+    if (pullRequest.state == State.CLOSED) {
+      notificationService.createClosedPullRequestNotification(pullRequest);
+    }
   }
 
   public void saveBuildstatus(int pullrequestId, BuildStatus buildStatus) {

@@ -76,7 +76,7 @@ public class PullRequest {
 
   /**
    * Sum of number of "review comments" (=refering to certain lines of code) and "comments" (belonging to the
-   * pull request itself). 
+   * pull request itself).
    */
   public int numberOfComments;
 

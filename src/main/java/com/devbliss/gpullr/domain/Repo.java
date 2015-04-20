@@ -74,4 +74,13 @@ public class Repo {
     }
     return true;
   }
+
+  @Override public String toString() {
+    return "Repo{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        ", description='" + description + '\'' +
+        ", active=" + active +
+        '}';
+  }
 }
