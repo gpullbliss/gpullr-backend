@@ -1,8 +1,11 @@
 package com.devbliss.gpullr.service.github;
 
+import static com.devbliss.gpullr.util.Constants.QUALIFIER_TASK_SCHEDULER;
+
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.service.PullRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class PullRequestWatchThreadProducer {
 
   @Autowired
+  @Qualifier(QUALIFIER_TASK_SCHEDULER)
   private TaskScheduler taskScheduler;
 
   @Autowired

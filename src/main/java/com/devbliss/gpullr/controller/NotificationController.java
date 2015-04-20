@@ -27,8 +27,8 @@ public class NotificationController {
 
   @Autowired
   public NotificationController(NotificationService notificationService,
-                                NotificationConverter notificationConverter,
-                                UserService userService) {
+      NotificationConverter notificationConverter,
+      UserService userService) {
     this.notificationService = notificationService;
     this.notificationConverter = notificationConverter;
     this.userService = userService;
@@ -39,22 +39,22 @@ public class NotificationController {
     User user = userService.whoAmI();
     return new ListDto<>(
         notificationService.
-            allUnseenNotificationsForUser(user.id).
-            stream().
-            map(notificationConverter::toDto).
-            collect(Collectors.toList()));
+          allUnseenNotificationsForUser(user.id).
+          stream().
+          map(notificationConverter::toDto).
+          collect(Collectors.toList()));
   }
 
   @RequestMapping(method = RequestMethod.DELETE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void markAllMyNotificationsAsRead(){
+  public void markAllMyNotificationsAsRead() {
     User user = userService.whoAmI();
     notificationService.allUnseenNotificationsForUser(user.id);
   }
 
   @RequestMapping(value = "/{notificationId}", method = RequestMethod.DELETE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void markMyNotificationAsRead(@RequestParam("notificationId") long notificationId){
+  public void markMyNotificationAsRead(@RequestParam("notificationId") long notificationId) {
     notificationService.markAsSeen(notificationId);
   }
 }

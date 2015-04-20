@@ -9,7 +9,6 @@ import com.devbliss.gpullr.util.Log;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,9 +22,6 @@ public class PullRequestEventHandler {
 
   @Log
   Logger logger;
-
-  @Autowired
-  private TaskScheduler taskScheduler;
 
   private final PullRequestService pullRequestService;
 

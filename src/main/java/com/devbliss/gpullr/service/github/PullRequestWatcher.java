@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
+import static com.devbliss.gpullr.util.Constants.QUALIFIER_TASK_SCHEDULER;
+
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
@@ -8,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.TaskScheduler;
@@ -40,7 +43,7 @@ public class PullRequestWatcher {
 
   @Autowired
   public PullRequestWatcher(
-      TaskScheduler taskScheduler,
+      @Qualifier(QUALIFIER_TASK_SCHEDULER) TaskScheduler taskScheduler,
       PullRequestWatchThreadProducer pullRequestWatchThreadProducer) {
     this.taskScheduler = taskScheduler;
     this.pullRequestWatchThreadProducer = pullRequestWatchThreadProducer;

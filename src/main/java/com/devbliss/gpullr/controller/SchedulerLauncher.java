@@ -1,9 +1,12 @@
 package com.devbliss.gpullr.controller;
 
+import static com.devbliss.gpullr.util.Constants.QUALIFIER_TASK_SCHEDULER;
+
 import java.time.Instant;
 import java.util.Date;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +24,7 @@ public class SchedulerLauncher {
   private static final int DELAYED_TASK_START_AFTER_SECONDS = 30;
 
   @Autowired
+  @Qualifier(QUALIFIER_TASK_SCHEDULER)
   private ThreadPoolTaskScheduler executor;
 
   @Autowired

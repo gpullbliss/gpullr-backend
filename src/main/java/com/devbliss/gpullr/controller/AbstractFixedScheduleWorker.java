@@ -1,10 +1,13 @@
 package com.devbliss.gpullr.controller;
 
+import static com.devbliss.gpullr.util.Constants.QUALIFIER_TASK_SCHEDULER;
+
 import com.devbliss.gpullr.util.Log;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 
 /**
@@ -37,7 +40,7 @@ public abstract class AbstractFixedScheduleWorker {
   Logger logger;
 
   @Autowired
-  public void setTaskScheduler(TaskScheduler executor) {
+  public void setTaskScheduler(@Qualifier(QUALIFIER_TASK_SCHEDULER) TaskScheduler executor) {
     this.taskScheduler = executor;
   }
 

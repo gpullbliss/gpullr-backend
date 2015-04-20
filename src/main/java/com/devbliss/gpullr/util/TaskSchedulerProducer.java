@@ -1,5 +1,8 @@
 package com.devbliss.gpullr.util;
 
+import static com.devbliss.gpullr.util.Constants.QUALIFIER_TASK_SCHEDULER;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +21,8 @@ public class TaskSchedulerProducer {
 
   @Bean
   @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-  public TaskScheduler createThreadPoolTaskScheduler() {
+  @Qualifier(QUALIFIER_TASK_SCHEDULER)
+  public ThreadPoolTaskScheduler createThreadPoolTaskScheduler() {
     ThreadPoolTaskScheduler executor = new ThreadPoolTaskScheduler();
     executor.setPoolSize(5);
     executor.initialize();

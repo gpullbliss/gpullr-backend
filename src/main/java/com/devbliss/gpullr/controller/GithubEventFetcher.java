@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.controller;
 
+import static com.devbliss.gpullr.util.Constants.QUALIFIER_TASK_SCHEDULER;
+
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.RepoCreatedEvent;
 import com.devbliss.gpullr.service.RepoService;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
@@ -43,6 +46,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   private PullRequestEventHandler pullRequestEventHandler;
 
   @Autowired
+  @Qualifier(QUALIFIER_TASK_SCHEDULER)
   private ThreadPoolTaskScheduler executor;
 
   public GithubEventFetcher() {
