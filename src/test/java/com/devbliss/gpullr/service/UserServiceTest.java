@@ -9,14 +9,18 @@ import static org.mockito.Mockito.when;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
 import java.util.Arrays;
 import java.util.List;
+import javax.validation.ValidationException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -47,6 +51,9 @@ public class UserServiceTest {
   private UserSession userSession;
 
   private UserService userService;
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setup() {
@@ -170,5 +177,19 @@ public class UserServiceTest {
   @Test(expected = TransactionSystemException.class)
   public void userNeedsUsername() {
     userService.insertOrUpdate(new User(ID, "", FULL_NAME, AVATAR_URL, PROFILE_URL));
+  }
+
+  @Test
+  public void doNotSaveUserSettingsWithNonExistingLanguage() {
+    UserSettings userSettings = new UserSettings();
+    User user = userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
+    user.userSettings = new UserSettings();
+    userRepository.save(user);
+    
+//    thrown.expect(TransactionSystemException.class);
+//    thrown.expectMessage("Muuuschiiii");
+//    
+//    userSettings.language = "xX";
+//    userService.updateUserSettings(ID, userSettings);
   }
 }

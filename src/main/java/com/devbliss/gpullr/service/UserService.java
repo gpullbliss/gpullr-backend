@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.exception.NotFoundException;
+
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.LoginRequiredException;
@@ -83,7 +85,9 @@ public class UserService {
   }
 
   public User updateUserSettings(int userId, UserSettings update) {
-    User user = findOne(userId);
+    User user = userRepository
+      .findById(userId)
+      .orElseThrow(() -> new NotFoundException("Cannot update user settings for non-existing user with id " + userId));
 
     if (user.userSettings != null) {
       // update existing user settings
