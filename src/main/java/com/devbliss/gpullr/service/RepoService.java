@@ -44,17 +44,32 @@ public class RepoService {
    * already stored in the database will be updated in case they have changed. The ones in the database which are
    * NOT in the given list will be inactive afterwards.
    *
-   * @param repos
+   * @param activeRepos
    */
-  public void setActiveRepos(List<Repo> repos) {
+  public void setActiveRepos(List<Repo> activeRepos) {
     List<Repo> existingRepos = repoRepository.findAll();
-    existingRepos.stream().filter(r -> !repos.contains(r)).forEach(r -> {
-      LOGGER.info("Deactivating local repo '{}'", r.name);
-      r.active = false;
-      repoRepository.save(r);
+
+    existingRepos.forEach(existingRepo -> {
+      if (!activeRepos.contains(existingRepo)) {
+        LOGGER.info("Deactivating local repo '{}'", existingRepo.name);
+        existingRepo.active = false;
+        repoRepository.save(existingRepo);
+      } else {
+        // check if repo has been renamed
+        activeRepos
+            .stream()
+            .filter(activeRepo -> activeRepo.id.equals(existingRepo.id))
+            .findFirst()
+            .ifPresent(renamedRepo -> {
+                  LOGGER.info("Renaming repo: '{}' to '{}'.", renamedRepo.name, existingRepo.name);
+                  existingRepo.name = renamedRepo.name;
+                  repoRepository.save(existingRepo);
+                }
+            );
+      }
     });
 
-    repos.stream().filter(r -> !existingRepos.contains(r)).forEach(r -> {
+    activeRepos.stream().filter(r -> !existingRepos.contains(r)).forEach(r -> {
       LOGGER.info("Firing repo created event for new repo '{}'", r.name);
       repoRepository.save(r);
       applicationContext.publishEvent(new RepoCreatedEvent(this, r));
