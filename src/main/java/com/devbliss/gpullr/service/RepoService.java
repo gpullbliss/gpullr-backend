@@ -44,21 +44,43 @@ public class RepoService {
    * already stored in the database will be updated in case they have changed. The ones in the database which are
    * NOT in the given list will be inactive afterwards.
    *
-   * @param repos
+   * @param activeRepos
    */
-  public void setActiveRepos(List<Repo> repos) {
+  public void setActiveRepos(List<Repo> activeRepos) {
     List<Repo> existingRepos = repoRepository.findAll();
-    existingRepos.stream().filter(r -> !repos.contains(r)).forEach(r -> {
-      LOGGER.info("Deactivating local repo '{}'", r.name);
-      r.active = false;
-      repoRepository.save(r);
+
+    existingRepos.forEach(existingRepo -> {
+      if (!activeRepos.contains(existingRepo)) {
+        deactivateRepo(existingRepo);
+      } else {
+        Repo repo = activeRepos.get(activeRepos.indexOf(existingRepo));
+        if (!repo.name.equals(existingRepo.name)) {
+          renameRepo(existingRepo, repo.name);
+        }
+      }
     });
 
-    repos.stream().filter(r -> !existingRepos.contains(r)).forEach(r -> {
-      LOGGER.info("Firing repo created event for new repo '{}'", r.name);
-      repoRepository.save(r);
-      applicationContext.publishEvent(new RepoCreatedEvent(this, r));
-    });
+    activeRepos.stream()
+      .filter(r -> !existingRepos.contains(r))
+      .forEach(this::persistRepo);
+  }
+
+  private void deactivateRepo(Repo repo) {
+    LOGGER.info("Deactivating local repo '{}'", repo.name);
+    repo.active = false;
+    repoRepository.save(repo);
+  }
+
+  private void renameRepo(Repo repo, final String newName) {
+    LOGGER.info("Renaming repo: '{}' to '{}'.", repo.name, newName);
+    repo.name = newName;
+    repoRepository.save(repo);
+  }
+
+  private void persistRepo(Repo repo) {
+    LOGGER.info("Firing repo created event for new repo '{}'", repo.name);
+    repoRepository.save(repo);
+    applicationContext.publishEvent(new RepoCreatedEvent(this, repo));
   }
 
   public List<Repo> findAllActive() {

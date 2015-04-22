@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.devbliss.gpullr.Application;
@@ -48,10 +46,14 @@ public class RepoServiceTest {
 
   private ApplicationContext applicationContext;
 
+  private ArgumentCaptor<RepoCreatedEvent> repoCreatedEventArgumentCaptor;
+
   @Before
   public void setup() {
     applicationContext = mock(ApplicationContext.class);
     repoService = new RepoService(repoRepository, applicationContext);
+
+    repoCreatedEventArgumentCaptor = ArgumentCaptor.forClass(RepoCreatedEvent.class);
   }
 
   @After
@@ -60,42 +62,77 @@ public class RepoServiceTest {
   }
 
   @Test
-  public void setActiveRepos() {
+  public void setActiveSetsActive() {
     // make sure database is empty at the beginning:
     assertEquals(0, repoService.findAllActive().size());
 
     // create a list of three repos and store it:
-    List<Repo> createdRepos = new ArrayList<>();
-    IntStream.of(0, 1, 2).forEach(i -> createdRepos.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
-    repoService.setActiveRepos(createdRepos);
-    ArgumentCaptor<RepoCreatedEvent> repoCreatedEventCaptor = ArgumentCaptor.forClass(RepoCreatedEvent.class);
-    verify(applicationContext, times(3)).publishEvent(repoCreatedEventCaptor.capture());
-    repoCreatedEventCaptor.getAllValues().forEach(e -> assertTrue(createdRepos.contains(e.createdRepo)));
-    reset(applicationContext);
+    List<Repo> reposToActivate = new ArrayList<>();
+    IntStream.of(0, 1).forEach(i -> reposToActivate.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
+    repoService.setActiveRepos(reposToActivate);
 
     // make sure those three repos are returned by the service:
     List<Repo> retrievedRepos = repoService.findAllActive();
-    assertEquals(3, retrievedRepos.size());
-    createdRepos.forEach(r -> assertTrue(retrievedRepos.contains(r)));
+    assertEquals(2, retrievedRepos.size());
+    reposToActivate.forEach(r -> assertTrue(retrievedRepos.contains(r)));
+  }
 
-    // remove one element from list, add two new ones and store the list again:
-    Repo notStoredAgain = createdRepos.remove(2);
-    IntStream.of(3, 4).forEach(i -> createdRepos.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
-    repoService.setActiveRepos(createdRepos);
-    ArgumentCaptor<RepoCreatedEvent> repoCreatedEventCaptorAgain = ArgumentCaptor.forClass(RepoCreatedEvent.class);
-    verify(applicationContext, times(2)).publishEvent(repoCreatedEventCaptorAgain.capture());
-    repoCreatedEventCaptorAgain.getAllValues().forEach(e -> assertTrue(createdRepos.contains(e.createdRepo)));
+  @Test
+  public void setActiveDeactivatesRepo() {
+    // create 3 repos
+    List<Repo> reposToActivate = new ArrayList<>();
+    IntStream.of(0, 1, 2).forEach(i -> reposToActivate.add(new Repo(ID + i, NAME + i, DESCRIPTION + i)));
+    repoService.setActiveRepos(reposToActivate);
 
-    // the element that has NOT been stored again should not be returned by findAllActive() ...:
-    List<Repo> retrievedReposAgain = repoService.findAllActive();
-    assertEquals(4, retrievedReposAgain.size());
-    createdRepos.forEach(r -> assertTrue(retrievedReposAgain.contains(r)));
-    assertFalse(retrievedReposAgain.contains(notStoredAgain));
+    assertEquals(3, repoService.findAllActive().size());
 
-    // ... however, the repo should still exist (inactive):
-    Optional<Repo> notStoredAgainFromDb = repoService.findByName(notStoredAgain.name);
-    assertTrue(notStoredAgainFromDb.isPresent());
-    assertFalse(notStoredAgainFromDb.get().active);
+    // call setActiveRepos with one repo missing (should deactivate the missing repo)
+    Repo removedRepo = reposToActivate.remove(2);
+    repoService.setActiveRepos(reposToActivate);
+
+    // there are only 2 active repos left
+    assertEquals(2, repoService.findAllActive().size());
+
+    // verify deactivated repo is still persisted
+    Optional<Repo> deactivatedRepo = repoService.findByName(removedRepo.name);
+    assertTrue(deactivatedRepo.isPresent());
+  }
+
+  @Test
+  public void setActiveUpdatesRenamedRepo() {
+    final String updatedName = "updated repo";
+
+    // create repo
+    Repo repo = new Repo(ID, NAME, DESCRIPTION);
+    repoService.setActiveRepos(Arrays.asList(repo));
+
+    // "new" repo (same ID, different title)
+    Repo renamedRepo = new Repo(ID, updatedName, DESCRIPTION);
+    repoService.setActiveRepos(Arrays.asList(renamedRepo));
+
+    // verify the repo is updated
+    List<Repo> allActive = repoService.findAllActive();
+    Repo activeRepo = allActive.get(0);
+    assertEquals(1, allActive.size());
+    assertEquals(ID, activeRepo.id);
+    assertEquals(updatedName, activeRepo.name);
+
+    // verify there is no repo with the old name anymore
+    Optional<Repo> byName = repoService.findByName(NAME);
+    assertFalse(byName.isPresent());
+  }
+
+  @Test
+  public void setActiveFiresRepoCreatedEvent() {
+    Repo repo = new Repo(ID, NAME, DESCRIPTION);
+    repoService.setActiveRepos(Arrays.asList(repo));
+
+    // verify event is fired
+    verify(applicationContext).publishEvent(repoCreatedEventArgumentCaptor.capture());
+
+    // verify event includes the created repo
+    RepoCreatedEvent event = repoCreatedEventArgumentCaptor.getValue();
+    assertEquals(ID, event.createdRepo.id);
   }
 
   @Test
