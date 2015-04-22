@@ -1,9 +1,5 @@
 package com.devbliss.gpullr.domain;
 
-import javax.validation.constraints.Size;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.AssertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +13,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.AssertTrue;
 
 /**
  * Individual settings for a user of the application.
@@ -45,7 +42,6 @@ public class UserSettings {
   @ElementCollection(fetch = FetchType.EAGER)
   public List<Integer> repoBlackList = new ArrayList<>();
 
-  @Size(min=2, max=2)
   public String language;
 
   public UserSettings() {}
@@ -66,8 +62,6 @@ public class UserSettings {
   
   @AssertTrue
   public boolean isLocaleValid() {
-    boolean isNull = language == null;
-    boolean contains = ALLOWED_LANGUAGES.contains(language); 
     return language == null || ALLOWED_LANGUAGES.contains(language);
   }
 }

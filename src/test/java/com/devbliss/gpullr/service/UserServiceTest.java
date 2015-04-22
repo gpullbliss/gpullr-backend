@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.service;
 
+import javax.validation.ConstraintViolationException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -7,7 +9,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
@@ -182,21 +183,26 @@ public class UserServiceTest {
 
   @Test
   public void saveValidLanguage() {
-    userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, true, PROFILE_URL, new UserSettings()));
+    userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
     User user = userService.findById(ID).orElseThrow(() -> new NotFoundException("User not found"));
-    assertNull(user.userSettings.language);
+    assertNull(user.userSettings);
 
-    user.userSettings.language = "de";
-    userService.updateUserSettings(ID, user.userSettings);
+    UserSettings userSettings = new UserSettings();
+    userSettings.language = "de";
+    userService.updateUserSettings(ID, userSettings);
     user = userService.findById(ID).orElseThrow(() -> new NotFoundException("User not found"));
+    assertNotNull(user.userSettings);
     assertEquals("de", user.userSettings.language);
   }
 
-  @Test(expected = TransactionSystemException.class)
+  @Test
   public void doNotSaveUserSettingsWithNonExistingLanguage() {
-    User user =
-        userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, true, PROFILE_URL, new UserSettings()));
-    user.userSettings.language = "xx";
-    userService.updateUserSettings(ID, user.userSettings);
+    userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
+
+    thrown.expect(ConstraintViolationException.class);
+    
+    UserSettings userSettings = new UserSettings();
+    userSettings.language = "xx";
+    userService.updateUserSettings(ID, userSettings);
   }
 }
