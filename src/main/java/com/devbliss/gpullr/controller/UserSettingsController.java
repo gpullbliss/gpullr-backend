@@ -1,10 +1,12 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.controller.dto.ListDto;
 import com.devbliss.gpullr.controller.dto.UserSettingsConverter;
 import com.devbliss.gpullr.controller.dto.UserSettingsDto;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.service.UserService;
+import com.devbliss.gpullr.util.Constants;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,4 +40,8 @@ public class UserSettingsController {
     userService.updateUserSession(user);
   }
 
+  @RequestMapping(value = "/languages", method = RequestMethod.GET)
+  public ListDto<String> getAvailableLanguages() {
+    return new ListDto<>(Constants.ALLOWED_LANGUAGES);
+  }
 }

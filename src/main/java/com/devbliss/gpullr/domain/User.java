@@ -7,6 +7,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -37,9 +38,10 @@ public class User {
   @OneToOne(
       fetch = FetchType.EAGER,
       targetEntity = UserSettings.class,
-      cascade = CascadeType.PERSIST,
+      cascade = CascadeType.ALL,
       orphanRemoval = true)
   @JoinColumn(name = "user_settings_id")
+  @Valid
   public UserSettings userSettings;
 
   public User() {}
