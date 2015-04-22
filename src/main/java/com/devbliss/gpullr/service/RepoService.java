@@ -51,29 +51,36 @@ public class RepoService {
 
     existingRepos.forEach(existingRepo -> {
       if (!activeRepos.contains(existingRepo)) {
-        LOGGER.info("Deactivating local repo '{}'", existingRepo.name);
-        existingRepo.active = false;
-        repoRepository.save(existingRepo);
+        deactivateRepo(existingRepo);
       } else {
-        // check if repo has been renamed
-        activeRepos
-            .stream()
-            .filter(activeRepo -> activeRepo.id.equals(existingRepo.id))
-            .findFirst()
-            .ifPresent(renamedRepo -> {
-                  LOGGER.info("Renaming repo: '{}' to '{}'.", renamedRepo.name, existingRepo.name);
-                  existingRepo.name = renamedRepo.name;
-                  repoRepository.save(existingRepo);
-                }
-            );
+        Repo repo = activeRepos.get(activeRepos.indexOf(existingRepo));
+        if (!repo.name.equals(existingRepo.name)) {
+          renameRepo(existingRepo, repo.name);
+        }
       }
     });
 
-    activeRepos.stream().filter(r -> !existingRepos.contains(r)).forEach(r -> {
-      LOGGER.info("Firing repo created event for new repo '{}'", r.name);
-      repoRepository.save(r);
-      applicationContext.publishEvent(new RepoCreatedEvent(this, r));
-    });
+    activeRepos.stream()
+      .filter(r -> !existingRepos.contains(r))
+      .forEach(this::persistRepo);
+  }
+
+  private void deactivateRepo(Repo repo) {
+    LOGGER.info("Deactivating local repo '{}'", repo.name);
+    repo.active = false;
+    repoRepository.save(repo);
+  }
+
+  private void renameRepo(Repo repo, final String newName) {
+    LOGGER.info("Renaming repo: '{}' to '{}'.", repo.name, newName);
+    repo.name = newName;
+    repoRepository.save(repo);
+  }
+
+  private void persistRepo(Repo repo) {
+    LOGGER.info("Firing repo created event for new repo '{}'", repo.name);
+    repoRepository.save(repo);
+    applicationContext.publishEvent(new RepoCreatedEvent(this, repo));
   }
 
   public List<Repo> findAllActive() {
