@@ -20,9 +20,7 @@ import java.util.List;
 import javax.validation.ConstraintViolationException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -53,9 +51,6 @@ public class UserServiceTest {
   private UserSession userSession;
 
   private UserService userService;
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setup() {
@@ -195,12 +190,10 @@ public class UserServiceTest {
     assertEquals("de", user.userSettings.language);
   }
 
-  @Test
+  @Test(expected = ConstraintViolationException.class)
   public void doNotSaveUserSettingsWithNonExistingLanguage() {
     userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
 
-    thrown.expect(ConstraintViolationException.class);
-    
     UserSettings userSettings = new UserSettings();
     userSettings.language = "xx";
     userService.updateUserSettings(ID, userSettings);
