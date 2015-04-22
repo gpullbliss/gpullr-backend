@@ -6,6 +6,13 @@
 </head>
 <body>
 	<h1>Websocket Test</h1>
-	<p>Websockets funzen.</p>
+	<p>Websockets funzen. Yehaaa!</p>	
+	<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+  <script>
+  var ws = new SockJS('http://localhost:8888');
+  var client = Stomp.over(ws);  
+  </script>	
+	
 </body>
 </html>
