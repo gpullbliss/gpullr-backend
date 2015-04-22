@@ -26,7 +26,7 @@
     </encoder>
   </appender>
 
-  <logger name="com.devbliss.gpullr" level="error" />
+  <logger name="com.devbliss.gpullr" level="info" />
   <logger name="com.devbliss.gpullr.controller.NotificationWebsocketController" level="debug" />
   <logger name="org.springframework.context.support" level="error" />
 
