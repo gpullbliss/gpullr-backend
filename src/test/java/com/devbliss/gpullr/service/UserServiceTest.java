@@ -3,17 +3,21 @@ package com.devbliss.gpullr.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.LoginRequiredException;
+import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
 import java.util.Arrays;
 import java.util.List;
+import javax.validation.ConstraintViolationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -170,5 +174,28 @@ public class UserServiceTest {
   @Test(expected = TransactionSystemException.class)
   public void userNeedsUsername() {
     userService.insertOrUpdate(new User(ID, "", FULL_NAME, AVATAR_URL, PROFILE_URL));
+  }
+
+  @Test
+  public void saveValidLanguage() {
+    userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
+    User user = userService.findById(ID).orElseThrow(() -> new NotFoundException("User not found"));
+    assertNull(user.userSettings);
+
+    UserSettings userSettings = new UserSettings();
+    userSettings.language = "de";
+    userService.updateUserSettings(ID, userSettings);
+    user = userService.findById(ID).orElseThrow(() -> new NotFoundException("User not found"));
+    assertNotNull(user.userSettings);
+    assertEquals("de", user.userSettings.language);
+  }
+
+  @Test(expected = ConstraintViolationException.class)
+  public void doNotSaveUserSettingsWithNonExistingLanguage() {
+    userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
+
+    UserSettings userSettings = new UserSettings();
+    userSettings.language = "xx";
+    userService.updateUserSettings(ID, userSettings);
   }
 }

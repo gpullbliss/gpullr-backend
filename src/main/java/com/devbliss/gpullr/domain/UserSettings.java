@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.domain;
 
+import static com.devbliss.gpullr.util.Constants.ALLOWED_LANGUAGES;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
@@ -11,6 +13,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.AssertTrue;
 
 /**
  * Individual settings for a user of the application.
@@ -35,8 +38,9 @@ public class UserSettings {
   @ElementCollection(fetch = FetchType.EAGER)
   public List<Integer> repoBlackList = new ArrayList<>();
 
-  public UserSettings() {
-  }
+  public String language;
+
+  public UserSettings() {}
 
   public UserSettings(OrderOption ordering) {
     this.defaultPullRequestListOrdering = ordering;
@@ -45,5 +49,15 @@ public class UserSettings {
   public UserSettings(OrderOption defaultPullRequestListOrdering, List<Integer> repoBlackList) {
     this.defaultPullRequestListOrdering = defaultPullRequestListOrdering;
     this.repoBlackList = repoBlackList;
+  }
+
+  public UserSettings(OrderOption defaultPullRequestListOrdering, List<Integer> repoBlackList, String language) {
+    this(defaultPullRequestListOrdering, repoBlackList);
+    this.language = language;
+  }
+
+  @AssertTrue
+  public boolean isLocaleValid() {
+    return language == null || ALLOWED_LANGUAGES.contains(language);
   }
 }
