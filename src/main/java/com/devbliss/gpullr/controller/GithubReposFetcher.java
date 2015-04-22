@@ -47,6 +47,6 @@ public class GithubReposFetcher extends AbstractFixedScheduleWorker {
    */
   @Override
   protected Date nextExecution() {
-    return Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
+    return Date.from(Instant.now().plus(30, ChronoUnit.MINUTES));
   }
 }
