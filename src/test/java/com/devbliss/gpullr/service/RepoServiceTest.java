@@ -97,6 +97,30 @@ public class RepoServiceTest {
   }
 
   @Test
+  public void setActiveUpdatesRenamedRepo() {
+    final String updatedName = "updated repo";
+
+    // create repo
+    Repo repo = new Repo(ID, NAME, DESCRIPTION);
+    repoService.setActiveRepos(Arrays.asList(repo));
+
+    // "new" repo (same ID, different title)
+    Repo renamedRepo = new Repo(ID, updatedName, DESCRIPTION);
+    repoService.setActiveRepos(Arrays.asList(renamedRepo));
+
+    // verify the repo is updated
+    List<Repo> allActive = repoService.findAllActive();
+    Repo activeRepo = allActive.get(0);
+    assertEquals(1, allActive.size());
+    assertEquals(ID, activeRepo.id);
+    assertEquals(updatedName, activeRepo.name);
+
+    // verify there is no repo with the old name anymore
+    Optional<Repo> byName = repoService.findByName(NAME);
+    assertFalse(byName.isPresent());
+  }
+
+  @Test
   public void setActiveFiresRepoCreatedEvent() {
     Repo repo = new Repo(ID, NAME, DESCRIPTION);
     repoService.setActiveRepos(Arrays.asList(repo));
