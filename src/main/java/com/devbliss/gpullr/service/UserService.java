@@ -1,10 +1,9 @@
 package com.devbliss.gpullr.service;
 
-import com.devbliss.gpullr.exception.NotFoundException;
-
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.LoginRequiredException;
+import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
 import java.util.List;
@@ -47,8 +46,8 @@ public class UserService {
     return userRepository.findAll();
   }
 
-  public User findOne(Integer userId) {
-    return userRepository.findOne(userId);
+  public Optional<User> findById(Integer userId) {
+    return userRepository.findById(userId);
   }
 
   /**
@@ -93,6 +92,7 @@ public class UserService {
       // update existing user settings
       user.userSettings.defaultPullRequestListOrdering = update.defaultPullRequestListOrdering;
       user.userSettings.repoBlackList = update.repoBlackList;
+      user.userSettings.language = update.language;
     } else {
       user.userSettings = update;
     }

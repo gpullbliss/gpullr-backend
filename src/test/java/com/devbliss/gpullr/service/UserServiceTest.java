@@ -3,6 +3,7 @@ package com.devbliss.gpullr.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,11 +12,11 @@ import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.LoginRequiredException;
+import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
 import java.util.Arrays;
 import java.util.List;
-import javax.validation.ValidationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -180,16 +181,22 @@ public class UserServiceTest {
   }
 
   @Test
+  public void saveValidLanguage() {
+    userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, true, PROFILE_URL, new UserSettings()));
+    User user = userService.findById(ID).orElseThrow(() -> new NotFoundException("User not found"));
+    assertNull(user.userSettings.language);
+
+    user.userSettings.language = "de";
+    userService.updateUserSettings(ID, user.userSettings);
+    user = userService.findById(ID).orElseThrow(() -> new NotFoundException("User not found"));
+    assertEquals("de", user.userSettings.language);
+  }
+
+  @Test(expected = TransactionSystemException.class)
   public void doNotSaveUserSettingsWithNonExistingLanguage() {
-    UserSettings userSettings = new UserSettings();
-    User user = userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
-    user.userSettings = new UserSettings();
-    userRepository.save(user);
-    
-//    thrown.expect(TransactionSystemException.class);
-//    thrown.expectMessage("Muuuschiiii");
-//    
-//    userSettings.language = "xX";
-//    userService.updateUserSettings(ID, userSettings);
+    User user =
+        userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, true, PROFILE_URL, new UserSettings()));
+    user.userSettings.language = "xx";
+    userService.updateUserSettings(ID, user.userSettings);
   }
 }
