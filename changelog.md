@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] storing user's preferred language in user settings
  - [feature] PR-closed-notification: backend part (w/o WebSocket support)
  - [feature] session timeout 9 hrs
  - [feature] storing build uri in pullrequest when fetching pullrequest status from Github
@@ -50,5 +51,5 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon Apr 20 10:24:31 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed Apr 22 12:17:41 CEST 2015
 
