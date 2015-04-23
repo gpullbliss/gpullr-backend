@@ -101,21 +101,6 @@ public class RankingServiceIntegrationTest {
   }
 
   @Test
-  @Deprecated
-  public void noPrCountWithoutPrs() {
-
-    // trigger ranking calculation:
-    rankingService.recalculateRankings();
-
-    // fetch calculated rankings:
-    Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.ALL_TIME);
-    assertTrue(rankingList.isPresent());
-
-    List<Ranking> rankings = rankingList.get().getRankings();
-    rankings.forEach(r -> assertTrue(r.closedCount == 0L));
-  }
-
-  @Test
   public void noRankingsWithZeroClosedCount() {
     // create exactly ONE closed pullrequest and trigger ranking calculation:
     pullRequestRepository.save(createPullRequest(userAlpha, ZonedDateTime.now().minusHours(1)));
