@@ -101,6 +101,7 @@ public class RankingServiceIntegrationTest {
   }
 
   @Test
+  @Deprecated
   public void noPrCountWithoutPrs() {
 
     // trigger ranking calculation:
@@ -112,6 +113,22 @@ public class RankingServiceIntegrationTest {
 
     List<Ranking> rankings = rankingList.get().getRankings();
     rankings.forEach(r -> assertTrue(r.closedCount == 0L));
+  }
+
+  @Test
+  public void noRankingsWithZeroClosedCount() {
+    // create exactly ONE closed pullrequest and trigger ranking calculation:
+    pullRequestRepository.save(createPullRequest(userAlpha, ZonedDateTime.now().minusHours(1)));
+    rankingService.recalculateRankings();
+
+    // verify that only one ranking is returned, no zero-closed-count ranking for the other users:
+    Optional<RankingList> allWithRankingScope = rankingService.findAllWithRankingScope(RankingScope.TODAY);
+    assertTrue(allWithRankingScope.isPresent());
+    List<Ranking> rankings = allWithRankingScope.get().getRankings();
+    assertEquals(1, rankings.size());
+    assertEquals(1L, rankings.get(0).closedCount.longValue());
+    assertEquals(1, rankings.get(0).users.size());
+    assertEquals(userAlpha, rankings.get(0).users.get(0));
   }
 
   @Test
