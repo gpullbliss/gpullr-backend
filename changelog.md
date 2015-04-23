@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] fixed availablae languages endpoint
  - [feature] available languages endpoint returns map instead of list
  - [bug] fix bad request response. wrong service methods called.
  - [feature] no zero closed count rankings anymore
@@ -55,4 +56,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 23 16:58:37 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 23 17:10:18 CEST 2015
