@@ -58,6 +58,6 @@ public class UserSettings {
 
   @AssertTrue
   public boolean isLocaleValid() {
-    return language == null || ALLOWED_LANGUAGES.contains(language);
+    return language == null || ALLOWED_LANGUAGES.containsKey(language);
   }
 }

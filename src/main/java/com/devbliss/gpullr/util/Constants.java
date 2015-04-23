@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.util;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * backend wide constants. very wide.
@@ -18,7 +18,10 @@ public class Constants {
 
   public static String KEY_DTO_ERROR_BAD_REQUEST = "BAD_REQUEST";
 
-  public static final List<String> ALLOWED_LANGUAGES = Arrays.asList(
-      Locale.GERMAN.getLanguage(),
-      Locale.ENGLISH.getLanguage());
+  public static final Map<String, String> ALLOWED_LANGUAGES = new HashMap<>();
+
+  static {
+    ALLOWED_LANGUAGES.put(Locale.GERMAN.getLanguage(), "Deutsch");
+    ALLOWED_LANGUAGES.put(Locale.ENGLISH.getLanguage(), "English");
+  }
 }
