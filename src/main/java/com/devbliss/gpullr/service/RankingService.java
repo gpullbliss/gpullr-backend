@@ -98,13 +98,14 @@ public class RankingService {
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
     List<User> users = userRepository.findByCanLoginIsTrue();
-    Map<Long, Ranking> numberOfMergedPullRequestsToUsers = new HashMap<>();
-    users.forEach(u -> addRankingOfUserToMap(numberOfMergedPullRequestsToUsers, u, rankingScope));
-    List<Ranking> rankings = numberOfMergedPullRequestsToUsers
+    Map<Long, Ranking> numberOfMergedPullRequestsToRankings = new HashMap<>();
+    users.forEach(u -> addRankingOfUserToMap(numberOfMergedPullRequestsToRankings, u, rankingScope));
+    List<Ranking> rankings = numberOfMergedPullRequestsToRankings
       .keySet()
       .stream()
+      .filter(n -> n > 0)
       .sorted((n1, n2) -> n2.compareTo(n1))
-      .map(n -> numberOfMergedPullRequestsToUsers.get(n))
+      .map(n -> numberOfMergedPullRequestsToRankings.get(n))
       .collect(Collectors.toList());
     IntStream.range(0, rankings.size()).forEach(i -> rankings.get(i).rank = i + 1);
     return rankings;
