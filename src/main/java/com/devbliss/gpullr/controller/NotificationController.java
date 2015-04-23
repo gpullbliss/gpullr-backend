@@ -7,11 +7,12 @@ import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.NotificationService;
 import com.devbliss.gpullr.service.UserService;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,23 +44,23 @@ public class NotificationController {
     User user = userService.whoAmI();
     return new ListDto<>(
         notificationService
-          .allUnseenNotificationsForUser(user.id)
-          .stream()
-          .map(notificationConverter::toDto)
-          .collect(Collectors.toList()));
+            .allUnseenNotificationsForUser(user.id)
+            .stream()
+            .map(notificationConverter::toDto)
+            .collect(Collectors.toList()));
   }
 
   @RequestMapping(method = RequestMethod.DELETE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void markAllMyNotificationsAsRead() {
     User user = userService.whoAmI();
-    notificationService.allUnseenNotificationsForUser(user.id);
+    notificationService.markAllAsSeenForUser(user.id);
   }
 
   @RequestMapping(value = "/{notificationId}",
       method = RequestMethod.DELETE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void markMyNotificationAsRead(@RequestParam("notificationId") long notificationId) {
+  public void markMyNotificationAsRead(@PathVariable("notificationId") @NotNull Long notificationId) {
     notificationService.markAsSeen(notificationId);
   }
 }

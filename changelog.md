@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [bug] fix bad request response. wrong service methods called.
  - [feature] no zero closed count rankings anymore
  - [feature] storing user's preferred language in user settings
  - [feature] PRT-74 update renamed repositories
@@ -53,4 +54,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 23 11:13:39 CEST 2015
+-- Last change by: Alexander Bluem <alexander.bluem@devbliss.com> Thu Apr 23 12:18:31 CEST 2015
