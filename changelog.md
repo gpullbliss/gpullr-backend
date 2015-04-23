@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] no zero closed count rankings anymore
  - [feature] storing user's preferred language in user settings
  - [feature] PRT-74 update renamed repositories
  - [feature] PR-closed-notification: backend part (w/o WebSocket support)
@@ -52,4 +53,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed Apr 22 12:17:41 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 23 11:13:39 CEST 2015
