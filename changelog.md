@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [bug] switch user language
  - [feature] fixed availablae languages endpoint
  - [feature] available languages endpoint returns map instead of list
  - [bug] fix bad request response. wrong service methods called.
@@ -56,4 +57,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu Apr 23 17:10:18 CEST 2015
+-- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Fri Apr 24 10:49:13 CEST 2015
