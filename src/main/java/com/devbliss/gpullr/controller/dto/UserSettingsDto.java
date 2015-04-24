@@ -19,4 +19,6 @@ public class UserSettingsDto {
 
   public List<Integer> repoBlackList = new ArrayList<>();
 
+  public String language;
+
 }
