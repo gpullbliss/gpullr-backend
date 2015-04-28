@@ -19,7 +19,6 @@ import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -280,44 +279,6 @@ public class PullRequestServiceTest {
 
     // ask for all PRs with the title of the repo just created or a non-existing title:
     prService.findAllOpen(repoTitle, repoTitle + "_doesnotexist");
-  }
-
-  @Test
-  public void findAllOpenPullRequestsRegardsUserOrderSettings() {
-    User user = initUser();
-    userService.login(user.id);
-
-    user.userSettings = new UserSettings(UserSettings.OrderOption.DESC);
-    userService.insertOrUpdate(user);
-
-    // create pull request:
-    prService.insertOrUpdate(testPr);
-
-    // create second pull request that is OLDER:
-    testPr.id = OLD_PR_ID;
-    testPr.url = testPr.url + "_2";
-    testPr.createdAt = testPr.createdAt.minus(1, ChronoUnit.HOURS);
-    prService.insertOrUpdate(testPr);
-
-    // since user has no user preferences yet, the newer pull request should be first in list
-    // (default behavior):
-    List<PullRequest> allOpen = prService.findAllOpen();
-    assertEquals(PR_ID, allOpen.get(0).id.intValue());
-
-    // after storing user preference that user wants pull requests in ascending order, the other one
-    // should be first in list:
-    user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.ASC;
-    userService.updateUserSettings(user.id, user.userSettings);
-    userService.updateUserSession(user);
-    allOpen = prService.findAllOpen();
-    assertEquals(OLD_PR_ID, allOpen.get(0).id.intValue());
-
-    // after changing user preference to descending order, the order changes again:
-    user.userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.DESC;
-    userService.updateUserSettings(user.id, user.userSettings);
-    userService.updateUserSession(user);
-    allOpen = prService.findAllOpen();
-    assertEquals(PR_ID, allOpen.get(0).id.intValue());
   }
 
   @Test

@@ -12,7 +12,6 @@ import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,22 +31,6 @@ import org.springframework.stereotype.Service;
 public class PullRequestService {
 
   private static final String NO_SUCH_REPO_MESSAGE = "No pullRequest found with id ";
-
-  private final Comparator<PullRequest> latestFirstComparator = new Comparator<PullRequest>() {
-
-    @Override
-    public int compare(PullRequest p1, PullRequest p2) {
-      return p2.createdAt.compareTo(p1.createdAt);
-    }
-  };
-
-  private final Comparator<PullRequest> oldestFirstComparator = new Comparator<PullRequest>() {
-
-    @Override
-    public int compare(PullRequest p1, PullRequest p2) {
-      return p1.createdAt.compareTo(p2.createdAt);
-    }
-  };
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestService.class);
 
@@ -100,11 +83,7 @@ public class PullRequestService {
    * @return possibly empty list of pull requests
    */
   public List<PullRequest> findAllOpen() {
-    List<PullRequest> prs = pullRequestRepository.findAllByState(State.OPEN)
-      .stream()
-      .sorted(getPullRequestSortComparator(userService.getCurrentUserIfLoggedIn()))
-      .collect(Collectors.toList());
-
+    List<PullRequest> prs = pullRequestRepository.findAllByState(State.OPEN);
     Optional<User> user = userService.getCurrentUserIfLoggedIn();
 
     if (user.isPresent()) {
@@ -173,17 +152,6 @@ public class PullRequestService {
     }
 
     return repo.orElseThrow(() -> new NotFoundException("No repo found with id or name '" + idOrName + "'."));
-  }
-
-  private Comparator<PullRequest> getPullRequestSortComparator(Optional<User> currentUser) {
-    User user = currentUser.orElse(null);
-    UserSettings userSettings = user != null ? user.userSettings : null;
-
-    if (userSettings == null || userSettings.defaultPullRequestListOrdering == UserSettings.OrderOption.DESC) {
-      return latestFirstComparator;
-    } else {
-      return oldestFirstComparator;
-    }
   }
 
   public Optional<PullRequest> findById(Integer id) {
