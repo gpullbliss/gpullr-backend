@@ -3,6 +3,7 @@
 
 
  - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
+ - [feature] add IT lang config
  - [bug] switch user language
  - [feature] fixed availablae languages endpoint
  - [feature] available languages endpoint returns map instead of list
