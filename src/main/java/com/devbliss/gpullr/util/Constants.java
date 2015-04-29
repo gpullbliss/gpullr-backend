@@ -23,5 +23,6 @@ public class Constants {
   static {
     ALLOWED_LANGUAGES.put(Locale.GERMAN.getLanguage(), "Deutsch");
     ALLOWED_LANGUAGES.put(Locale.ENGLISH.getLanguage(), "English");
+    ALLOWED_LANGUAGES.put(Locale.ITALIAN.getLanguage(), "Italiano");
   }
 }
