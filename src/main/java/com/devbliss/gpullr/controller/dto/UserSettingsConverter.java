@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.controller.dto;
 
 import com.devbliss.gpullr.domain.UserSettings;
+import com.devbliss.gpullr.domain.UserSettings.OrderOption;
 import com.devbliss.gpullr.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
@@ -17,14 +18,12 @@ public class UserSettingsConverter {
     dto.repoBlackList = entity.repoBlackList;
     dto.language = entity.language;
 
-    if (entity.defaultPullRequestListOrdering != null) {
-      String orderOptionValue = entity.defaultPullRequestListOrdering.name();
-      try {
-        dto.orderOptionDto = UserSettingsDto.OrderOptionDto.valueOf(orderOptionValue);
-      } catch (IllegalArgumentException e) {
-        throw new BadRequestException(String.format("Error converting OrderOptions with value '%s' to OrderOptionsDto",
-            orderOptionValue));
-      }
+    if (entity.assignedPullRequestsOrdering != null) {
+      dto.assignedPullRequestsOrdering = toOrderOptionDto(entity.assignedPullRequestsOrdering);
+    }
+
+    if (entity.unassignedPullRequestsOrdering != null) {
+      dto.unassignedPullRequestsOrdering = toOrderOptionDto(entity.unassignedPullRequestsOrdering);
     }
 
     return dto;
@@ -36,17 +35,35 @@ public class UserSettingsConverter {
     entity.repoBlackList = dto.repoBlackList;
     entity.language = dto.language;
 
-    if (dto.orderOptionDto != null) {
-      String orderOptionValue = dto.orderOptionDto.name();
-      try {
-        entity.defaultPullRequestListOrdering = UserSettings.OrderOption.valueOf(orderOptionValue);
-      } catch (IllegalArgumentException e) {
-        throw new BadRequestException(String.format("Error converting OrderOptionsDto with value '%s' to OrderOptions",
-            orderOptionValue));
-      }
+    if (dto.assignedPullRequestsOrdering != null) {
+      entity.assignedPullRequestsOrdering = toOrderOption(dto.assignedPullRequestsOrdering);
+    }
+
+    if (dto.unassignedPullRequestsOrdering != null) {
+      entity.unassignedPullRequestsOrdering = toOrderOption(dto.unassignedPullRequestsOrdering);
     }
 
     return entity;
+  }
+
+  private OrderOption toOrderOption(UserSettingsDto.OrderOptionDto orderOption) {
+
+    try {
+      return UserSettings.OrderOption.valueOf(orderOption.name());
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException(String.format("Error converting OrderOptionsDto with value '%s' to OrderOptions",
+          orderOption));
+    }
+  }
+
+  private UserSettingsDto.OrderOptionDto toOrderOptionDto(OrderOption orderOption) {
+
+    try {
+      return UserSettingsDto.OrderOptionDto.valueOf(orderOption.name());
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException(String.format("Error converting OrderOptions with value '%s' to OrderOptionsDto",
+          orderOption));
+    }
   }
 
 }

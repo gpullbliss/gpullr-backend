@@ -90,7 +90,8 @@ public class UserService {
 
     if (user.userSettings != null) {
       // update existing user settings
-      user.userSettings.defaultPullRequestListOrdering = update.defaultPullRequestListOrdering;
+      user.userSettings.assignedPullRequestsOrdering = update.assignedPullRequestsOrdering;
+      user.userSettings.unassignedPullRequestsOrdering = update.unassignedPullRequestsOrdering;
       user.userSettings.repoBlackList = update.repoBlackList;
       user.userSettings.language = update.language;
     } else {
