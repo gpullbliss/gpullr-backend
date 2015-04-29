@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
  - [bug] switch user language
  - [feature] fixed availablae languages endpoint
  - [feature] available languages endpoint returns map instead of list
@@ -57,4 +58,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Fri Apr 24 10:49:13 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed Apr 29 11:04:58 CEST 2015
