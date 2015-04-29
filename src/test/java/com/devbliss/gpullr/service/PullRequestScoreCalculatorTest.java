@@ -14,7 +14,7 @@ public class PullRequestScoreCalculatorTest {
 
   private static final String PRS_CSV_FILE = "src/test/resources/prs_for_scoring.csv";
 
-  private static final String SEP = "|";
+  private static final String SEP = "\\|";
 
   private List<PullRequest> pullRequests;
 
@@ -28,19 +28,29 @@ public class PullRequestScoreCalculatorTest {
 
   @Test
   public void calculateScores() {
-    pullRequests.stream().forEach(pr -> System.out.println(pullRequestScoreCalculator.calculateScore(pr)));
+    pullRequests
+        .stream()
+        .forEach(pr ->
+            System.out.println(String.format(
+                "PR: files: %d\tAdded: %d\tRemoved: %d\tComments: %d\tScore: %.4f",
+                pr.filesChanged, pr.linesAdded, pr.linesRemoved, pr.numberOfComments, pullRequestScoreCalculator.calculateScore(pr))));
   }
 
   private List<PullRequest> readPullRequests() throws IOException {
 
     try (BufferedReader br = Files.newBufferedReader(Paths.get(PRS_CSV_FILE))) {
-      return br.lines().skip(1).filter(l -> !l.trim().isEmpty()).map(this::lineToPullRequest).collect(
-          Collectors.toList());
+      return br
+          .lines()
+          .skip(1)
+          .filter(l -> !l.trim().isEmpty())
+          .map(this::lineToPullRequest)
+          .collect(Collectors.toList());
     }
   }
 
   /**
    * FILESCHANGED    LINESADDED    LINESREMOVED    NUMBEROFCOMMENTS
+   *
    * @param line
    * @return
    */
