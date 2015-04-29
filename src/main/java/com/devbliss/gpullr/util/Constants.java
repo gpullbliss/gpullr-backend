@@ -19,10 +19,12 @@ public class Constants {
   public static String KEY_DTO_ERROR_BAD_REQUEST = "BAD_REQUEST";
 
   public static final Map<String, String> ALLOWED_LANGUAGES = new LinkedHashMap<>();
+  
+  public static final String DEFAULT_LANGUAGE = Locale.ENGLISH.getLanguage(); 
 
   static {
+    ALLOWED_LANGUAGES.put(DEFAULT_LANGUAGE, "English");
     ALLOWED_LANGUAGES.put(Locale.GERMAN.getLanguage(), "Deutsch");
-    ALLOWED_LANGUAGES.put(Locale.ENGLISH.getLanguage(), "English");
     ALLOWED_LANGUAGES.put(Locale.ITALIAN.getLanguage(), "Italiano");
   }
 }

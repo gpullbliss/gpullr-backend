@@ -6,6 +6,7 @@ import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
+import com.devbliss.gpullr.util.Constants;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,6 +38,9 @@ public class UserService {
       if (dbUser != null && dbUser.userSettings != null) {
         user.userSettings = dbUser.userSettings;
       }
+    } else if(user.userSettings == null) {
+      user.userSettings = new UserSettings();
+      user.userSettings.language = Constants.DEFAULT_LANGUAGE;
     }
 
     userRepository.save(user);
