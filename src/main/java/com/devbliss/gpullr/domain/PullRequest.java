@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.domain;
 
+import com.devbliss.gpullr.service.PullRequestScoreCalculator;
 import java.time.ZonedDateTime;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -8,8 +9,10 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Represents a pullRequest persisted in our application.
@@ -69,6 +72,10 @@ public class PullRequest {
   @Embedded
   public BuildStatus buildStatus;
 
+  @Autowired
+  @Transient
+  private PullRequestScoreCalculator pullRequestScoreCalculator;
+
   /**
    * Very often, but  NOT necessarily equal to the pull request title
    */
@@ -79,6 +86,10 @@ public class PullRequest {
    * pull request itself).
    */
   public int numberOfComments;
+
+  public double calculateScore() {
+    return pullRequestScoreCalculator.calculateScore(this);
+  }
 
   @Override
   public int hashCode() {
