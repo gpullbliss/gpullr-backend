@@ -71,8 +71,6 @@ public class PullRequestServiceTest {
 
   private static final int BLACKLISTED_REPO_ID = 501231;
 
-  private static final int OLD_PR_ID = 2;
-
   private static final String BRANCH_NAME = "feature/somethingReallyCool";
 
   private static final BuildStatus.State BUILD_STATUS = BuildStatus.State.PENDING;
