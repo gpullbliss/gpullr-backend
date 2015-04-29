@@ -26,12 +26,14 @@ public class UserSettingsConverterUnitTest {
     MockitoAnnotations.initMocks(this);
     userSettings = new UserSettings();
     userSettings.id = 1;
-    userSettings.defaultPullRequestListOrdering = UserSettings.OrderOption.ASC;
+    userSettings.assignedPullRequestsOrdering = UserSettings.OrderOption.ASC;
+    userSettings.unassignedPullRequestsOrdering = UserSettings.OrderOption.DESC;
     userSettings.repoBlackList.addAll(Arrays.asList(1, 2));
 
     userSettingsDto = new UserSettingsDto();
     userSettingsDto.id = 2;
-    userSettingsDto.orderOptionDto = UserSettingsDto.OrderOptionDto.DESC;
+    userSettingsDto.assignedPullRequestsOrdering = UserSettingsDto.OrderOptionDto.DESC;
+    userSettingsDto.unassignedPullRequestsOrdering = UserSettingsDto.OrderOptionDto.ASC;
     userSettingsDto.repoBlackList.addAll(Arrays.asList(1, 2, 3));
   }
 
@@ -40,7 +42,8 @@ public class UserSettingsConverterUnitTest {
     UserSettingsDto dto = userSettingsConverter.toDto(userSettings);
 
     assertEquals(userSettings.id, dto.id);
-    assertEquals(userSettings.defaultPullRequestListOrdering.name(), dto.orderOptionDto.name());
+    assertEquals(userSettings.assignedPullRequestsOrdering.name(), dto.assignedPullRequestsOrdering.name());
+    assertEquals(userSettings.unassignedPullRequestsOrdering.name(), dto.unassignedPullRequestsOrdering.name());
     assertEquals(userSettings.repoBlackList.size(), dto.repoBlackList.size());
   }
 
@@ -49,7 +52,8 @@ public class UserSettingsConverterUnitTest {
     UserSettings entity = userSettingsConverter.toEntity(userSettingsDto);
 
     assertEquals(userSettingsDto.id, entity.id);
-    assertEquals(userSettingsDto.orderOptionDto.name(), entity.defaultPullRequestListOrdering.name());
+    assertEquals(userSettingsDto.assignedPullRequestsOrdering.name(), entity.assignedPullRequestsOrdering.name());
+    assertEquals(userSettingsDto.unassignedPullRequestsOrdering.name(), entity.unassignedPullRequestsOrdering.name());
     assertEquals(userSettingsDto.repoBlackList.size(), entity.repoBlackList.size());
   }
 

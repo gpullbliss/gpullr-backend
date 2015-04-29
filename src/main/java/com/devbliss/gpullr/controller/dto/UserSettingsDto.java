@@ -15,7 +15,9 @@ public class UserSettingsDto {
 
   public long id;
 
-  public OrderOptionDto orderOptionDto;
+  public OrderOptionDto assignedPullRequestsOrdering;
+  
+  public OrderOptionDto unassignedPullRequestsOrdering;
 
   public List<Integer> repoBlackList = new ArrayList<>();
 

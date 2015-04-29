@@ -3,6 +3,7 @@
 
 
  - [feature] add IT lang config
+ - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
  - [bug] switch user language
  - [feature] fixed availablae languages endpoint
  - [feature] available languages endpoint returns map instead of list
@@ -58,4 +59,8 @@
  - [feature] project setup
  - [initial] initial commit
 
+<<<<<<< HEAD
 -- Last change by: Tobias Arndt <tobias.arndt@devbliss.com> Wed Apr 29 10:17:34 CEST 2015
+=======
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed Apr 29 11:04:58 CEST 2015
+>>>>>>> a15072c3f633cdbe2d27fba3b5120b519193e5c1

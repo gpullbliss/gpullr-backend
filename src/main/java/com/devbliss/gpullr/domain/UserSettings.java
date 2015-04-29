@@ -31,9 +31,13 @@ public class UserSettings {
   @GeneratedValue(strategy = GenerationType.AUTO)
   public long id;
 
-  @Column
+  @Column(name = "UNASSIGNED_PULLREQUESTS_ORDERING")
   @Enumerated(value = EnumType.STRING)
-  public OrderOption defaultPullRequestListOrdering;
+  public OrderOption unassignedPullRequestsOrdering;
+  
+  @Column(name = "ASSIGNED_PULLREQUESTS_ORDERING")
+  @Enumerated(value = EnumType.STRING)
+  public OrderOption assignedPullRequestsOrdering;
 
   @ElementCollection(fetch = FetchType.EAGER)
   public List<Integer> repoBlackList = new ArrayList<>();
@@ -42,12 +46,12 @@ public class UserSettings {
 
   public UserSettings() {}
 
-  public UserSettings(OrderOption ordering) {
-    this.defaultPullRequestListOrdering = ordering;
+  public UserSettings(OrderOption unassignedPullRequestsOrdering) {
+    this.unassignedPullRequestsOrdering = unassignedPullRequestsOrdering;
   }
 
-  public UserSettings(OrderOption defaultPullRequestListOrdering, List<Integer> repoBlackList) {
-    this.defaultPullRequestListOrdering = defaultPullRequestListOrdering;
+  public UserSettings(OrderOption unassignedPullRequestsOrdering, List<Integer> repoBlackList) {
+    this.unassignedPullRequestsOrdering = unassignedPullRequestsOrdering;
     this.repoBlackList = repoBlackList;
   }
 
