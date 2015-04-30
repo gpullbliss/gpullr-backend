@@ -26,5 +26,6 @@ public class Constants {
     ALLOWED_LANGUAGES.put(DEFAULT_LANGUAGE, "English");
     ALLOWED_LANGUAGES.put(Locale.GERMAN.getLanguage(), "Deutsch");
     ALLOWED_LANGUAGES.put(Locale.ITALIAN.getLanguage(), "Italiano");
+    ALLOWED_LANGUAGES.put(new Locale("pl") "Polski");
   }
 }
