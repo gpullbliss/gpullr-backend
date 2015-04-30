@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Ranking;
 import com.devbliss.gpullr.domain.RankingList;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.slf4j.Logger;
@@ -92,13 +94,13 @@ public class RankingService {
 
   private void deleteRankingListsOlderThan(ZonedDateTime calculationDate, RankingScope rankingScope) {
     List<RankingList> rankingsToDelete = rankingListRepository.findByCalculationDateBeforeAndRankingScope(
-      calculationDate, rankingScope);
+        calculationDate, rankingScope);
     rankingListRepository.delete(rankingsToDelete);
   }
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
     List<User> users = userRepository.findByCanLoginIsTrue();
-    Map<Long, Ranking> numberOfMergedPullRequestsToRankings = new HashMap<>();
+    Map<Double, Ranking> numberOfMergedPullRequestsToRankings = new HashMap<>();
     users.forEach(u -> addRankingOfUserToMap(numberOfMergedPullRequestsToRankings, u, rankingScope));
     List<Ranking> rankings = numberOfMergedPullRequestsToRankings
       .keySet()
@@ -111,34 +113,37 @@ public class RankingService {
     return rankings;
   }
 
-  private void addRankingOfUserToMap(Map<Long, Ranking> rankings, User user, RankingScope rankingScope) {
-    long numberOfMergedPullRequests = getRanking(user, rankingScope);
-    Ranking ranking = rankings.get(numberOfMergedPullRequests);
+  private void addRankingOfUserToMap(Map<Double, Ranking> rankings, User user, RankingScope rankingScope) {
+    double sumOfScores = getRanking(user, rankingScope);
+    Ranking ranking = rankings.get(sumOfScores);
 
     if (ranking == null) {
       ranking = new Ranking();
-      ranking.closedCount = numberOfMergedPullRequests;
-      rankings.put(numberOfMergedPullRequests, ranking);
+      ranking.sumOfScores = sumOfScores;
+      rankings.put(sumOfScores, ranking);
     }
 
     ranking.users.add(user);
   }
 
-  private long getRanking(User user, RankingScope rankingScope) {
-    long numberOfMergedPullRequests;
+
+  private Double getRanking(User user, RankingScope rankingScope) {
+
+    Predicate<PullRequest> filter;
 
     if (rankingScope.daysInPast.isPresent()) {
-      ZonedDateTime boarder = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
-      numberOfMergedPullRequests = pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
-        .stream()
-        .filter(pr -> !pr.assignee.id.equals(pr.author.id))
-        .filter(pr -> !pr.closedAt.isBefore(boarder))
-        .count();
+      ZonedDateTime border = ZonedDateTime.now().minusDays(rankingScope.daysInPast.get());
+      filter = pr -> !pr.closedAt.isBefore(border);
     } else {
-      numberOfMergedPullRequests =
-        Long.valueOf(pullRequestRepository.findByAssigneeAndState(user, State.CLOSED).size());
+      filter = pr -> true;
     }
 
-    return numberOfMergedPullRequests;
+    return pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
+        .stream()
+        .filter(pr -> !pr.assignee.id.equals(pr.author.id))
+        .filter(filter)
+        .map(pr -> pr.calculateScore())
+        .reduce((sc0, sc1) -> sc0+sc1).orElse(0d);
   }
+
 }

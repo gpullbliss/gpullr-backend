@@ -6,7 +6,7 @@ public class RankingDto {
 
   public int rank;
 
-  public long closedCount;
+  public double sumOfScores;
 
   public List<MinimalUserDto> users;
 }

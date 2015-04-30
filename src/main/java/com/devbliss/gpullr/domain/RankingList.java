@@ -22,7 +22,8 @@ public class RankingList {
   @GeneratedValue(strategy = GenerationType.AUTO)
   public long id;
 
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @OneToMany(cascade = CascadeType.ALL,
+      fetch = FetchType.EAGER)
   private List<Ranking> rankings = new ArrayList<>();
 
   @NotNull
@@ -32,7 +33,9 @@ public class RankingList {
   @Enumerated(EnumType.STRING)
   public RankingScope rankingScope;
 
-  public RankingList() {}
+  public RankingList() {
+  }
+
 
   public RankingList(List<Ranking> rankings, ZonedDateTime calculationDate, RankingScope rankingScope) {
     this.rankings = rankings;
@@ -42,8 +45,8 @@ public class RankingList {
 
   public List<Ranking> getRankings() {
     return rankings
-      .stream()
-      .sorted((r1, r2) -> r2.closedCount.compareTo(r1.closedCount))
-      .collect(Collectors.toList());
+        .stream()
+        .sorted((r1, r2) -> r2.sumOfScores.compareTo(r1.sumOfScores))
+        .collect(Collectors.toList());
   }
 }

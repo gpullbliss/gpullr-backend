@@ -13,16 +13,16 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class Ranking {
 
+  @NotNull
+  public Double sumOfScores;
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   public long id;
 
   @ManyToMany(fetch = FetchType.EAGER)
-  
-  public List<User> users;
 
-  @NotNull
-  public Long closedCount;
+  public List<User> users;
 
   public Integer rank;
 
@@ -30,13 +30,13 @@ public class Ranking {
     users = new ArrayList<>();
   }
 
-  public Ranking(Long closedCount, List<User> users) {
+  public Ranking(double sumOfScores, List<User> users) {
+    this.sumOfScores = sumOfScores;
     this.users = users;
-    this.closedCount = closedCount;
   }
 
   @Override
   public String toString() {
-    return "Ranking {closedCount=" + closedCount + ", " + users + "}";
+    return "Ranking {sumOfScores=" + sumOfScores + ", " + users + "}";
   }
 }
