@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class PullRequestScoreCalculator {
 
-  private static final double WEIGHT_LINES_OF_CODE = 1d;
+  private static final double WEIGHT_LINES_OF_CODE = 5d;
   private static final double WEIGHT_NUMBER_OF_COMMENTS = 1d;
-  private static final double WEIGHT_NUMBER_OF_FILES = 10d;
+  private static final double WEIGHT_NUMBER_OF_FILES = 3d;
+  private static final double MINIMAL_SCORE = 5d;
+  private static final double WEIGHT_NEGATIVE_LINES_OF_CODE = .5d;
 
-  private static final double LINES_OF_CODE_WEIGHT_SLOPE = 0.005d;
-
-  public double calculateScore(PullRequest pullRequest) {
+  public Double calculateScore(PullRequest pullRequest) {
     return WEIGHT_LINES_OF_CODE * calcLinesOfCodeFactor(pullRequest)
         + WEIGHT_NUMBER_OF_COMMENTS * calcNumberOfCommentsFactor(pullRequest)
         + WEIGHT_NUMBER_OF_FILES * calcNumberOfFilesFactor(pullRequest)
-        + 5;
+        + MINIMAL_SCORE;
   }
 
   private double calcNumberOfCommentsFactor(PullRequest pullRequest) {
@@ -34,8 +34,14 @@ public class PullRequestScoreCalculator {
   private double calcLinesOfCodeFactor(PullRequest pullRequest) {
     double loc = pullRequest.linesAdded - pullRequest.linesRemoved;
     double locLog = log(Math.abs(loc)) / log(2);
+
     locLog = (locLog < 1) ? 0 : locLog;
 
-    return LINES_OF_CODE_WEIGHT_SLOPE * loc + locLog;
+    if (loc < 0){
+      return locLog * WEIGHT_NEGATIVE_LINES_OF_CODE;
+
+    }
+
+    return locLog;
   }
 }

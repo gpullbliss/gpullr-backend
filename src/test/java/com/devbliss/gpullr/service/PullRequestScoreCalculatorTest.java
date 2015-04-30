@@ -28,12 +28,21 @@ public class PullRequestScoreCalculatorTest {
 
   @Test
   public void calculateScores() {
-    pullRequests
-        .stream()
-        .forEach(pr ->
-            System.out.println(String.format(
-                "PR: files: %d\tAdded: %d\tRemoved: %d\tComments: %d\tScore: %.4f",
-                pr.filesChanged, pr.linesAdded, pr.linesRemoved, pr.numberOfComments, pullRequestScoreCalculator.calculateScore(pr))));
+    double max = Double.MIN_VALUE, min = Double.MAX_VALUE, avg = 0;
+
+    pullRequests.sort((a,b)->pullRequestScoreCalculator.calculateScore(a).compareTo(pullRequestScoreCalculator.calculateScore(b)));
+
+    for (PullRequest pr : pullRequests) {
+      Double score = pullRequestScoreCalculator.calculateScore(pr);
+      max = Math.max(score, max);
+      min = Math.min(score, min);
+      avg += score;
+
+      System.out.println(String.format(
+          "PR: files: %d\tAdded: %d\tRemoved: %d\tComments: %d\tScore: %.4f",
+          pr.filesChanged, pr.linesAdded, pr.linesRemoved, pr.numberOfComments, score));
+    }
+    System.out.println(String.format("min:%.3f  max:%.3f  avg:%.3f", min, max, avg/pullRequests.size()));
   }
 
   private List<PullRequest> readPullRequests() throws IOException {
