@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.domain;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * User of the application, fetched from GitHub API.
@@ -35,6 +36,8 @@ public class User {
 
   public Boolean canLogin = false;
 
+  public String accessToken;
+
   @OneToOne(
       fetch = FetchType.EAGER,
       targetEntity = UserSettings.class,
@@ -44,7 +47,8 @@ public class User {
   @Valid
   public UserSettings userSettings;
 
-  public User() {}
+  public User() {
+  }
 
   public User(Integer id, String username) {
     this(id, username, null, null, false, null, null);
