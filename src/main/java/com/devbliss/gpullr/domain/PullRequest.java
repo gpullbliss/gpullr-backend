@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.domain;
 
-import com.devbliss.gpullr.service.PullRequestScoreCalculator;
+import static java.lang.Math.log;
+
 import java.time.ZonedDateTime;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -9,10 +10,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Represents a pullRequest persisted in our application.
@@ -21,6 +20,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @Entity
 public class PullRequest {
+
+  private static final double WEIGHT_LINES_OF_CODE = 5d;
+
+  private static final double WEIGHT_NUMBER_OF_COMMENTS = 1d;
+
+  private static final double WEIGHT_NUMBER_OF_FILES = 3d;
+
+  private static final double MINIMAL_SCORE = 5d;
+
+  private static final double WEIGHT_NEGATIVE_LINES_OF_CODE = .5d;
 
   private static final String SEPARATOR = " / ";
 
@@ -72,10 +81,6 @@ public class PullRequest {
   @Embedded
   public BuildStatus buildStatus;
 
-  @Autowired
-  @Transient
-  private PullRequestScoreCalculator pullRequestScoreCalculator;
-
   /**
    * Very often, but  NOT necessarily equal to the pull request title
    */
@@ -87,8 +92,11 @@ public class PullRequest {
    */
   public int numberOfComments;
 
-  public double calculateScore() {
-    return pullRequestScoreCalculator.calculateScore(this);
+  public Double calculateScore() {
+    return WEIGHT_LINES_OF_CODE * calcLinesOfCodeFactor()
+        + WEIGHT_NUMBER_OF_COMMENTS * calcNumberOfCommentsFactor()
+        + WEIGHT_NUMBER_OF_FILES * calcNumberOfFilesFactor()
+        + MINIMAL_SCORE;
   }
 
   @Override
@@ -128,5 +136,29 @@ public class PullRequest {
   @Override
   public String toString() {
     return "[id=" + repo.id + SEPARATOR + repo.name + SEPARATOR + number + "]";
+  }
+
+  private double calcNumberOfCommentsFactor() {
+    double cm = numberOfComments;
+    return (cm < 1) ? 0 : log(cm) / log(2);
+  }
+
+  private double calcNumberOfFilesFactor() {
+    double fc = filesChanged;
+    return log(fc) / log(2);
+  }
+
+  private double calcLinesOfCodeFactor() {
+    double loc = linesAdded - linesRemoved;
+    double locLog = log(Math.abs(loc)) / log(2);
+
+    locLog = (locLog < 1) ? 0 : locLog;
+
+    if (loc < 0) {
+      return locLog * WEIGHT_NEGATIVE_LINES_OF_CODE;
+
+    }
+
+    return locLog;
   }
 }

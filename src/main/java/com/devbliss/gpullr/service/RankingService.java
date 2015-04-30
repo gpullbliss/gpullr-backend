@@ -54,9 +54,9 @@ public class RankingService {
 
   @Autowired
   public RankingService(
-    RankingListRepository rankingListRepository,
-    PullRequestRepository pullRequestRepository,
-    UserRepository userRepository) {
+      RankingListRepository rankingListRepository,
+      PullRequestRepository pullRequestRepository,
+      UserRepository userRepository) {
     this.rankingListRepository = rankingListRepository;
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
@@ -85,9 +85,9 @@ public class RankingService {
 
     for (RankingScope rankingScope : RankingScope.values()) {
       rankingListRepository.save(new RankingList(
-        calculateRankingsForScope(rankingScope),
-        now,
-        rankingScope));
+          calculateRankingsForScope(rankingScope),
+          now,
+          rankingScope));
       deleteRankingListsOlderThan(now, rankingScope);
     }
   }
@@ -126,7 +126,6 @@ public class RankingService {
     ranking.users.add(user);
   }
 
-
   private Double getRanking(User user, RankingScope rankingScope) {
 
     Predicate<PullRequest> filter;
@@ -139,11 +138,10 @@ public class RankingService {
     }
 
     return pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
-        .stream()
-        .filter(pr -> !pr.assignee.id.equals(pr.author.id))
-        .filter(filter)
-        .map(pr -> pr.calculateScore())
-        .reduce((sc0, sc1) -> sc0+sc1).orElse(0d);
+      .stream()
+      .filter(pr -> !pr.assignee.id.equals(pr.author.id))
+      .filter(filter)
+      .map(pr -> pr.calculateScore())
+      .reduce((sc0, sc1) -> sc0 + sc1).orElse(0d);
   }
-
 }
