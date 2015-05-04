@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [bug] fix lang bug
  - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
  - [feature] add IT lang config
  - [bug] switch user language
@@ -59,4 +60,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed Apr 29 11:04:58 CEST 2015
+-- Last change by: Tobias Arndt <tobias.arndt@devbliss.com> Mon May 04 14:57:06 CEST 2015
