@@ -3,18 +3,13 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.controller.dto.UserConverter;
 import com.devbliss.gpullr.controller.dto.UserDto;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.service.OAuthService;
+import com.devbliss.gpullr.service.GithubOauthService;
 import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.service.dto.GithubOauthAccessToken;
 import com.devbliss.gpullr.service.dto.GithubUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -37,7 +32,7 @@ public class UserController {
   private UserConverter userConverter;
 
   @Autowired
-  private OAuthService oAuthService;
+  private GithubOauthService githubOauthService;
 
   @RequestMapping(method = RequestMethod.GET)
   public List<UserDto> getAllOrgaMembers() {
@@ -50,6 +45,7 @@ public class UserController {
 
   @RequestMapping(value = "/login/{id}", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
+  @Deprecated
   public void login(@PathVariable("id") int id) {
     userService.login(id);
   }
@@ -57,18 +53,19 @@ public class UserController {
   @RequestMapping(value = "/oauth/callback", method = RequestMethod.GET)
   public void oauthCallback(HttpServletResponse httpServletResponse, @RequestParam("code") String code,
       @RequestParam("state") String state) throws IOException {
-    System.out.println("CODE: " + code);
-    System.out.println("STATE: " + state);
 
     // TODO: oAuthService.validateState(state);
-    final GithubOauthAccessToken oauthAccessToken = oAuthService.getAccessToken(code);
-    final GithubUser githubUser = oAuthService.getUserByAccessToken(oauthAccessToken);
+    final GithubOauthAccessToken oauthAccessToken = githubOauthService.getAccessToken(code);
+    final GithubUser githubUser = githubOauthService.getUserByAccessToken(oauthAccessToken);
 
-    userService.login(githubUser.id);
+    try {
+      userService.login(githubUser.id);
+    } catch (RuntimeException e) {
+      // TODO: revert OAuth?
+      throw e;
+    }
 
-    final User currentUser = userService.getCurrentUserIfLoggedIn().get();
-    currentUser.accessToken = oauthAccessToken.access_token;
-    userService.insertOrUpdate(currentUser);
+    updateUserAccessToken(oauthAccessToken);
 
     httpServletResponse.sendRedirect("/");
   }
@@ -79,6 +76,12 @@ public class UserController {
   public UserDto whoAmI() {
     User entity = userService.whoAmI();
     return userConverter.toDto(entity);
+  }
+
+  private void updateUserAccessToken(GithubOauthAccessToken oauthAccessToken) {
+    final User currentUser = userService.getCurrentUserIfLoggedIn().get();
+    currentUser.accessToken = oauthAccessToken.access_token;
+    userService.insertOrUpdate(currentUser);
   }
 
 }

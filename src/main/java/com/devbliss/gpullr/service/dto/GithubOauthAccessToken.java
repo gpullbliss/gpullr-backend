@@ -1,7 +1,7 @@
 package com.devbliss.gpullr.service.dto;
 
 /**
- * DTO for JSON deserialization of {@link com.devbliss.gpullr.service.OAuthService#getAccessToken(String)} response.
+ * DTO for JSON deserialization of {@link com.devbliss.gpullr.service.GithubOauthService#getAccessToken(String)} response.
  */
 public class GithubOauthAccessToken {
   public String access_token;
