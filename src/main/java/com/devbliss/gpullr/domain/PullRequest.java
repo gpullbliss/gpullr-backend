@@ -69,10 +69,13 @@ public class PullRequest {
    */
   public Integer number;
 
+  @NotNull
   public Integer linesAdded;
 
+  @NotNull
   public Integer linesRemoved;
 
+  @NotNull
   public Integer filesChanged;
 
   @Column(nullable = true)
@@ -90,8 +93,20 @@ public class PullRequest {
    * Sum of number of "review comments" (=refering to certain lines of code) and "comments" (belonging to the
    * pull request itself).
    */
+  @NotNull
   public int numberOfComments;
 
+  /**
+   * Calculates the score for this pull request. It values the effort the assignee has to put in reviewing this 
+   * pull requests and is taken into account for the ranking calculation.
+   * 
+   * It uses the lines of changed code, the number of changed files and the number of comments written by the 
+   * assignee.Additionally, there is a basic score of {@link #MINIMAL_SCORE} every pull request gets even if the
+   * values mentioned above are all 0 - to honour the effort it costs to assign and review a pull request no matter
+   * how trivial or small it may be. 
+   *  
+   * @return
+   */
   public Double calculateScore() {
     return WEIGHT_LINES_OF_CODE * calcLinesOfCodeFactor()
         + WEIGHT_NUMBER_OF_COMMENTS * calcNumberOfCommentsFactor()
@@ -145,7 +160,7 @@ public class PullRequest {
 
   private double calcNumberOfFilesFactor() {
     double fc = filesChanged;
-    return log(fc) / log(2);
+    return fc < 1 ? 0 : log(fc) / log(2);
   }
 
   private double calcLinesOfCodeFactor() {
