@@ -28,5 +28,6 @@ public class Constants {
     ALLOWED_LANGUAGES.put("pl", "Polski");    
     ALLOWED_LANGUAGES.put("tr", "Türkçe");
     ALLOWED_LANGUAGES.put("ru", "Русский");
+    ALLOWED_LANGUAGES.put("es", "Castellano");
   }
 }
