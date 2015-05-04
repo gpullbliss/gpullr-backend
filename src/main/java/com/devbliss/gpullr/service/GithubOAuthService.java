@@ -22,7 +22,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
 /**
- * This service wraps the Github Oauth API.
+ * This service wraps the Github Oauth API {@link https://developer.github.com/v3/oauth/}
+ * and provides functions to follow the oauth login web application flow.
  */
 @Service
 public class GithubOauthService {

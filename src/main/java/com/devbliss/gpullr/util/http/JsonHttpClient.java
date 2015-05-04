@@ -7,7 +7,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.stereotype.Component;
 
 /**
- * TODO
+ * Provides methods to create necessary objects to do http requests.
  */
 @Component
 public class JsonHttpClient {

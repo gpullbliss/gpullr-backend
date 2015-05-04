@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO
+ * Manages a {@link List} of {@link NameValuePair}. After the list of url-encoded pairs is composed
+ * it can be transformed into an {@link UrlEncodedFormEntity}.This is typically useful while sending
+ * an HTTP POST request.
  */
 public class ValuePairList {
 

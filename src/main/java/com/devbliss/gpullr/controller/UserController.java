@@ -55,6 +55,7 @@ public class UserController {
       @RequestParam("state") String state) throws IOException {
 
     // TODO: oAuthService.validateState(state);
+
     final GithubOauthAccessToken oauthAccessToken = githubOauthService.getAccessToken(code);
     final GithubUser githubUser = githubOauthService.getUserByAccessToken(oauthAccessToken);
 

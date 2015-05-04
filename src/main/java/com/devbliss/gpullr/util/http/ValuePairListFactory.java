@@ -3,7 +3,7 @@ package com.devbliss.gpullr.util.http;
 import org.springframework.stereotype.Component;
 
 /**
- * TODO
+ * Injectable class that create new instances of {@link ValuePairList}s
  */
 @Component
 public class ValuePairListFactory {
