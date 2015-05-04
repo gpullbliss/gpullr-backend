@@ -2,7 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
- - [bug] fix lang bug
+ - [feature] add allowed languages
  - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
  - [feature] add IT lang config
  - [bug] switch user language
