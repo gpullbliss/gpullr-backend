@@ -2,6 +2,7 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
+import com.devbliss.gpullr.exception.LoginFailedException;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -77,7 +78,7 @@ public class UserService {
   public void login(int id) {
     User loggedInUser = userRepository.findOne(id);
     if (!loggedInUser.canLogin) {
-      throw new RuntimeException();
+      throw new LoginFailedException();
     }
 
     userSession.setUser(loggedInUser);

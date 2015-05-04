@@ -15,7 +15,7 @@ public class JsonHttpClient {
   private static final String HTTP_HEADER_KEY_ACCEPT = "Accept";
   private static final String APPLICATION_JSON = "application/json";
 
-  HttpClient httpClient;
+  private HttpClient httpClient;
 
   public HttpClient getHttpClient() {
     if (httpClient == null) {
@@ -38,4 +38,5 @@ public class JsonHttpClient {
 
     return getMethod;
   }
+
 }

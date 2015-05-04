@@ -16,7 +16,7 @@ public class ValuePairList {
   private final List<NameValuePair> nameValuePairs;
 
   private ValuePairList(int initialCapacity) {
-    nameValuePairs = new ArrayList<NameValuePair>(initialCapacity);
+    nameValuePairs = new ArrayList<>(initialCapacity);
   }
 
   public static ValuePairList create(int initialCapacity) {

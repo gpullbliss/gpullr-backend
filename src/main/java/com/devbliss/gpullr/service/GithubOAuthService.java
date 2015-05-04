@@ -8,6 +8,7 @@ import com.devbliss.gpullr.util.http.ValuePairList;
 import com.devbliss.gpullr.util.http.ValuePairListFactory;
 import com.google.gson.Gson;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -27,14 +28,13 @@ import java.io.UnsupportedEncodingException;
 public class GithubOauthService {
 
   private static final String GITHUB_OAUTH_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
-  private static final String GET_GITHUB_USER_URL = "https://api.github.com/user";
+  private static final String GITHUB_API_GET_USER = "https://api.github.com/user";
   private static final String HTTP_HEADER_KEY_AUTHORIZATION = "Authorization";
   private static final String AUTHORIZATION_BY_TOKEN = "token %s";
   private static final String OAUTH_CLIENT_ID = "client_id";
   private static final String OAUTH_CLIENT_SECRET = "client_secret";
   private static final String OAUTH_CODE = "code";
   private static final String FAILED_HTTP_ERROR_CODE = "Failed : HTTP error code : %d : %s";
-  private static final int EXPECTED_RESPONSE_STATUS_CODE = 200;
 
   @Autowired
   Gson gson;
@@ -62,7 +62,7 @@ public class GithubOauthService {
 
     try {
 
-      return parseJsonResponseContentToObject(getValidResponse(httpClient, postMethod), GithubOauthAccessToken.class);
+      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, postMethod), GithubOauthAccessToken.class);
 
     } catch (IOException cause) {
       throw new OauthException(cause);
@@ -72,14 +72,14 @@ public class GithubOauthService {
 
   public GithubUser getUserByAccessToken(GithubOauthAccessToken oauthAccessToken) {
     final HttpClient httpClient = jsonHttpClient.getHttpClient();
-    final HttpGet getMethod = jsonHttpClient.getGetMethod(GET_GITHUB_USER_URL);
+    final HttpGet getMethod = jsonHttpClient.getGetMethod(GITHUB_API_GET_USER);
 
     final String token = String.format(AUTHORIZATION_BY_TOKEN, oauthAccessToken.access_token);
     getMethod.setHeader(HTTP_HEADER_KEY_AUTHORIZATION, token);
 
     try {
 
-      return parseJsonResponseContentToObject(getValidResponse(httpClient, getMethod), GithubUser.class);
+      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, getMethod), GithubUser.class);
 
     } catch (IOException cause) {
       throw new OauthException(cause);
@@ -87,10 +87,10 @@ public class GithubOauthService {
 
   }
 
-  private HttpResponse getValidResponse(HttpClient httpClient, HttpRequestBase method) throws IOException {
+  private HttpResponse getValidResponseOk(HttpClient httpClient, HttpRequestBase method) throws IOException {
     final HttpResponse response = httpClient.execute(method);
 
-    if (EXPECTED_RESPONSE_STATUS_CODE != response.getStatusLine().getStatusCode()) {
+    if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
       throw new OauthException(String.format(FAILED_HTTP_ERROR_CODE, response.getStatusLine().getStatusCode(),
           response.getStatusLine().getReasonPhrase()));
     }

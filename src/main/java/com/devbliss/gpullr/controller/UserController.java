@@ -58,15 +58,9 @@ public class UserController {
     final GithubOauthAccessToken oauthAccessToken = githubOauthService.getAccessToken(code);
     final GithubUser githubUser = githubOauthService.getUserByAccessToken(oauthAccessToken);
 
-    try {
-      userService.login(githubUser.id);
-    } catch (RuntimeException e) {
-      // TODO: revert OAuth?
-      throw e;
-    }
+    userService.login(githubUser.id);
 
     updateUserAccessToken(oauthAccessToken);
-
     httpServletResponse.sendRedirect("/");
   }
 
