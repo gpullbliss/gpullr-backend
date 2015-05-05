@@ -123,6 +123,10 @@ public class RankingService {
     ranking.closedCount = (int) pullRequests.stream()
         .count();
 
+    ranking.sumOfFilesChanged = pullRequests.stream()
+        .mapToInt(p -> p.filesChanged)
+        .sum();
+
     ranking.sumOfLinesAdded = pullRequests.stream()
         .mapToInt(p -> p.linesAdded)
         .sum();

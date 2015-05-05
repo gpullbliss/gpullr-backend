@@ -20,6 +20,7 @@ public class RankingConverter {
     dto.rank = entity.rank;
     dto.closedCount = entity.closedCount;
     dto.sumOfScores = entity.sumOfScores;
+    dto.sumOfFilesChanged = entity.sumOfFilesChanged;
     dto.sumOfLinesAdded = entity.sumOfLinesAdded;
     dto.sumOfLinesRemoved = entity.sumOfLinesRemoved;
     dto.user = userConverter.toMinimalDto(entity.user);

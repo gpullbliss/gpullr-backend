@@ -12,5 +12,7 @@ public class RankingDto {
 
   public int sumOfLinesRemoved;
 
+  public int sumOfFilesChanged;
+
   public MinimalUserDto user;
 }

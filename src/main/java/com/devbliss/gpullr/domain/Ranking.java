@@ -27,10 +27,13 @@ public class Ranking {
   public Integer rank;
 
   @Min(0L)
-  public int sumOfLinesRemoved;
+  public Integer sumOfLinesRemoved;
 
   @Min(0L)
-  public int sumOfLinesAdded;
+  public Integer sumOfLinesAdded;
+
+  @Min(0L)
+  public Integer sumOfFilesChanged;
 
   @NotNull
   public Double sumOfScores;
@@ -52,6 +55,7 @@ public class Ranking {
         ", user=" + user +
         ", rank=" + rank +
         ", closedCount=" + closedCount +
+        ", sumOfFilesChanged=" + sumOfFilesChanged +
         ", sumOfLinesRemoved=" + sumOfLinesRemoved +
         ", sumOfLinesAdded=" + sumOfLinesAdded +
         ", sumOfScores=" + sumOfScores +
