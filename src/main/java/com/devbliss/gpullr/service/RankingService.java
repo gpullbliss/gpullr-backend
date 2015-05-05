@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +89,19 @@ public class RankingService {
         .sorted((r1, r2) -> r2.sumOfScores.compareTo(r1.sumOfScores))
         .collect(Collectors.toList());
 
-    IntStream.range(0, rankings.size()).forEach(i -> rankings.get(i).rank = i + 1);
+    int count = 0;
+    double previousScore = -1d;
+
+    for (Ranking r : rankings) {
+      if (r.sumOfScores != previousScore) {
+        count++;
+      }
+      r.rank = count;
+      previousScore = r.sumOfScores;
+    }
+
+    rankings.sort((r1, r2) -> r1.user.fullName.compareTo(r2.user.fullName));
+
     return rankings;
   }
 
