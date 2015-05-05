@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.util;
 
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -20,11 +19,15 @@ public class Constants {
 
   public static final Map<String, String> ALLOWED_LANGUAGES = new LinkedHashMap<>();
 
-  public static final String DEFAULT_LANGUAGE = Locale.ENGLISH.getLanguage();
+  public static final String DEFAULT_LANGUAGE = "en";
 
   static {
     ALLOWED_LANGUAGES.put(DEFAULT_LANGUAGE, "English");
-    ALLOWED_LANGUAGES.put(Locale.GERMAN.getLanguage(), "Deutsch");
-    ALLOWED_LANGUAGES.put(Locale.ITALIAN.getLanguage(), "Italiano");
+    ALLOWED_LANGUAGES.put("de", "Deutsch");
+    ALLOWED_LANGUAGES.put("it", "Italiano");
+    ALLOWED_LANGUAGES.put("pl", "Polski");    
+    ALLOWED_LANGUAGES.put("tr", "Türkçe");
+    ALLOWED_LANGUAGES.put("ru", "Русский");
+    ALLOWED_LANGUAGES.put("es", "Castellano");
   }
 }
