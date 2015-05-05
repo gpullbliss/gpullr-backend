@@ -69,13 +69,10 @@ public class PullRequest {
    */
   public Integer number;
 
-  @NotNull
   public Integer linesAdded;
 
-  @NotNull
   public Integer linesRemoved;
 
-  @NotNull
   public Integer filesChanged;
 
   @Column(nullable = true)
