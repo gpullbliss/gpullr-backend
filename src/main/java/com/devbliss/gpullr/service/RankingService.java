@@ -91,7 +91,6 @@ public class RankingService {
 
     int count = 0;
     double previousScore = -1d;
-
     for (Ranking r : rankings) {
       if (r.sumOfScores != previousScore) {
         count++;
@@ -100,7 +99,7 @@ public class RankingService {
       previousScore = r.sumOfScores;
     }
 
-    rankings.sort((r1, r2) -> r1.user.fullName.compareTo(r2.user.fullName));
+    rankings.sort((r1, r2) -> r1.user.username.compareTo(r2.user.username));
 
     return rankings;
   }
