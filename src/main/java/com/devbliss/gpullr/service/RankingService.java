@@ -99,8 +99,6 @@ public class RankingService {
       previousScore = r.sumOfScores;
     }
 
-    rankings.sort((r1, r2) -> r1.user.username.compareTo(r2.user.username));
-
     return rankings;
   }
 

@@ -45,7 +45,15 @@ public class RankingList {
   public List<Ranking> getRankings() {
     return rankings
       .stream()
-      .sorted((r1, r2) -> r2.sumOfScores.compareTo(r1.sumOfScores))
+      .sorted((r1, r2) -> {
+        int result = r2.sumOfScores.compareTo(r1.sumOfScores);
+
+        if (result == 0) {
+          result = r1.user.username.toLowerCase().compareTo(r2.user.username.toLowerCase());
+        }
+
+        return result;
+      })
       .collect(Collectors.toList());
   }
 }

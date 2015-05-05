@@ -1,12 +1,11 @@
 package com.devbliss.gpullr.controller.dto;
 
 import com.devbliss.gpullr.domain.Ranking;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Convergts {@link Ranking} entities to {@link RankingDto}s.
+ * Converts {@link Ranking} entities to {@link RankingDto}s.
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
