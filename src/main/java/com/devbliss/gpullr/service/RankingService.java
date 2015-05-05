@@ -87,7 +87,7 @@ public class RankingService {
         .stream()
         .map(u -> getRanking(u, rankingScope))
         .filter(r -> r.sumOfScores > 0d)
-        .sorted((r1, r2) -> r1.sumOfScores.compareTo(r2.sumOfScores))
+        .sorted((r1, r2) -> r2.sumOfScores.compareTo(r1.sumOfScores))
         .collect(Collectors.toList());
 
     IntStream.range(0, rankings.size()).forEach(i -> rankings.get(i).rank = i + 1);
