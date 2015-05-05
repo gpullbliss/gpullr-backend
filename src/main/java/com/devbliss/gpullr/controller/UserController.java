@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,10 +50,8 @@ public class UserController {
   }
 
   @RequestMapping(value = "/oauth/callback", method = RequestMethod.GET)
-  public void oauthCallback(HttpServletResponse httpServletResponse, @RequestParam("code") String code,
-      @RequestParam("state") String state) throws IOException {
-
-    // TODO: oAuthService.validateState(state);
+  @ResponseStatus(HttpStatus.CREATED)
+  public void oauthCallback(@RequestParam("code") String code) throws IOException {
 
     final GithubOauthAccessToken oauthAccessToken = githubOauthService.getAccessToken(code);
     final GithubUser githubUser = githubOauthService.getUserByAccessToken(oauthAccessToken);
@@ -62,7 +59,6 @@ public class UserController {
     userService.login(githubUser.id);
 
     updateUserAccessToken(oauthAccessToken);
-    httpServletResponse.sendRedirect("/");
   }
 
   @RequestMapping(
