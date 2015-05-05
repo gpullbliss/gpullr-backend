@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.domain;
 
+import javax.persistence.Table;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -10,6 +12,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(name="rankings")
 public class Ranking {
 
   @Id
@@ -34,7 +37,7 @@ public class Ranking {
 
   @NotNull
   public Integer closedCount;
-
+  
   public Ranking() {
   }
 
