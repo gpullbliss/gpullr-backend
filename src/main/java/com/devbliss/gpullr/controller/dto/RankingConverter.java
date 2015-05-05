@@ -19,8 +19,11 @@ public class RankingConverter {
   public RankingDto toDto(Ranking entity) {
     RankingDto dto = new RankingDto();
     dto.rank = entity.rank;
+    dto.closedCount = entity.closedCount;
     dto.sumOfScores = entity.sumOfScores;
-    dto.users = entity.users.stream().map(u -> userConverter.toMinimalDto(u)).collect(Collectors.toList());
+    dto.sumOfLinesAdded = entity.sumOfLinesAdded;
+    dto.sumOfLinesRemoved = entity.sumOfLinesRemoved;
+    dto.user = userConverter.toMinimalDto(entity.user);
     return dto;
   }
 
