@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,10 +50,9 @@ public class UserController {
     userService.login(id);
   }
 
-  @RequestMapping(value = "/oauth/callback", method = RequestMethod.GET)
+  @RequestMapping(value = "/oauth/github/{code}", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
-  public void oauthCallback(@RequestParam("code") String code) throws IOException {
-
+  public void authenticateOauthRequest(@PathVariable("code") @NotNull String code) throws IOException {
     final GithubOauthAccessToken oauthAccessToken = githubOauthService.getAccessToken(code);
     final GithubUser githubUser = githubOauthService.getUserByAccessToken(oauthAccessToken);
 
