@@ -1,10 +1,9 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.service.github.GithubApi;
-
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.RepoCreatedEvent;
 import com.devbliss.gpullr.service.RepoService;
+import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
 import com.devbliss.gpullr.service.github.PullRequestEventHandler;
 import java.util.Date;
@@ -78,9 +77,18 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
     handleEventsResponse(githubApi.fetchAllEvents(repo, etagHeader), repo);
   }
 
+  /**
+   * Fetches events again. Meant to be called by scheduler. Refreshes the repo data from database 
+   * in case the name has changed which influences the URI for the call.
+   * 
+   * @param repo
+   * @param etagHeader
+   */
   private void fetchEventsAgain(Repo repo, Optional<String> etagHeader) {
-    LOGGER.debug("Fetching events for repo (scheduled): " + repo.name);
-    fetchEvents(repo, etagHeader);
+    repoService.findById(repo.id).ifPresent(r -> {
+      LOGGER.debug("Fetching events for repo (scheduled): " + r.name);
+      fetchEvents(r, etagHeader);
+    });
   }
 
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {

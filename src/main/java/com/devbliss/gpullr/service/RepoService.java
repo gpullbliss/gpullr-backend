@@ -2,7 +2,6 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.RepoCreatedEvent;
-import com.devbliss.gpullr.domain.RepoRenamedEvent;
 import com.devbliss.gpullr.repository.RepoRepository;
 import java.util.List;
 import java.util.Optional;
@@ -66,6 +65,10 @@ public class RepoService {
       .forEach(this::persistRepo);
   }
 
+  public Optional<Repo> findById(Integer id) {
+    return repoRepository.findById(id);
+  }
+
   private void deactivateRepo(Repo repo) {
     LOGGER.info("Deactivating local repo '{}'", repo.name);
     repo.active = false;
@@ -76,7 +79,6 @@ public class RepoService {
     LOGGER.info("Renaming repo: '{}' to '{}'.", repo.name, newName);
     repo.name = newName;
     repoRepository.save(repo);
-    applicationContext.publishEvent(new RepoRenamedEvent(this, repo));
   }
 
   private void persistRepo(Repo repo) {
