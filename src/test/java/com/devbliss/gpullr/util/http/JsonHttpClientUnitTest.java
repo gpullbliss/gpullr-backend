@@ -1,5 +1,10 @@
 package com.devbliss.gpullr.util.http;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+
+import java.net.MalformedURLException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -8,12 +13,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.net.MalformedURLException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-
 /**
  * Unit test for {@link JsonHttpClient}
  */
@@ -21,6 +20,7 @@ import static org.junit.Assert.assertNull;
 public class JsonHttpClientUnitTest {
 
   private static final String HTTP_HEADER_KEY_ACCEPT = "Accept";
+
   private static final String APPLICATION_JSON = "application/json";
 
   @InjectMocks
