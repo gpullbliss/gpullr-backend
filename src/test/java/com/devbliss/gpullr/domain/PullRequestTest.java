@@ -58,5 +58,68 @@ public class PullRequestTest {
 
     // make sure the calculated score is > 0 due to the base score every pull request gets:
     assertEquals(5d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.linesAdded = 1;
+    assertEquals(5d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.linesAdded = 2;
+    assertEquals(10d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.linesAdded = 10;
+    assertEquals(21.6096d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.linesAdded = 10;
+    pr.linesRemoved = 10;
+    assertEquals(5d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.linesAdded = 0;
+    pr.linesRemoved = 10;
+    assertEquals(13.3048d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.linesAdded = 9;
+    pr.linesRemoved = 10;
+    assertEquals(5d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.linesAdded = 9;
+    pr.linesRemoved = 11;
+    assertEquals(7.5d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.linesAdded = 1009;
+    pr.linesRemoved = 1011;
+    assertEquals(7.5d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.filesChanged = 1;
+    pr.linesAdded = 0;
+    pr.linesRemoved = 0;
+    assertEquals(5d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.filesChanged = 2;
+    pr.linesAdded = 0;
+    assertEquals(8d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.filesChanged = 2;
+    pr.linesAdded = 1;
+    assertEquals(8d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.filesChanged = 2;
+    pr.linesAdded = 2;
+    assertEquals(13d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.filesChanged = 2;
+    pr.linesAdded = 2;
+    pr.numberOfComments = 1;
+    assertEquals(13d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.filesChanged = 2;
+    pr.linesAdded = 2;
+    pr.numberOfComments = 2;
+    assertEquals(14d, pr.calculateScore().doubleValue(), 0.0001d);
+
+    pr.filesChanged = 2;
+    pr.linesAdded = 2;
+    pr.numberOfComments = 3;
+    assertEquals(14.5849d, pr.calculateScore().doubleValue(), 0.0001d);
+
   }
+
 }
