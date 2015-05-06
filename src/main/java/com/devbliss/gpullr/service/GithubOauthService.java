@@ -14,6 +14,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -35,7 +36,13 @@ public class GithubOauthService {
   private static final String OAUTH_CLIENT_ID = "client_id";
   private static final String OAUTH_CLIENT_SECRET = "client_secret";
   private static final String OAUTH_CODE = "code";
-  private static final String FAILED_HTTP_ERROR_CODE = "Failed : HTTP error code : %d : %s";
+  private static final String FAILED_HTTP_ERROR_CODE = "OAuth Communication to GitHub failed : HTTP error code : %d : %s";
+
+  @Value("${github.client-id}")
+  private String clientId;
+
+  @Value("${github.client-secret}")
+  private String clientSecret;
 
   private final Gson gson;
 
@@ -59,8 +66,8 @@ public class GithubOauthService {
     final HttpPost postMethod = jsonHttpClient.getPostMethod(GITHUB_OAUTH_ACCESS_TOKEN_URL);
 
     final ValuePairList valuePairList = valuePairListFactory.getNewValuePairList(3)
-        .add(OAUTH_CLIENT_ID, "9c9a93c03eac2648bb3a")
-        .add(OAUTH_CLIENT_SECRET, "e49d4368e87b19acc19279f720dcc6301dac9e51")
+        .add(OAUTH_CLIENT_ID, clientId)
+        .add(OAUTH_CLIENT_SECRET, clientSecret)
         .add(OAUTH_CODE, code);
 
     try {
