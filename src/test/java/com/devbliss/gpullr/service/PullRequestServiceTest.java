@@ -1,27 +1,14 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import com.devbliss.gpullr.Application;
-import com.devbliss.gpullr.domain.BuildStatus;
-import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.*;
 import com.devbliss.gpullr.domain.PullRequest.State;
-import com.devbliss.gpullr.domain.Repo;
-import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.domain.UserSettings;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.NotificationRepository;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.service.github.GithubApi;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +18,16 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link PullRequestService}
@@ -78,6 +75,8 @@ public class PullRequestServiceTest {
   private static final ZonedDateTime BUILD_STATUS_TIMESTAMP = ZonedDateTime.now().minusMinutes(10);
 
   private static final int NUMBER_OF_COMMENTS = 17;
+
+  private static final Boolean CAN_LOGIN = true;
 
   @Autowired
   private PullRequestRepository prRepository;
@@ -409,7 +408,7 @@ public class PullRequestServiceTest {
   }
 
   private User initUser() {
-    User prOwner = new User(USER_ID, USER_NAME, FULL_NAME, AVATAR, PROFILE_URL);
+    User prOwner = new User(USER_ID, USER_NAME, FULL_NAME, AVATAR, CAN_LOGIN, PROFILE_URL, null);
     return userRepository.save(prOwner);
   }
 }

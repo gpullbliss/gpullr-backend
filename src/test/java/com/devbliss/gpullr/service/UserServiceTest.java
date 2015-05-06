@@ -1,13 +1,5 @@
 package com.devbliss.gpullr.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
@@ -15,9 +7,6 @@ import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
-import java.util.Arrays;
-import java.util.List;
-import javax.validation.ConstraintViolationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +18,14 @@ import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionSystemException;
+
+import javax.validation.ConstraintViolationException;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -44,6 +41,8 @@ public class UserServiceTest {
   private static final String FULL_NAME = "Anton aus Tirol";
 
   private static final String USERNAME = "antonaustirol";
+
+  private static final Boolean CAN_LOGIN = true;
 
   @Autowired
   private UserRepository userRepository;
@@ -107,7 +106,7 @@ public class UserServiceTest {
     final List<String> usernames = Arrays.asList("lalala", "bla", "blubb");
     usernames.forEach(u -> {
       User orgUser = new User(u.length(), u);
-      orgUser.canLogin = true;
+      orgUser.canLogin = CAN_LOGIN;
       userService.insertOrUpdate(orgUser);
     });
 
@@ -126,7 +125,10 @@ public class UserServiceTest {
 
   @Test
   public void login() {
-    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
+    final User user = new User(ID, USERNAME, FULL_NAME, AVATAR_URL, CAN_LOGIN, PROFILE_URL, null);
+
+    when(userSession.getUser()).thenReturn(user);
+    userRepository.save(user);
     userService.login(ID);
     assertNotNull(userSession.getUser());
   }
