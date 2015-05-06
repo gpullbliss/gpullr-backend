@@ -37,16 +37,24 @@ public class GithubOauthService {
   private static final String OAUTH_CODE = "code";
   private static final String FAILED_HTTP_ERROR_CODE = "Failed : HTTP error code : %d : %s";
 
-  @Autowired
-  Gson gson;
+  private final Gson gson;
+
+  private final JsonHttpClient jsonHttpClient;
+
+  private final ValuePairListFactory valuePairListFactory;
 
   @Autowired
-  JsonHttpClient jsonHttpClient;
-
-  @Autowired
-  ValuePairListFactory valuePairListFactory;
+  public GithubOauthService(Gson gson, JsonHttpClient jsonHttpClient, ValuePairListFactory valuePairListFactory) {
+    this.gson = gson;
+    this.jsonHttpClient = jsonHttpClient;
+    this.valuePairListFactory = valuePairListFactory;
+  }
 
   public GithubOauthAccessToken getAccessToken(String code) {
+    if (code == null) {
+      throw new OauthException("Given code is NULL");
+    }
+
     final HttpClient httpClient = jsonHttpClient.getHttpClient();
     final HttpPost postMethod = jsonHttpClient.getPostMethod(GITHUB_OAUTH_ACCESS_TOKEN_URL);
 
@@ -72,6 +80,10 @@ public class GithubOauthService {
   }
 
   public GithubUser getUserByAccessToken(GithubOauthAccessToken oauthAccessToken) {
+    if (oauthAccessToken == null) {
+      throw new OauthException("Given access token is NULL");
+    }
+
     final HttpClient httpClient = jsonHttpClient.getHttpClient();
     final HttpGet getMethod = jsonHttpClient.getGetMethod(GITHUB_API_GET_USER);
 

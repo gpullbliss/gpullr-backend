@@ -5,6 +5,4 @@ package com.devbliss.gpullr.service.dto;
  */
 public class GithubOauthAccessToken {
   public String access_token;
-  public String scope;
-  public String token_type;
 }

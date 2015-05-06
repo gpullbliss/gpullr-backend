@@ -26,6 +26,10 @@ public class JsonHttpClient {
   }
 
   public HttpPost getPostMethod(String url) {
+    if (url == null) {
+      return null;
+    }
+
     final HttpPost postMethod = new HttpPost(url);
     postMethod.setHeader(HTTP_HEADER_KEY_ACCEPT, APPLICATION_JSON);
 
@@ -33,6 +37,10 @@ public class JsonHttpClient {
   }
 
   public HttpGet getGetMethod(String url) {
+    if (url == null) {
+      return null;
+    }
+
     final HttpGet getMethod = new HttpGet(url);
     getMethod.setHeader(HTTP_HEADER_KEY_ACCEPT, APPLICATION_JSON);
 

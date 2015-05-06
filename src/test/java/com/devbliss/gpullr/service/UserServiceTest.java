@@ -3,6 +3,7 @@ package com.devbliss.gpullr.service;
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
+import com.devbliss.gpullr.exception.BadRequestException;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -200,4 +201,11 @@ public class UserServiceTest {
     userSettings.language = "xx";
     userService.updateUserSettings(ID, userSettings);
   }
+
+  @Test(expected = BadRequestException.class)
+  public void tryToLoginWhenNotAllowed() {
+    userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, !CAN_LOGIN, PROFILE_URL, null));
+    userService.login(ID);
+  }
+
 }

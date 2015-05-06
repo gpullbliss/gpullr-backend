@@ -1,7 +1,8 @@
 package com.devbliss.gpullr.exception;
 
 /**
- * TODO
+ * To be thrown whenever a prerequisites for oauth communication
+ * or oauth communication itself fails
  */
 public class OauthException extends RuntimeException {
 
