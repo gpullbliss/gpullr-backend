@@ -1,8 +1,9 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.service.github.GithubApi;
+
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.RepoService;
-import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

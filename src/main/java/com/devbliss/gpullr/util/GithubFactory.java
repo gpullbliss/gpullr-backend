@@ -1,9 +1,11 @@
 package com.devbliss.gpullr.util;
 
+import com.devbliss.gpullr.service.github.GithubApi;
+import com.devbliss.gpullr.service.github.GithubApiImpl;
+import com.devbliss.gpullr.service.github.GithubApiImplNoop;
 import com.devbliss.gpullr.util.http.GithubHttpClient;
 import com.devbliss.gpullr.util.http.GithubHttpClientImpl;
 import com.devbliss.gpullr.util.http.GithubHttpClientImplNoop;
-
 import com.jcabi.github.Github;
 import com.jcabi.github.RtGithub;
 import com.jcabi.github.mock.MkGithub;
@@ -25,6 +27,10 @@ public class GithubFactory {
   @Autowired
   @Qualifier("githubClientImpl")
   private GithubHttpClientImpl githClientImpl;
+
+  @Autowired
+  @Qualifier("githubApiImpl")
+  private GithubApiImpl githubApiImpl;
 
   @Bean
   @Profile({
@@ -59,5 +65,21 @@ public class GithubFactory {
   @Primary
   public GithubHttpClient createTestClient() {
     return new GithubHttpClientImplNoop();
+  }
+
+  @Bean
+  @Profile({
+      "prod", "dev"
+  })
+  @Primary
+  public GithubApi createGithubApi() {
+    return githubApiImpl;
+  }
+
+  @Bean
+  @Profile("test")
+  @Primary
+  public GithubApi createGithubTestApi() {
+    return new GithubApiImplNoop();
   }
 }

@@ -1,16 +1,17 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.service.github.GithubApi;
+
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.RepoCreatedEvent;
 import com.devbliss.gpullr.service.RepoService;
-import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
 import com.devbliss.gpullr.service.github.PullRequestEventHandler;
-import com.devbliss.gpullr.util.Log;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationListener;
@@ -30,23 +31,26 @@ import org.springframework.stereotype.Component;
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent> {
 
-  @Log
-  private Logger logger;
+  private static final Logger LOGGER = LoggerFactory.getLogger(GithubEventFetcher.class);
+
+  private final GithubApi githubApi;
+
+  private final RepoService repoService;
+
+  private final PullRequestEventHandler pullRequestEventHandler;
+
+  private final ThreadPoolTaskScheduler executor;
 
   @Autowired
-  private GithubApi githubApi;
-
-  @Autowired
-  private RepoService repoService;
-
-  @Autowired
-  private PullRequestEventHandler pullRequestEventHandler;
-
-  @Autowired
-  private ThreadPoolTaskScheduler executor;
-
-  public GithubEventFetcher() {
-
+  public GithubEventFetcher(
+      GithubApi githubApi,
+      RepoService repoService,
+      PullRequestEventHandler pullRequestEventHandler,
+      ThreadPoolTaskScheduler executor) {
+    this.githubApi = githubApi;
+    this.repoService = repoService;
+    this.pullRequestEventHandler = pullRequestEventHandler;
+    this.executor = executor;
   }
 
   /**
@@ -54,11 +58,11 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
    */
   public void startFetchEventsLoop() {
     List<Repo> allActiveRepos = repoService.findAllActive();
-    logger.info("Start fetching events from GitHub for all " + allActiveRepos.size() + " repos...");
+    LOGGER.info("Start fetching events from GitHub for all " + allActiveRepos.size() + " repos...");
     int counter = 1;
 
     for (Repo repo : allActiveRepos) {
-      logger.debug("Fetching events for repo (initial loop): " + repo.name + " (" + counter + ". in list)");
+      LOGGER.debug("Fetching events for repo (initial loop): " + repo.name + " (" + counter + ". in list)");
       fetchEvents(repo, Optional.empty());
       counter++;
     }
@@ -66,7 +70,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
 
   @Override
   public void onApplicationEvent(RepoCreatedEvent event) {
-    logger.debug("Added new repo to fetch events loop: " + event.createdRepo.name);
+    LOGGER.debug("Added new repo to fetch events loop: " + event.createdRepo.name);
     fetchEvents(event.createdRepo, Optional.empty());
   }
 
@@ -75,7 +79,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   }
 
   private void fetchEventsAgain(Repo repo, Optional<String> etagHeader) {
-    logger.debug("Fetching events for repo (scheduled): " + repo.name);
+    LOGGER.debug("Fetching events for repo (scheduled): " + repo.name);
     fetchEvents(repo, etagHeader);
   }
 
@@ -83,7 +87,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
     response.payload.forEach(pullRequestEventHandler::handlePullRequestEvent);
     Date start = Date.from(response.nextFetch);
     executor.schedule(() -> fetchEventsAgain(repo, response.etagHeader), start);
-    logger.debug("Fetched "
+    LOGGER.debug("Fetched "
         + response.payload.size()
         + " PR events for " + repo.name
         + " / next fetch=" + start

@@ -1,8 +1,9 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.service.github.GithubApi;
+
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.service.UserService;
-import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.util.Log;
 import java.io.IOException;
 import java.time.Instant;
