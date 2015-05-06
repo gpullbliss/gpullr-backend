@@ -41,7 +41,7 @@ public class GithubEventFetcherTest {
   }
 
   @Test
-  public void onApplicationEvent() {
+  public void githubEventFetcherListensToRepoCreatedEvent() {
     applicationContext.publishEvent(new RepoCreatedEvent(this, repo));
     verify(githubApi).fetchAllEvents(repo, Optional.empty());
   }
