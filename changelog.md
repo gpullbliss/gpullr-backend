@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] implemented GitHub Oauth login web flow
  - [feature] add allowed languages
  - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
  - [feature] add IT lang config
@@ -60,4 +61,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Tobias Arndt <tobias.arndt@devbliss.com> Mon May 04 14:57:06 CEST 2015
+-- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Wed May 06 16:10:20 CEST 2015
