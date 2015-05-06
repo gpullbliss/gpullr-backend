@@ -11,7 +11,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name="rankings")
+@Table(name = "rankings")
 public class Ranking {
 
   @Id
@@ -39,16 +39,12 @@ public class Ranking {
 
   @NotNull
   public Integer closedCount;
-  
+
   public Ranking() {
   }
 
-  public Ranking(double sumOfScores, User user) {
-    this.sumOfScores = sumOfScores;
-    this.user = user;
-  }
-
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return "Ranking{" +
         "id=" + id +
         ", user=" + user +

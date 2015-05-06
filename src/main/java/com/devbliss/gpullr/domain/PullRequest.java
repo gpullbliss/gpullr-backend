@@ -94,14 +94,14 @@ public class PullRequest {
   public int numberOfComments;
 
   /**
-   * Calculates the score for this pull request. It values the effort the assignee has to put in reviewing this 
+   * Calculates the score for this pull request. It values the effort the assignee has to put in reviewing this
    * pull requests and is taken into account for the ranking calculation.
-   * 
-   * It uses the lines of changed code, the number of changed files and the number of comments written by the 
+   * <p>
+   * It uses the lines of changed code, the number of changed files and the number of comments written by the
    * assignee.Additionally, there is a basic score of {@link #MINIMAL_SCORE} every pull request gets even if the
    * values mentioned above are all 0 - to honour the effort it costs to assign and review a pull request no matter
-   * how trivial or small it may be. 
-   *  
+   * how trivial or small it may be.
+   *
    * @return
    */
   public Double calculateScore() {
@@ -168,7 +168,6 @@ public class PullRequest {
 
     if (loc < 0) {
       return locLog * WEIGHT_NEGATIVE_LINES_OF_CODE;
-
     }
 
     return locLog;
