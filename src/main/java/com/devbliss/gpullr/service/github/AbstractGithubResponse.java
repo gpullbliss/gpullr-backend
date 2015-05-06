@@ -1,7 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.util.http.GithubHttpResponse;
-
 import java.time.Instant;
 import java.util.Optional;
 

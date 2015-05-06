@@ -3,7 +3,6 @@ package com.devbliss.gpullr.util;
 import com.devbliss.gpullr.util.http.GithubHttpClient;
 import com.devbliss.gpullr.util.http.GithubHttpClientImpl;
 import com.devbliss.gpullr.util.http.GithubHttpClientImplNoop;
-
 import com.jcabi.github.Github;
 import com.jcabi.github.RtGithub;
 import com.jcabi.github.mock.MkGithub;

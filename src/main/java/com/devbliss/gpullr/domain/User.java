@@ -1,7 +1,5 @@
 package com.devbliss.gpullr.domain;
 
-import org.hibernate.validator.constraints.NotBlank;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * User of the application, fetched from GitHub API.
