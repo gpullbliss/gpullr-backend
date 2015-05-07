@@ -1,7 +1,7 @@
 
 ### Version 0.1.0-SNAPSHOT
 
-
+ - [bug] fetching pull request events with updated repo url after repo renaming
  - [feature] add allowed languages
  - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
  - [feature] add IT lang config

@@ -1,7 +1,5 @@
 package com.devbliss.gpullr.service;
 
-import com.devbliss.gpullr.service.github.GithubApi;
-
 import com.devbliss.gpullr.domain.BuildStatus;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
@@ -12,6 +10,7 @@ import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
+import com.devbliss.gpullr.service.github.GithubApi;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;

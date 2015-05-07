@@ -95,9 +95,6 @@ public class GithubApiImpl implements GithubApi {
   @Autowired
   private PullRequestBuildStatusParser pullRequestBuildStatusParser;
 
-  /* (non-Javadoc)
-   * @see com.devbliss.gpullr.service.github.GithubApi#fetchAllGithubRepos()
-   */
   @Override
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
@@ -108,9 +105,6 @@ public class GithubApiImpl implements GithubApi {
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.devbliss.gpullr.service.github.GithubApi#fetchPullRequest(com.devbliss.gpullr.domain.PullRequest, java.util.Optional)
-   */
   @Override
   public GithubPullRequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestDetailsRequest req = new GetPullRequestDetailsRequest(pullRequest, etagHeader);
@@ -124,9 +118,6 @@ public class GithubApiImpl implements GithubApi {
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.devbliss.gpullr.service.github.GithubApi#fetchBuildStatus(com.devbliss.gpullr.domain.PullRequest, java.util.Optional)
-   */
   @Override
   public GithubPullRequestBuildStatusResponse fetchBuildStatus(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestBuildStatusRequest req = new GetPullRequestBuildStatusRequest(pullRequest, etagHeader);
@@ -134,9 +125,6 @@ public class GithubApiImpl implements GithubApi {
     return pullRequestBuildStatusParser.parse(resp, pullRequest.title);
   }
 
-  /* (non-Javadoc)
-   * @see com.devbliss.gpullr.service.github.GithubApi#fetchAllEvents(com.devbliss.gpullr.domain.Repo, java.util.Optional)
-   */
   @Override
   public GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader) {
 
@@ -155,17 +143,11 @@ public class GithubApiImpl implements GithubApi {
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.devbliss.gpullr.service.github.GithubApi#fetchAllOrgaMembers()
-   */
   @Override
   public List<User> fetchAllOrgaMembers() throws IOException {
     return loadAllPages("/orgs/devbliss/members", this::getUserWithDetailsFromJson);
   }
 
-  /* (non-Javadoc)
-   * @see com.devbliss.gpullr.service.github.GithubApi#assignUserToPullRequest(com.devbliss.gpullr.domain.User, com.devbliss.gpullr.domain.PullRequest)
-   */
   @Override
   public void assignUserToPullRequest(User user, PullRequest pull) {
     JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, user.username).build();
@@ -193,9 +175,6 @@ public class GithubApiImpl implements GithubApi {
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.devbliss.gpullr.service.github.GithubApi#unassignUserFromPullRequest(com.devbliss.gpullr.domain.User, com.devbliss.gpullr.domain.PullRequest)
-   */
   @Override
   public void unassignUserFromPullRequest(User user, PullRequest pull) {
     JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, "").build();
