@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.util;
 
-import org.mockito.Answers;
-
 import static org.mockito.Mockito.mock;
+
+import org.mockito.Answers;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
