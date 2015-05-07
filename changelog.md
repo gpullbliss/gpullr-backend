@@ -1,7 +1,6 @@
 
 ### Version 0.1.0-SNAPSHOT
 
-
  - [feature] implemented GitHub OAuth login web flow
  - [feature] fair ranking algorithm
  - [feature] add allowed languages
