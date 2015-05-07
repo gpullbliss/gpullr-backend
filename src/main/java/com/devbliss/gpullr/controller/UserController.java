@@ -38,6 +38,7 @@ public class UserController {
   private GithubOauthService githubOauthService;
 
   @RequestMapping(method = RequestMethod.GET)
+  @Deprecated
   public List<UserDto> getAllOrgaMembers() {
     return userService
         .findAllOrgaMembers()
