@@ -62,8 +62,4 @@
  - [feature] project setup
  - [initial] initial commit
 
-<<<<<<< HEAD
 -- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Wed May 06 16:10:20 CEST 2015
-=======
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed May 06 10:10:12 CEST 2015
->>>>>>> 8690cd0494a703684dfb1461d7c5f6abb4fe6a6b
