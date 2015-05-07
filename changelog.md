@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
 
+ - [feature] added Fränkisch to list of valid languages
  - [feature] fair ranking algorithm
  - [feature] add allowed languages
  - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
@@ -61,4 +62,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed May 06 10:10:12 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Thu May 07 15:49:15 CEST 2015
