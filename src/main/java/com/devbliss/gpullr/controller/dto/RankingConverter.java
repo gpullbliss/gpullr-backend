@@ -1,15 +1,13 @@
 package com.devbliss.gpullr.controller.dto;
 
 import com.devbliss.gpullr.domain.Ranking;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Convergts {@link Ranking} entities to {@link RankingDto}s.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
+ * Converts {@link Ranking} entities to {@link RankingDto}s.
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @Component
 public class RankingConverter {
@@ -21,7 +19,11 @@ public class RankingConverter {
     RankingDto dto = new RankingDto();
     dto.rank = entity.rank;
     dto.closedCount = entity.closedCount;
-    dto.users = entity.users.stream().map(u -> userConverter.toMinimalDto(u)).collect(Collectors.toList());
+    dto.sumOfScores = entity.sumOfScores;
+    dto.sumOfFilesChanged = entity.sumOfFilesChanged;
+    dto.sumOfLinesAdded = entity.sumOfLinesAdded;
+    dto.sumOfLinesRemoved = entity.sumOfLinesRemoved;
+    dto.user = userConverter.toMinimalDto(entity.user);
     return dto;
   }
 

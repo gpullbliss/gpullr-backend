@@ -1,12 +1,18 @@
 package com.devbliss.gpullr.controller.dto;
 
-import java.util.List;
-
 public class RankingDto {
 
   public int rank;
 
-  public long closedCount;
+  public double sumOfScores;
 
-  public List<MinimalUserDto> users;
+  public int closedCount;
+
+  public int sumOfLinesAdded;
+
+  public int sumOfLinesRemoved;
+
+  public int sumOfFilesChanged;
+
+  public MinimalUserDto user;
 }
