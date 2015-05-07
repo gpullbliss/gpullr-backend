@@ -206,6 +206,7 @@ public class PullRequestServiceTest {
     openPullRequest1.state = State.OPEN;
     openPullRequest1.createdAt = ZonedDateTime.now().minusMinutes(3);
     openPullRequest1.repo = repoRepository.save(new Repo(repo1Id, "One Repo", ""));
+    
     prService.insertOrUpdate(openPullRequest1);
 
     final String repo2Title = "My Cool Repo";
