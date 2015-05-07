@@ -2,7 +2,8 @@
 ### Version 0.1.0-SNAPSHOT
 
 
- - [feature] implemented GitHub Oauth login web flow
+ - [feature] implemented GitHub OAuth login web flow
+ - [feature] fair ranking algorithm
  - [feature] add allowed languages
  - [feature] no more pr ordering in backend / two order fields for assigned and unassigned prs
  - [feature] add IT lang config
@@ -61,4 +62,8 @@
  - [feature] project setup
  - [initial] initial commit
 
+<<<<<<< HEAD
 -- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Wed May 06 16:10:20 CEST 2015
+=======
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Wed May 06 10:10:12 CEST 2015
+>>>>>>> 8690cd0494a703684dfb1461d7c5f6abb4fe6a6b
