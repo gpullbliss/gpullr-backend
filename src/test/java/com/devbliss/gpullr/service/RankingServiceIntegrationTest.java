@@ -41,6 +41,13 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ActiveProfiles("test")
 public class RankingServiceIntegrationTest {
 
+  /**
+   * Score of the example pull request used in this test.
+   */
+  private static final double PULLREQUEST_SCORE = 14d;
+
+  private static final double COMPARISON_ACCURACY = .01;
+
   private Random random;
 
   @Autowired
@@ -111,9 +118,9 @@ public class RankingServiceIntegrationTest {
     assertTrue(allWithRankingScope.isPresent());
     List<Ranking> rankings = allWithRankingScope.get().getRankings();
     assertEquals(1, rankings.size());
-    assertEquals(1L, rankings.get(0).closedCount.longValue());
-    assertEquals(1, rankings.get(0).users.size());
-    assertEquals(userAlpha, rankings.get(0).users.get(0));
+    assertEquals(1 * PULLREQUEST_SCORE, rankings.get(0).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(1, rankings.size());
+    assertEquals(userAlpha, rankings.get(0).user);
   }
 
   @Test
@@ -130,7 +137,7 @@ public class RankingServiceIntegrationTest {
     Optional<RankingList> allWithRankingScope = rankingService.findAllWithRankingScope(RankingScope.TODAY);
     assertTrue(allWithRankingScope.isPresent());
     List<Ranking> rankings = allWithRankingScope.get().getRankings();
-    rankings.forEach(r -> assertTrue(r.closedCount == 0L));
+    rankings.forEach(r -> assertTrue(r.sumOfScores == 0L));
   }
 
   @Test
@@ -148,15 +155,12 @@ public class RankingServiceIntegrationTest {
 
     // according to the user statistics setup, the ranking should be: [alpha, beta, gamma,
     // megaauthor]:
-    assertEquals(1, rankings.get(0).users.size());
-    assertEquals(1, rankings.get(1).users.size());
-
-    assertEquals(userAlpha.username, rankings.get(0).users.get(0).username);
-    assertEquals(userBeta.username, rankings.get(1).users.get(0).username);
+    assertEquals(userAlpha.username, rankings.get(0).user.username);
+    assertEquals(userBeta.username, rankings.get(1).user.username);
 
     // the number of pull requests for the rankings should be [3, 1, 0]:
-    assertEquals(3, rankings.get(0).closedCount.longValue());
-    assertEquals(1, rankings.get(1).closedCount.longValue());
+    assertEquals(3 * PULLREQUEST_SCORE, rankings.get(0).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(1 * PULLREQUEST_SCORE, rankings.get(1).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
 
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -178,18 +182,14 @@ public class RankingServiceIntegrationTest {
 
     // according to the user statistics setup, the ranking should be: [beta, alpha, gamma,
     // megaauthor]:
-    assertEquals(1, rankings.get(0).users.size());
-    assertEquals(1, rankings.get(1).users.size());
-    assertEquals(1, rankings.get(2).users.size());
-
-    assertEquals(userBeta.username, rankings.get(0).users.get(0).username);
-    assertEquals(userAlpha.username, rankings.get(1).users.get(0).username);
-    assertEquals(userGamma.username, rankings.get(2).users.get(0).username);
+    assertEquals(userBeta.username, rankings.get(0).user.username);
+    assertEquals(userAlpha.username, rankings.get(1).user.username);
+    assertEquals(userGamma.username, rankings.get(2).user.username);
 
     // the number of pull requests for the rankings should be [6, 4, 1]:
-    assertEquals(6, rankings.get(0).closedCount.longValue());
-    assertEquals(4, rankings.get(1).closedCount.longValue());
-    assertEquals(1, rankings.get(2).closedCount.longValue());
+    assertEquals(6 * PULLREQUEST_SCORE, rankings.get(0).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(4 * PULLREQUEST_SCORE, rankings.get(1).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(1 * PULLREQUEST_SCORE, rankings.get(2).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
 
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -208,23 +208,22 @@ public class RankingServiceIntegrationTest {
     Optional<RankingList> rankingList = rankingService.findAllWithRankingScope(RankingScope.LAST_30_DAYS);
     assertTrue(rankingList.isPresent());
     List<Ranking> rankings = rankingList.get().getRankings();
-    assertEquals(2, rankings.size());
+    assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [alpha, beta, gamma]:
-    assertEquals(2, rankings.get(0).users.size());
-    assertEquals(1, rankings.get(1).users.size());
-
-    assertEquals(userAlpha.username, rankings.get(0).users.get(0).username);
-    assertEquals(userBeta.username, rankings.get(0).users.get(1).username);
-    assertEquals(userGamma.username, rankings.get(1).users.get(0).username);
+    assertEquals(userBeta.username, rankings.get(0).user.username);
+    assertEquals(userAlpha.username, rankings.get(1).user.username);
+    assertEquals(userGamma.username, rankings.get(2).user.username);
 
     // the number of pull requests for the rankings should be [6, 6, 4]:
-    assertEquals(6, rankings.get(0).closedCount.longValue());
-    assertEquals(4, rankings.get(1).closedCount.longValue());
+    assertEquals(6 * PULLREQUEST_SCORE, rankings.get(0).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(6 * PULLREQUEST_SCORE, rankings.get(1).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(4 * PULLREQUEST_SCORE, rankings.get(2).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
 
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
-    assertEquals(2, rankings.get(1).rank.intValue());
+    assertEquals(1, rankings.get(1).rank.intValue());
+    assertEquals(2, rankings.get(2).rank.intValue());
   }
 
   @Test
@@ -241,18 +240,14 @@ public class RankingServiceIntegrationTest {
     assertEquals(3, rankings.size());
 
     // according to the user statistics setup, the ranking should be: [gamma, alpha, beta]
-    assertEquals(1, rankings.get(0).users.size());
-    assertEquals(1, rankings.get(1).users.size());
-    assertEquals(1, rankings.get(2).users.size());
-
-    assertEquals(userGamma.username, rankings.get(0).users.get(0).username);
-    assertEquals(userAlpha.username, rankings.get(1).users.get(0).username);
-    assertEquals(userBeta.username, rankings.get(2).users.get(0).username);
+    assertEquals(userGamma.username, rankings.get(0).user.username);
+    assertEquals(userAlpha.username, rankings.get(1).user.username);
+    assertEquals(userBeta.username, rankings.get(2).user.username);
 
     // the number of pull requests for the rankings should be [12, 7, 6]:
-    assertEquals(12, rankings.get(0).closedCount.longValue());
-    assertEquals(7, rankings.get(1).closedCount.longValue());
-    assertEquals(6, rankings.get(2).closedCount.longValue());
+    assertEquals(12 * PULLREQUEST_SCORE, rankings.get(0).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(7 * PULLREQUEST_SCORE, rankings.get(1).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(6 * PULLREQUEST_SCORE, rankings.get(2).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
 
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -297,11 +292,10 @@ public class RankingServiceIntegrationTest {
     assertTrue(rankingList.isPresent());
     List<Ranking> rankings = rankingList.get().getRankings();
     assertEquals(1, rankings.size());
-    assertEquals(1, rankings.get(0).closedCount.longValue());
+    assertEquals(1 * PULLREQUEST_SCORE, rankings.get(0).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
 
-    assertEquals(1, rankings.get(0).users.size());
-    assertEquals(userAlpha.username, rankings.get(0).users.get(0).username);
-    assertEquals(userAlpha.avatarUrl, rankings.get(0).users.get(0).avatarUrl);
+    assertEquals(userAlpha.username, rankings.get(0).user.username);
+    assertEquals(userAlpha.avatarUrl, rankings.get(0).user.avatarUrl);
 
     // submitting same pull request again and trigger calculation:
     pullRequestRepository.save(pullRequest);
@@ -313,10 +307,9 @@ public class RankingServiceIntegrationTest {
     rankings = rankingList.get().getRankings();
 
     assertEquals(1, rankings.size());
-    assertEquals(1, rankings.get(0).closedCount.longValue());
-    assertEquals(1, rankings.get(0).users.size());
-    assertEquals(userAlpha.username, rankings.get(0).users.get(0).username);
-    assertEquals(userAlpha.avatarUrl, rankings.get(0).users.get(0).avatarUrl);
+    assertEquals(1 * PULLREQUEST_SCORE, rankings.get(0).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(userAlpha.username, rankings.get(0).user.username);
+    assertEquals(userAlpha.avatarUrl, rankings.get(0).user.avatarUrl);
 
     // submitting same pull request again - this time with different assignee - and trigger
     // calculation:
@@ -329,13 +322,12 @@ public class RankingServiceIntegrationTest {
     assertTrue(rankingList.isPresent());
     rankings = rankingList.get().getRankings();
 
-    assertEquals(1, rankings.size());
-    assertEquals(1, rankings.get(0).closedCount.longValue());
-    assertEquals(2, rankings.get(0).users.size());
-    assertEquals(userAlpha.username, rankings.get(0).users.get(0).username);
-    assertEquals(userAlpha.avatarUrl, rankings.get(0).users.get(0).avatarUrl);
-    assertEquals(userBeta.username, rankings.get(0).users.get(1).username);
-    assertEquals(userBeta.avatarUrl, rankings.get(0).users.get(1).avatarUrl);
+    assertEquals(2, rankings.size());
+    assertEquals(1 * PULLREQUEST_SCORE, rankings.get(0).sumOfScores.doubleValue(), COMPARISON_ACCURACY);
+    assertEquals(userBeta.username, rankings.get(0).user.username);
+    assertEquals(userBeta.avatarUrl, rankings.get(0).user.avatarUrl);
+    assertEquals(userAlpha.username, rankings.get(1).user.username);
+    assertEquals(userAlpha.avatarUrl, rankings.get(1).user.avatarUrl);
   }
 
   @Test
@@ -357,7 +349,7 @@ public class RankingServiceIntegrationTest {
     // but there should only be rankings for the users belonging to us:
     assertEquals(3, rankings.size());
     rankings.forEach(r -> {
-      r.users.forEach(u -> assertFalse("User not belonging to us should not have a ranking", stranger.equals(u)));
+      assertFalse("User not belonging to us should not have a ranking", stranger.equals(r.user));
     });
   }
 
@@ -376,6 +368,13 @@ public class RankingServiceIntegrationTest {
     }
 
     pullRequest.url = randomPart.toString();
+
+    // make sure all pull requests have same score value (PULLREQUEST_SCORE):
+    pullRequest.linesAdded = 100;
+    pullRequest.linesRemoved = 98;
+    pullRequest.filesChanged = 2;
+    pullRequest.numberOfComments = 2;
+    assertEquals(PULLREQUEST_SCORE, pullRequest.calculateScore(), .001);
     return pullRequest;
   }
 
