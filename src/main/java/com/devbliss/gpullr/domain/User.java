@@ -35,6 +35,8 @@ public class User {
 
   public Boolean canLogin = false;
 
+  public String accessToken;
+
   @OneToOne(
       fetch = FetchType.EAGER,
       targetEntity = UserSettings.class,
@@ -44,7 +46,8 @@ public class User {
   @Valid
   public UserSettings userSettings;
 
-  public User() {}
+  public User() {
+  }
 
   public User(Integer id, String username) {
     this(id, username, null, null, false, null, null);

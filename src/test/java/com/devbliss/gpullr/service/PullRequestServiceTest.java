@@ -79,6 +79,8 @@ public class PullRequestServiceTest {
 
   private static final int NUMBER_OF_COMMENTS = 17;
 
+  private static final Boolean CAN_LOGIN = true;
+
   @Autowired
   private PullRequestRepository prRepository;
 
@@ -410,7 +412,7 @@ public class PullRequestServiceTest {
   }
 
   private User initUser() {
-    User prOwner = new User(USER_ID, USER_NAME, FULL_NAME, AVATAR, PROFILE_URL);
+    User prOwner = new User(USER_ID, USER_NAME, FULL_NAME, AVATAR, CAN_LOGIN, PROFILE_URL, null);
     return userRepository.save(prOwner);
   }
 }
