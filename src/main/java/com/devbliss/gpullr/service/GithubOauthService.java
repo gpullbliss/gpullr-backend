@@ -6,7 +6,7 @@ import com.devbliss.gpullr.service.dto.GithubUser;
 import com.devbliss.gpullr.util.http.JsonHttpClient;
 import com.devbliss.gpullr.util.http.ValuePairList;
 import com.devbliss.gpullr.util.http.ValuePairListFactory;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -50,15 +50,16 @@ public class GithubOauthService {
   @Value("${github.client-secret}")
   private String clientSecret;
 
-  private final Gson gson;
+  private final ObjectMapper objectMapper;
 
   private final JsonHttpClient jsonHttpClient;
 
   private final ValuePairListFactory valuePairListFactory;
 
   @Autowired
-  public GithubOauthService(Gson gson, JsonHttpClient jsonHttpClient, ValuePairListFactory valuePairListFactory) {
-    this.gson = gson;
+  public GithubOauthService(ObjectMapper objectMapper, JsonHttpClient jsonHttpClient,
+      ValuePairListFactory valuePairListFactory) {
+    this.objectMapper = objectMapper;
     this.jsonHttpClient = jsonHttpClient;
     this.valuePairListFactory = valuePairListFactory;
   }
@@ -133,7 +134,7 @@ public class GithubOauthService {
       content += output;
     }
 
-    return gson.fromJson(content, clazz);
+    return objectMapper.readValue(content, clazz);
   }
 
 }

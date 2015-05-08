@@ -15,7 +15,7 @@ import com.devbliss.gpullr.service.dto.GithubUser;
 import com.devbliss.gpullr.util.http.JsonHttpClient;
 import com.devbliss.gpullr.util.http.ValuePairList;
 import com.devbliss.gpullr.util.http.ValuePairListFactory;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -83,7 +83,7 @@ public class GithubOauthServiceUnitTest {
 
   private GithubOauthAccessToken accessToken;
 
-  private Gson gson = new Gson();
+  private ObjectMapper objectMapper = new ObjectMapper();
 
   @Before
   public void setUp() throws IOException {
@@ -104,14 +104,14 @@ public class GithubOauthServiceUnitTest {
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
     when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
 
-    githubOauthService = new GithubOauthService(gson, jsonHttpClient, valuePairListFactory);
+    githubOauthService = new GithubOauthService(new ObjectMapper(), jsonHttpClient, valuePairListFactory);
   }
 
   @Test
   public void testGetAccessTokenByCode() throws IOException {
     final String testCode = "some-random-test-code";
 
-    final InputStream inputStream = IOUtils.toInputStream(gson.toJson(accessToken), ENCODING_UTF_8);
+    final InputStream inputStream = IOUtils.toInputStream(objectMapper.writeValueAsString(accessToken), ENCODING_UTF_8);
     when(httpEntity.getContent()).thenReturn(inputStream);
 
     final GithubOauthAccessToken testAccessToken = githubOauthService.getAccessToken(testCode);
@@ -153,7 +153,7 @@ public class GithubOauthServiceUnitTest {
     final GithubUser githubUser = new GithubUser();
     githubUser.id = 123456789;
 
-    final InputStream inputStream = IOUtils.toInputStream(gson.toJson(githubUser), ENCODING_UTF_8);
+    final InputStream inputStream = IOUtils.toInputStream(objectMapper.writeValueAsString(githubUser), ENCODING_UTF_8);
     when(httpEntity.getContent()).thenReturn(inputStream);
 
     final GithubUser testGithubUser = githubOauthService.getUserByAccessToken(accessToken);
