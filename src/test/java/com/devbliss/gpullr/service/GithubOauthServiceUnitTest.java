@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -156,7 +155,8 @@ public class GithubOAuthServiceUnitTest {
     final GithubUserDto githubUserDto = new GithubUserDto();
     githubUserDto.id = 123456789;
 
-    final InputStream inputStream = IOUtils.toInputStream(objectMapper.writeValueAsString(githubUserDto), ENCODING_UTF_8);
+    final InputStream inputStream = IOUtils.toInputStream(objectMapper.writeValueAsString(githubUserDto),
+        ENCODING_UTF_8);
     when(httpEntity.getContent()).thenReturn(inputStream);
 
     final GithubUserDto testGithubUserDto = githubOAuthService.getUserByAccessToken(accessToken);

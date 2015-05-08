@@ -83,14 +83,26 @@ public class GithubOAuthService {
       throw new OAuthException(cause);
     }
 
+    GithubOAuthAccessTokenDto githubOAuthAccessTokenDto;
+
     try {
 
-      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, postMethod),
+      githubOAuthAccessTokenDto = parseJsonResponseContentToObject(getValidResponseOk(httpClient, postMethod),
           GithubOAuthAccessTokenDto.class);
 
     } catch (IOException cause) {
       throw new OAuthException(cause);
+    } finally {
+
+      try {
+        httpClient.close();
+      } catch (IOException cause) {
+        throw new OAuthException(cause);
+      }
+
     }
+
+    return githubOAuthAccessTokenDto;
 
   }
 
