@@ -129,12 +129,12 @@ public class GithubOauthService {
     BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
 
     String output;
-    String content = "";
+    StringBuilder content = new StringBuilder();
     while ((output = br.readLine()) != null) {
-      content += output;
+      content.append(output);
     }
 
-    return objectMapper.readValue(content, clazz);
+    return objectMapper.readValue(content.toString(), clazz);
   }
 
 }
