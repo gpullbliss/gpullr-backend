@@ -9,9 +9,9 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.devbliss.gpullr.exception.OauthException;
-import com.devbliss.gpullr.service.dto.GithubOauthAccessToken;
-import com.devbliss.gpullr.service.dto.GithubUser;
+import com.devbliss.gpullr.exception.OAuthException;
+import com.devbliss.gpullr.service.dto.GithubOAuthAccessTokenDto;
+import com.devbliss.gpullr.service.dto.GithubUserDto;
 import com.devbliss.gpullr.util.http.JsonHttpClient;
 import com.devbliss.gpullr.util.http.ValuePairList;
 import com.devbliss.gpullr.util.http.ValuePairListFactory;
@@ -36,10 +36,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * Uni test for {@link GithubOauthService}
+ * Uni test for {@link GithubOAuthService}
  */
 @RunWith(MockitoJUnitRunner.class)
-public class GithubOauthServiceUnitTest {
+public class GithubOAuthServiceUnitTest {
 
   private static final String OAUTH_CLIENT_ID = "client_id";
 
@@ -49,7 +49,7 @@ public class GithubOauthServiceUnitTest {
 
   private static final String ENCODING_UTF_8 = "UTF-8";
 
-  private GithubOauthService githubOauthService;
+  private GithubOAuthService githubOAuthService;
 
   @Mock
   private JsonHttpClient jsonHttpClient;
@@ -81,9 +81,9 @@ public class GithubOauthServiceUnitTest {
   @Mock
   private HttpClient httpClient;
 
-  private GithubOauthAccessToken accessToken;
+  private GithubOAuthAccessTokenDto accessToken;
 
-  private ObjectMapper objectMapper = new ObjectMapper();
+  private ObjectMapper objectMapper;
 
   @Before
   public void setUp() throws IOException {
@@ -96,7 +96,7 @@ public class GithubOauthServiceUnitTest {
 
     when(valuePairListFactory.getNewValuePairList(anyInt())).thenReturn(valuePairList);
 
-    accessToken = new GithubOauthAccessToken();
+    accessToken = new GithubOAuthAccessTokenDto();
     accessToken.access_token = "some-random-access-token";
     when(httpResponse.getEntity()).thenReturn(httpEntity);
 
@@ -104,7 +104,9 @@ public class GithubOauthServiceUnitTest {
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
     when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
 
-    githubOauthService = new GithubOauthService(new ObjectMapper(), jsonHttpClient, valuePairListFactory);
+    objectMapper = new ObjectMapper();
+
+    githubOAuthService = new GithubOAuthService(objectMapper, jsonHttpClient, valuePairListFactory);
   }
 
   @Test
@@ -114,7 +116,7 @@ public class GithubOauthServiceUnitTest {
     final InputStream inputStream = IOUtils.toInputStream(objectMapper.writeValueAsString(accessToken), ENCODING_UTF_8);
     when(httpEntity.getContent()).thenReturn(inputStream);
 
-    final GithubOauthAccessToken testAccessToken = githubOauthService.getAccessToken(testCode);
+    final GithubOAuthAccessTokenDto testAccessToken = githubOAuthService.getAccessToken(testCode);
 
     verify(httpPost).setEntity(urlEncodedFormEntity);
 
@@ -125,57 +127,57 @@ public class GithubOauthServiceUnitTest {
     assertEquals(accessToken.access_token, testAccessToken.access_token);
   }
 
-  @Test(expected = OauthException.class)
+  @Test(expected = OAuthException.class)
   public void testGetAccessTokenWithUnsupportedEncoding() throws IOException {
     doThrow(new UnsupportedEncodingException()).when(valuePairList).buildUrlEncoded();
-    githubOauthService.getAccessToken("some-random-test-code");
+    githubOAuthService.getAccessToken("some-random-test-code");
   }
 
-  @Test(expected = OauthException.class)
+  @Test(expected = OAuthException.class)
   public void testGetAccessTokenWithIOException() throws IOException {
     doThrow(new IOException()).when(httpClient).execute(any(HttpRequestBase.class));
-    githubOauthService.getAccessToken("some-random-test-code");
+    githubOAuthService.getAccessToken("some-random-test-code");
   }
 
-  @Test(expected = OauthException.class)
+  @Test(expected = OAuthException.class)
   public void testGetAccessTokenGettingWrongResponseStatus() throws IOException {
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_NO_CONTENT);
-    githubOauthService.getAccessToken("some-random-test-code");
+    githubOAuthService.getAccessToken("some-random-test-code");
   }
 
-  @Test(expected = OauthException.class)
+  @Test(expected = OAuthException.class)
   public void testGetAccessTokenWithNull() {
-    githubOauthService.getAccessToken(null);
+    githubOAuthService.getAccessToken(null);
   }
 
   @Test
   public void testGetUserByAccessToken() throws IOException {
-    final GithubUser githubUser = new GithubUser();
-    githubUser.id = 123456789;
+    final GithubUserDto githubUserDto = new GithubUserDto();
+    githubUserDto.id = 123456789;
 
-    final InputStream inputStream = IOUtils.toInputStream(objectMapper.writeValueAsString(githubUser), ENCODING_UTF_8);
+    final InputStream inputStream = IOUtils.toInputStream(objectMapper.writeValueAsString(githubUserDto), ENCODING_UTF_8);
     when(httpEntity.getContent()).thenReturn(inputStream);
 
-    final GithubUser testGithubUser = githubOauthService.getUserByAccessToken(accessToken);
+    final GithubUserDto testGithubUserDto = githubOAuthService.getUserByAccessToken(accessToken);
 
-    assertEquals(githubUser.id, testGithubUser.id);
+    assertEquals(githubUserDto.id, testGithubUserDto.id);
   }
 
-  @Test(expected = OauthException.class)
+  @Test(expected = OAuthException.class)
   public void testGetUserByAccessTokenWithIOException() throws IOException {
     doThrow(new IOException()).when(httpClient).execute(any(HttpRequestBase.class));
-    githubOauthService.getUserByAccessToken(accessToken);
+    githubOAuthService.getUserByAccessToken(accessToken);
   }
 
-  @Test(expected = OauthException.class)
+  @Test(expected = OAuthException.class)
   public void testGetUserByAccessTokenGettingWrongResponseStatus() throws IOException {
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_NO_CONTENT);
-    githubOauthService.getUserByAccessToken(accessToken);
+    githubOAuthService.getUserByAccessToken(accessToken);
   }
 
-  @Test(expected = OauthException.class)
+  @Test(expected = OAuthException.class)
   public void testGetUserByAccessTokenWithNull() {
-    githubOauthService.getUserByAccessToken(null);
+    githubOAuthService.getUserByAccessToken(null);
   }
 }
 

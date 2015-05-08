@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.service;
 
-import com.devbliss.gpullr.exception.OauthException;
-import com.devbliss.gpullr.service.dto.GithubOauthAccessToken;
-import com.devbliss.gpullr.service.dto.GithubUser;
+import com.devbliss.gpullr.exception.OAuthException;
+import com.devbliss.gpullr.service.dto.GithubOAuthAccessTokenDto;
+import com.devbliss.gpullr.service.dto.GithubUserDto;
 import com.devbliss.gpullr.util.http.JsonHttpClient;
 import com.devbliss.gpullr.util.http.ValuePairList;
 import com.devbliss.gpullr.util.http.ValuePairListFactory;
@@ -22,11 +22,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * This service wraps the Github Oauth API {@link https://developer.github.com/v3/oauth/}
- * and provides functions to follow the oauth login web application flow.
+ * This service wraps the GitHub OAuth API {@link https://developer.github.com/v3/oauth/}
+ * and provides functions to follow the OAuth login web application flow.
  */
 @Service
-public class GithubOauthService {
+public class GithubOAuthService {
 
   private static final String GITHUB_OAUTH_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
 
@@ -57,16 +57,16 @@ public class GithubOauthService {
   private final ValuePairListFactory valuePairListFactory;
 
   @Autowired
-  public GithubOauthService(ObjectMapper objectMapper, JsonHttpClient jsonHttpClient,
+  public GithubOAuthService(ObjectMapper objectMapper, JsonHttpClient jsonHttpClient,
       ValuePairListFactory valuePairListFactory) {
     this.objectMapper = objectMapper;
     this.jsonHttpClient = jsonHttpClient;
     this.valuePairListFactory = valuePairListFactory;
   }
 
-  public GithubOauthAccessToken getAccessToken(String code) {
+  public GithubOAuthAccessTokenDto getAccessToken(String code) {
     if (code == null) {
-      throw new OauthException("Given code is NULL");
+      throw new OAuthException("Given code is NULL");
     }
 
     final HttpClient httpClient = jsonHttpClient.getHttpClient();
@@ -80,22 +80,22 @@ public class GithubOauthService {
     try {
       postMethod.setEntity(valuePairList.buildUrlEncoded());
     } catch (UnsupportedEncodingException cause) {
-      throw new OauthException(cause);
+      throw new OAuthException(cause);
     }
 
     try {
 
-      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, postMethod), GithubOauthAccessToken.class);
+      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, postMethod), GithubOAuthAccessTokenDto.class);
 
     } catch (IOException cause) {
-      throw new OauthException(cause);
+      throw new OAuthException(cause);
     }
 
   }
 
-  public GithubUser getUserByAccessToken(GithubOauthAccessToken oauthAccessToken) {
+  public GithubUserDto getUserByAccessToken(GithubOAuthAccessTokenDto oauthAccessToken) {
     if (oauthAccessToken == null) {
-      throw new OauthException("Given access token is NULL");
+      throw new OAuthException("Given access token is NULL");
     }
 
     final HttpClient httpClient = jsonHttpClient.getHttpClient();
@@ -106,10 +106,10 @@ public class GithubOauthService {
 
     try {
 
-      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, getMethod), GithubUser.class);
+      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, getMethod), GithubUserDto.class);
 
     } catch (IOException cause) {
-      throw new OauthException(cause);
+      throw new OAuthException(cause);
     }
 
   }
@@ -118,7 +118,7 @@ public class GithubOauthService {
     final HttpResponse response = httpClient.execute(method);
 
     if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
-      throw new OauthException(String.format(FAILED_HTTP_ERROR_CODE, response.getStatusLine().getStatusCode(),
+      throw new OAuthException(String.format(FAILED_HTTP_ERROR_CODE, response.getStatusLine().getStatusCode(),
           response.getStatusLine().getReasonPhrase()));
     }
 

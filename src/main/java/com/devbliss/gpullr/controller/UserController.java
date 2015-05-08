@@ -3,10 +3,10 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.controller.dto.UserConverter;
 import com.devbliss.gpullr.controller.dto.UserDto;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.service.GithubOauthService;
+import com.devbliss.gpullr.service.GithubOAuthService;
 import com.devbliss.gpullr.service.UserService;
-import com.devbliss.gpullr.service.dto.GithubOauthAccessToken;
-import com.devbliss.gpullr.service.dto.GithubUser;
+import com.devbliss.gpullr.service.dto.GithubOAuthAccessTokenDto;
+import com.devbliss.gpullr.service.dto.GithubUserDto;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ public class UserController {
   private UserConverter userConverter;
 
   @Autowired
-  private GithubOauthService githubOauthService;
+  private GithubOAuthService githubOAuthService;
 
   @RequestMapping(method = RequestMethod.GET)
   @Deprecated
@@ -56,13 +56,13 @@ public class UserController {
 
   @RequestMapping(value = "/oauth/github/{code}", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
-  public void authenticateOauthRequest(@PathVariable("code") @NotNull String code) throws IOException {
-    final GithubOauthAccessToken oauthAccessToken = githubOauthService.getAccessToken(code);
-    final GithubUser githubUser = githubOauthService.getUserByAccessToken(oauthAccessToken);
+  public void authenticateOAuthRequest(@PathVariable("code") @NotNull String code) throws IOException {
+    final GithubOAuthAccessTokenDto oAuthAccessToken = githubOAuthService.getAccessToken(code);
+    final GithubUserDto githubUserDto = githubOAuthService.getUserByAccessToken(oAuthAccessToken);
 
-    userService.login(githubUser.id);
+    userService.login(githubUserDto.id);
 
-    updateUserAccessToken(oauthAccessToken);
+    updateUserAccessToken(oAuthAccessToken);
   }
 
   @RequestMapping(
@@ -73,9 +73,9 @@ public class UserController {
     return userConverter.toDto(entity);
   }
 
-  private void updateUserAccessToken(GithubOauthAccessToken oauthAccessToken) {
+  private void updateUserAccessToken(GithubOAuthAccessTokenDto oAuthAccessToken) {
     final User currentUser = userService.getCurrentUserIfLoggedIn().get();
-    currentUser.accessToken = oauthAccessToken.access_token;
+    currentUser.accessToken = oAuthAccessToken.access_token;
     userService.insertOrUpdate(currentUser);
   }
 
