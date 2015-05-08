@@ -27,9 +27,9 @@ public class JsonHttpClientUnitTest {
   private JsonHttpClient jsonHttpClient;
 
   @Test
-  public void testGetSingletonHttpClientObject() {
+  public void testGetHttpClientObject() {
     final HttpClient httpClient = jsonHttpClient.getHttpClient();
-    assertEquals(httpClient, jsonHttpClient.getHttpClient());
+    assertNotEquals(httpClient, jsonHttpClient.getHttpClient());
   }
 
   @Test

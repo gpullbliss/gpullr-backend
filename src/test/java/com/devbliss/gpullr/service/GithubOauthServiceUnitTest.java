@@ -24,11 +24,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +65,7 @@ public class GithubOAuthServiceUnitTest {
   private ValuePairListFactory valuePairListFactory;
 
   @Mock
-  private HttpResponse httpResponse;
+  private CloseableHttpResponse httpResponse;
 
   @Mock
   private HttpEntity httpEntity;
@@ -79,7 +80,7 @@ public class GithubOAuthServiceUnitTest {
   private UrlEncodedFormEntity urlEncodedFormEntity;
 
   @Mock
-  private HttpClient httpClient;
+  private CloseableHttpClient httpClient;
 
   private GithubOAuthAccessTokenDto accessToken;
 

@@ -13,10 +13,10 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -69,7 +69,7 @@ public class GithubOAuthService {
       throw new OAuthException("Given code is NULL");
     }
 
-    final HttpClient httpClient = jsonHttpClient.getHttpClient();
+    final CloseableHttpClient httpClient = jsonHttpClient.getHttpClient();
     final HttpPost postMethod = jsonHttpClient.getPostMethod(GITHUB_OAUTH_ACCESS_TOKEN_URL);
 
     final ValuePairList valuePairList = valuePairListFactory.getNewValuePairList(3)
@@ -85,7 +85,8 @@ public class GithubOAuthService {
 
     try {
 
-      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, postMethod), GithubOAuthAccessTokenDto.class);
+      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, postMethod),
+          GithubOAuthAccessTokenDto.class);
 
     } catch (IOException cause) {
       throw new OAuthException(cause);
@@ -98,23 +99,36 @@ public class GithubOAuthService {
       throw new OAuthException("Given access token is NULL");
     }
 
-    final HttpClient httpClient = jsonHttpClient.getHttpClient();
+    final CloseableHttpClient httpClient = jsonHttpClient.getHttpClient();
     final HttpGet getMethod = jsonHttpClient.getGetMethod(GITHUB_API_GET_USER);
 
     final String token = String.format(AUTHORIZATION_BY_TOKEN, oauthAccessToken.access_token);
     getMethod.setHeader(HTTP_HEADER_KEY_AUTHORIZATION, token);
 
+    GithubUserDto githubUserDto;
+
     try {
 
-      return parseJsonResponseContentToObject(getValidResponseOk(httpClient, getMethod), GithubUserDto.class);
+      githubUserDto = parseJsonResponseContentToObject(getValidResponseOk(httpClient, getMethod), GithubUserDto.class);
 
     } catch (IOException cause) {
+
       throw new OAuthException(cause);
+
+    } finally {
+
+      try {
+        httpClient.close();
+      } catch (IOException cause) {
+        throw new OAuthException(cause);
+      }
+
     }
 
+    return githubUserDto;
   }
 
-  private HttpResponse getValidResponseOk(HttpClient httpClient, HttpRequestBase method) throws IOException {
+  private HttpResponse getValidResponseOk(CloseableHttpClient httpClient, HttpRequestBase method) throws IOException {
     final HttpResponse response = httpClient.execute(method);
 
     if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {

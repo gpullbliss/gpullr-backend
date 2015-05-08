@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.util.http;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.stereotype.Component;
 
@@ -16,14 +16,8 @@ public class JsonHttpClient {
 
   private static final String APPLICATION_JSON = "application/json";
 
-  private HttpClient httpClient;
-
-  public HttpClient getHttpClient() {
-    if (httpClient == null) {
-      httpClient = HttpClientBuilder.create().build();
-    }
-
-    return httpClient;
+  public CloseableHttpClient getHttpClient() {
+    return HttpClientBuilder.create().build();
   }
 
   public HttpPost getPostMethod(String url) {
