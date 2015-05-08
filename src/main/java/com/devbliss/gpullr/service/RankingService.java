@@ -82,21 +82,21 @@ public class RankingService {
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
     List<Ranking> rankings = userRepository
-        .findByCanLoginIsTrue()
-        .stream()
-        .map(u -> getRanking(u, rankingScope))
-        .filter(r -> r.sumOfScores > 0d)
-        .sorted((r1, r2) -> r2.sumOfScores.compareTo(r1.sumOfScores))
-        .collect(Collectors.toList());
+      .findByCanLoginIsTrue()
+      .stream()
+      .map(u -> getRanking(u, rankingScope))
+      .filter(r -> r.getScore() > 0d)
+      .sorted((r1, r2) -> r2.getScore().compareTo(r1.getScore()))
+      .collect(Collectors.toList());
 
     int count = 0;
     double previousScore = -1d;
     for (Ranking r : rankings) {
-      if (r.sumOfScores != previousScore) {
+      if (r.getScore() != previousScore) {
         count++;
       }
       r.rank = count;
-      previousScore = r.sumOfScores;
+      previousScore = r.getScore();
     }
 
     return rankings;
@@ -116,30 +116,18 @@ public class RankingService {
     ranking.user = user;
 
     List<PullRequest> pullRequests = pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
-        .stream()
-        .filter(pr -> !pr.assignee.id.equals(pr.author.id))
-        .filter(filter).collect(Collectors.toList());
+      .stream()
+      .filter(pr -> !pr.assignee.id.equals(pr.author.id))
+      .filter(filter).collect(Collectors.toList());
 
-    ranking.closedCount = (int) pullRequests.stream()
-        .count();
+    pullRequests
+      .stream()
+      .peek(p -> ranking.sumOfLinesAdded += p.linesAdded)
+      .peek(p -> ranking.sumOfLinesRemoved += p.linesRemoved)
+      .peek(p -> ranking.sumOfFilesChanged += p.filesChanged)
+      .forEach(p -> ranking.sumOfComments += p.numberOfComments);
 
-    ranking.sumOfFilesChanged = pullRequests.stream()
-        .mapToInt(p -> p.filesChanged)
-        .sum();
-
-    ranking.sumOfLinesAdded = pullRequests.stream()
-        .mapToInt(p -> p.linesAdded)
-        .sum();
-
-    ranking.sumOfLinesRemoved = pullRequests.stream()
-        .mapToInt(p -> p.linesRemoved)
-        .sum();
-
-    ranking.sumOfScores = pullRequests.stream()
-        .map(PullRequest::calculateScore)
-        .reduce((sc0, sc1) -> sc0 + sc1)
-        .orElse(0d);
-
+    ranking.calculateScore();
     return ranking;
   }
 }

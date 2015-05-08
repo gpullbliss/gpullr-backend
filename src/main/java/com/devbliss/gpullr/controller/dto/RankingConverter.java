@@ -19,7 +19,7 @@ public class RankingConverter {
     RankingDto dto = new RankingDto();
     dto.rank = entity.rank;
     dto.closedCount = entity.closedCount;
-    dto.sumOfScores = entity.sumOfScores;
+    dto.sumOfScores = entity.getScore();
     dto.sumOfFilesChanged = entity.sumOfFilesChanged;
     dto.sumOfLinesAdded = entity.sumOfLinesAdded;
     dto.sumOfLinesRemoved = entity.sumOfLinesRemoved;
