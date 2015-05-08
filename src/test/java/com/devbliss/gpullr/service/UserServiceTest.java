@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
+import com.devbliss.gpullr.exception.BadRequestException;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -44,6 +45,8 @@ public class UserServiceTest {
   private static final String FULL_NAME = "Anton aus Tirol";
 
   private static final String USERNAME = "antonaustirol";
+
+  private static final Boolean CAN_LOGIN = true;
 
   @Autowired
   private UserRepository userRepository;
@@ -107,7 +110,7 @@ public class UserServiceTest {
     final List<String> usernames = Arrays.asList("lalala", "bla", "blubb");
     usernames.forEach(u -> {
       User orgUser = new User(u.length(), u);
-      orgUser.canLogin = true;
+      orgUser.canLogin = CAN_LOGIN;
       userService.insertOrUpdate(orgUser);
     });
 
@@ -126,9 +129,29 @@ public class UserServiceTest {
 
   @Test
   public void login() {
-    when(userSession.getUser()).thenReturn(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
+    final User user = new User(ID, USERNAME, FULL_NAME, AVATAR_URL, CAN_LOGIN, PROFILE_URL, null);
+
+    when(userSession.getUser()).thenReturn(user);
+    userRepository.save(user);
     userService.login(ID);
     assertNotNull(userSession.getUser());
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void tryToLoginWhenNotAllowed() {
+    final User user = new User(ID, USERNAME, FULL_NAME, AVATAR_URL, !CAN_LOGIN, PROFILE_URL, null);
+
+    when(userSession.getUser()).thenReturn(user);
+    userRepository.save(user);
+
+    userService.login(ID);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void loginWithNoUserFound() {
+    when(userSession.getUser()).thenReturn(null);
+
+    userService.login(ID);
   }
 
   @Test
@@ -198,4 +221,5 @@ public class UserServiceTest {
     userSettings.language = "xx";
     userService.updateUserSettings(ID, userSettings);
   }
+
 }

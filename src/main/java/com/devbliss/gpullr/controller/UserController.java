@@ -3,9 +3,14 @@ package com.devbliss.gpullr.controller;
 import com.devbliss.gpullr.controller.dto.UserConverter;
 import com.devbliss.gpullr.controller.dto.UserDto;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.service.GithubOAuthService;
 import com.devbliss.gpullr.service.UserService;
+import com.devbliss.gpullr.service.dto.GithubOAuthAccessTokenDto;
+import com.devbliss.gpullr.service.dto.GithubUserDto;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +34,11 @@ public class UserController {
   @Autowired
   private UserConverter userConverter;
 
+  @Autowired
+  private GithubOAuthService githubOAuthService;
+
   @RequestMapping(method = RequestMethod.GET)
+  @Deprecated
   public List<UserDto> getAllOrgaMembers() {
     return userService
         .findAllOrgaMembers()
@@ -38,10 +47,22 @@ public class UserController {
         .collect(Collectors.toList());
   }
 
-  @RequestMapping(value = "/login/{id}",method = RequestMethod.POST)
+  @RequestMapping(value = "/login/{id}", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
+  @Deprecated
   public void login(@PathVariable("id") int id) {
     userService.login(id);
+  }
+
+  @RequestMapping(value = "/oauth/github/{code}", method = RequestMethod.POST)
+  @ResponseStatus(HttpStatus.CREATED)
+  public void authenticateOAuthRequest(@PathVariable("code") @NotNull String code) throws IOException {
+    final GithubOAuthAccessTokenDto oAuthAccessToken = githubOAuthService.getAccessToken(code);
+    final GithubUserDto githubUserDto = githubOAuthService.getUserByAccessToken(oAuthAccessToken);
+
+    userService.login(githubUserDto.id);
+
+    updateUserAccessToken(oAuthAccessToken);
   }
 
   @RequestMapping(
@@ -50,6 +71,12 @@ public class UserController {
   public UserDto whoAmI() {
     User entity = userService.whoAmI();
     return userConverter.toDto(entity);
+  }
+
+  private void updateUserAccessToken(GithubOAuthAccessTokenDto oAuthAccessToken) {
+    final User currentUser = userService.getCurrentUserIfLoggedIn().get();
+    currentUser.accessToken = oAuthAccessToken.access_token;
+    userService.insertOrUpdate(currentUser);
   }
 
 }
