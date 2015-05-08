@@ -137,6 +137,23 @@ public class UserServiceTest {
     assertNotNull(userSession.getUser());
   }
 
+  @Test(expected = BadRequestException.class)
+  public void tryToLoginWhenNotAllowed() {
+    final User user = new User(ID, USERNAME, FULL_NAME, AVATAR_URL, !CAN_LOGIN, PROFILE_URL, null);
+
+    when(userSession.getUser()).thenReturn(user);
+    userRepository.save(user);
+
+    userService.login(ID);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void loginWithNoUserFound() {
+    when(userSession.getUser()).thenReturn(null);
+
+    userService.login(ID);
+  }
+
   @Test
   public void requireLoginWithoutException() {
     when(userSession.getUser()).thenReturn(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
@@ -203,12 +220,6 @@ public class UserServiceTest {
     UserSettings userSettings = new UserSettings();
     userSettings.language = "xx";
     userService.updateUserSettings(ID, userSettings);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void tryToLoginWhenNotAllowed() {
-    userRepository.save(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, !CAN_LOGIN, PROFILE_URL, null));
-    userService.login(ID);
   }
 
 }

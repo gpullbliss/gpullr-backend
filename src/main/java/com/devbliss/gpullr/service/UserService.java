@@ -76,7 +76,7 @@ public class UserService {
 
   public void login(int id) {
     User loggedInUser = userRepository.findOne(id);
-    if (!loggedInUser.canLogin) {
+    if (loggedInUser == null || !loggedInUser.canLogin) {
       throw new BadRequestException("Login data invalid");
     }
 
