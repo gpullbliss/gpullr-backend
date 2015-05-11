@@ -1,6 +1,8 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -82,7 +84,7 @@ public class PullRequestServiceTest {
   private static final Boolean CAN_LOGIN = true;
 
   @Autowired
-  private PullRequestRepository prRepository;
+  private PullRequestRepository pullRequestRepository;
 
   @Autowired
   private UserRepository userRepository;
@@ -101,14 +103,15 @@ public class PullRequestServiceTest {
 
   private GithubApi githubApi;
 
-  private PullRequestService prService;
+  private PullRequestService pullRequestService;
 
   private PullRequest testPr;
 
   @Before
   public void setup() {
     githubApi = mock(GithubApi.class);
-    prService = new PullRequestService(prRepository, userRepository, githubApi, userService, repoRepository,
+    pullRequestService = new PullRequestService(pullRequestRepository, userRepository, githubApi, userService,
+        repoRepository,
         notificationService);
     testPr = new PullRequest();
     testPr.id = PR_ID;
@@ -124,7 +127,7 @@ public class PullRequestServiceTest {
   @After
   public void teardown() {
     notificationRepository.deleteAll();
-    prRepository.deleteAll();
+    pullRequestRepository.deleteAll();
     repoRepository.deleteAll();
     userRepository.deleteAll();
   }
@@ -132,11 +135,11 @@ public class PullRequestServiceTest {
   @Test
   public void insertOrUpdatePullRequest() {
     // first of all check that no pullRequest exists
-    List<PullRequest> prs = prService.findAll();
+    List<PullRequest> prs = pullRequestService.findAll();
     assertEquals(0, prs.size());
 
-    prService.insertOrUpdate(testPr);
-    prs = prService.findAll();
+    pullRequestService.insertOrUpdate(testPr);
+    prs = pullRequestService.findAll();
     assertEquals(1, prs.size());
     PullRequest fetched = prs.get(0);
 
@@ -153,10 +156,10 @@ public class PullRequestServiceTest {
   @Test
   public void savePullRequestStatus() {
     // create a pull request:
-    prService.insertOrUpdate(testPr);
+    pullRequestService.insertOrUpdate(testPr);
 
     // make sure it initially has the build status as expected:
-    List<PullRequest> fetchedList = prService.findAll();
+    List<PullRequest> fetchedList = pullRequestService.findAll();
     assertEquals(BUILD_STATUS, fetchedList.get(0).buildStatus.state);
     assertEquals(BUILD_STATUS_TIMESTAMP, fetchedList.get(0).buildStatus.timestamp);
 
@@ -165,10 +168,10 @@ public class PullRequestServiceTest {
     final ZonedDateTime timestamp = BUILD_STATUS_TIMESTAMP.plusMinutes(5);
     final int pullRequestId = fetchedList.get(0).id;
     BuildStatus status = new BuildStatus(state, timestamp, null);
-    prService.saveBuildstatus(pullRequestId, status);
+    pullRequestService.saveBuildstatus(pullRequestId, status);
 
     // verify change:
-    fetchedList = prService.findAll();
+    fetchedList = pullRequestService.findAll();
     assertEquals(state, fetchedList.get(0).buildStatus.state);
     assertEquals(timestamp, fetchedList.get(0).buildStatus.timestamp);
   }
@@ -179,7 +182,7 @@ public class PullRequestServiceTest {
     userService.login(user.id);
 
     // store a pullRequest with state OPEN:
-    prService.insertOrUpdate(testPr);
+    pullRequestService.insertOrUpdate(testPr);
 
     // store another with state CLOSED:
     PullRequest pullRequest = new PullRequest();
@@ -188,10 +191,10 @@ public class PullRequestServiceTest {
     pullRequest.author = testPr.author;
     pullRequest.state = State.CLOSED;
     pullRequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullRequest);
+    pullRequestService.insertOrUpdate(pullRequest);
 
     // make sure only the open PR is returned:
-    List<PullRequest> openPrs = prService.findAllOpen();
+    List<PullRequest> openPrs = pullRequestService.findAllOpen();
     assertEquals(1, openPrs.size());
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
@@ -208,8 +211,8 @@ public class PullRequestServiceTest {
     openPullRequest1.state = State.OPEN;
     openPullRequest1.createdAt = ZonedDateTime.now().minusMinutes(3);
     openPullRequest1.repo = repoRepository.save(new Repo(repo1Id, "One Repo", ""));
-    
-    prService.insertOrUpdate(openPullRequest1);
+
+    pullRequestService.insertOrUpdate(openPullRequest1);
 
     final String repo2Title = "My Cool Repo";
     PullRequest openPullRequest2 = new PullRequest();
@@ -218,7 +221,7 @@ public class PullRequestServiceTest {
     openPullRequest2.state = State.OPEN;
     openPullRequest2.createdAt = ZonedDateTime.now().minusMinutes(3);
     openPullRequest2.repo = repoRepository.save(new Repo(repo1Id + 1, repo2Title, ""));
-    prService.insertOrUpdate(openPullRequest2);
+    pullRequestService.insertOrUpdate(openPullRequest2);
 
     final String repo3Title = "999888777";
     PullRequest openPullRequest3 = new PullRequest();
@@ -227,7 +230,7 @@ public class PullRequestServiceTest {
     openPullRequest3.state = State.OPEN;
     openPullRequest3.createdAt = ZonedDateTime.now().minusMinutes(3);
     openPullRequest3.repo = repoRepository.save(new Repo(repo1Id + 2, repo3Title, ""));
-    prService.insertOrUpdate(openPullRequest3);
+    pullRequestService.insertOrUpdate(openPullRequest3);
 
     final int repo4Id = 250;
     PullRequest closedPullRequest = new PullRequest();
@@ -236,10 +239,10 @@ public class PullRequestServiceTest {
     closedPullRequest.state = State.CLOSED;
     closedPullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
     closedPullRequest.repo = repoRepository.save(new Repo(repo4Id, "Another Repo", ""));
-    prService.insertOrUpdate(closedPullRequest);
+    pullRequestService.insertOrUpdate(closedPullRequest);
 
     // expecting to retrieve three pull requests:
-    List<PullRequest> pullRequests = prService.findAllOpen(repo2Title,
+    List<PullRequest> pullRequests = pullRequestService.findAllOpen(repo2Title,
         Integer.toString(repo1Id),
         repo3Title,
         Integer.toString(repo4Id));
@@ -260,10 +263,10 @@ public class PullRequestServiceTest {
     openPullRequest.state = State.OPEN;
     openPullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
     openPullRequest.repo = repoRepository.save(new Repo(repoId, "One Repo", ""));
-    prService.insertOrUpdate(openPullRequest);
+    pullRequestService.insertOrUpdate(openPullRequest);
 
     // ask for all PRs with the id of the repo just created or a non-existing id:
-    prService.findAllOpen(Integer.toString(repoId), Integer.toString(repoId + 1));
+    pullRequestService.findAllOpen(Integer.toString(repoId), Integer.toString(repoId + 1));
   }
 
   @Test(expected = NotFoundException.class)
@@ -276,10 +279,10 @@ public class PullRequestServiceTest {
     openPullRequest.state = State.OPEN;
     openPullRequest.createdAt = ZonedDateTime.now().minusMinutes(3);
     openPullRequest.repo = repoRepository.save(new Repo(1997 + 1, repoTitle, ""));
-    prService.insertOrUpdate(openPullRequest);
+    pullRequestService.insertOrUpdate(openPullRequest);
 
     // ask for all PRs with the title of the repo just created or a non-existing title:
-    prService.findAllOpen(repoTitle, repoTitle + "_doesnotexist");
+    pullRequestService.findAllOpen(repoTitle, repoTitle + "_doesnotexist");
   }
 
   @Test
@@ -291,14 +294,14 @@ public class PullRequestServiceTest {
     userService.updateUserSession(user);
 
     // create pr that will be filtered, because its repo is blacklisted
-    prService.insertOrUpdate(testPr);
+    pullRequestService.insertOrUpdate(testPr);
 
     // create pr that will _not_ be filtered
     testPr.id = 500000;
     testPr.repo = initRepo(BLACKLISTED_REPO_ID, "another repo");
-    prService.insertOrUpdate(testPr);
+    pullRequestService.insertOrUpdate(testPr);
 
-    List<PullRequest> allOpen = prService.findAllOpen();
+    List<PullRequest> allOpen = pullRequestService.findAllOpen();
 
     assertEquals(1, allOpen.size());
     assertEquals(PR_ID, (int) allOpen.get(0).id);
@@ -313,18 +316,18 @@ public class PullRequestServiceTest {
     pullRequest.state = State.OPEN;
     pullRequest.author = testPr.author;
     pullRequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullRequest);
+    pullRequestService.insertOrUpdate(pullRequest);
 
     // assign to an existing user:
     User assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2, PROFILE_URL);
     userRepository.save(assignee);
-    prService.assignPullRequest(assignee, pullRequest.id);
+    pullRequestService.assignPullRequest(assignee, pullRequest.id);
 
     // verify GitHub-API is called:
     verify(githubApi).assignUserToPullRequest(assignee, pullRequest);
 
     // verify the assignee is stored in our database as well:
-    assertEquals(assignee, prService.findById(pullRequest.id).get().assignee);
+    assertEquals(assignee, pullRequestService.findById(pullRequest.id).get().assignee);
   }
 
   @Test(expected = NotFoundException.class)
@@ -336,11 +339,11 @@ public class PullRequestServiceTest {
     pullRequest.state = State.OPEN;
     pullRequest.author = testPr.author;
     pullRequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullRequest);
+    pullRequestService.insertOrUpdate(pullRequest);
 
     // assign to a non existing user:
     User assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2, PROFILE_URL_2);
-    prService.assignPullRequest(assignee, pullRequest.id);
+    pullRequestService.assignPullRequest(assignee, pullRequest.id);
   }
 
   @Test
@@ -352,13 +355,13 @@ public class PullRequestServiceTest {
     pullRequest.state = State.OPEN;
     pullRequest.author = testPr.author;
     pullRequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullRequest);
+    pullRequestService.insertOrUpdate(pullRequest);
 
     // assign to an existing user:
     User assignee = new User(USER_ID + 4564, USER_NAME_2);
     userRepository.save(assignee);
-    prService.assignPullRequest(assignee, pullRequest.id);
-    prService.unassignPullRequest(assignee, pullRequest.id);
+    pullRequestService.assignPullRequest(assignee, pullRequest.id);
+    pullRequestService.unassignPullRequest(assignee, pullRequest.id);
 
     // verify GitHub-API is called:
     verify(githubApi).unassignUserFromPullRequest(assignee, pullRequest);
@@ -368,13 +371,13 @@ public class PullRequestServiceTest {
   public void unassignUnknownPullRequestFails() {
     User user = new User(USER_ID, USER_NAME_2);
 
-    prService.unassignPullRequest(user, 1);
+    pullRequestService.unassignPullRequest(user, 1);
   }
 
   @Test(expected = NotFoundException.class)
   public void unassignUnknownUserFails() {
     User user = new User(USER_ID + 1, USER_NAME_2);
-    prService.unassignPullRequest(user, PR_ID);
+    pullRequestService.unassignPullRequest(user, PR_ID);
   }
 
   @Test
@@ -386,12 +389,49 @@ public class PullRequestServiceTest {
     pullRequest.state = State.CLOSED;
     pullRequest.author = testPr.author;
     pullRequest.createdAt = ZonedDateTime.now();
-    prService.insertOrUpdate(pullRequest);
+    pullRequestService.insertOrUpdate(pullRequest);
 
     // verify it can be fetched by id:
-    Optional<PullRequest> fetched = prService.findById(pullRequest.id);
+    Optional<PullRequest> fetched = pullRequestService.findById(pullRequest.id);
     assertTrue(fetched.isPresent());
     assertEquals(pullRequest, fetched.get());
+  }
+
+  @Test
+  public void savePullRequestEnsuresClosedDateIfPullRequestIsClosed() {
+    // save a new CLOSED pull request without closing date:
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = PR_ID + 13;
+    pullRequest.state = State.CLOSED;
+    pullRequest.repo = testPr.repo;
+    pullRequest.author = testPr.author;
+    assertNull(pullRequest.closedAt);
+    pullRequestService.insertOrUpdate(pullRequest);
+
+    // fetch it and verify it has about the current date as fallback closed date:
+    pullRequest = pullRequestService.findById(pullRequest.id).get();
+    assertNotNull(pullRequest.closedAt);
+    assertTrue(pullRequest.closedAt.isAfter(ZonedDateTime.now().minusMinutes(1)));
+    assertTrue(pullRequest.closedAt.isBefore(ZonedDateTime.now().plusMinutes(1)));
+  }
+
+  @Test
+  public void savePullRequestEnsuresAssignedDateIfPullRequestHasAssignee() {
+    // save a new ASSIGNED pull request without assign date:
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.assignee = new User(USER_ID + 1, USER_NAME_2, FULL_NAME_2, AVATAR_2, PROFILE_URL_2);
+    pullRequest.id = PR_ID + 13;
+    pullRequest.state = State.OPEN;
+    pullRequest.repo = testPr.repo;
+    pullRequest.author = testPr.author;
+    assertNull(pullRequest.assignedAt);
+    pullRequestService.insertOrUpdate(pullRequest);
+
+    // fetch it and verify it has about the current date as fallback assigned date:
+    pullRequest = pullRequestService.findById(pullRequest.id).get();
+    assertNotNull(pullRequest.assignedAt);
+    assertTrue(pullRequest.assignedAt.isAfter(ZonedDateTime.now().minusMinutes(1)));
+    assertTrue(pullRequest.assignedAt.isBefore(ZonedDateTime.now().plusMinutes(1)));
   }
 
   private Repo initRepo() {
