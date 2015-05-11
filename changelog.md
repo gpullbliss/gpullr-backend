@@ -1,6 +1,7 @@
 
 ### Version 0.1.0-SNAPSHOT
 
+ - [bug] fallback assign date when saving a pullrequest with assignee but no such date
  - [feature] implemented GitHub OAuth login web flow
  - [feature] added Fränkisch to list of valid languages
  - [feature] fair ranking algorithm
@@ -62,4 +63,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Wed May 06 16:10:20 CEST 2015
+-- Last change by: hschuetz <henning.schuetz@devbliss.com> Mon May 11 16:29:12 CEST 2015
