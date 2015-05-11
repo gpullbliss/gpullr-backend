@@ -48,22 +48,22 @@ public class Ranking {
   public Integer rank;
 
   @Min(0)
-  public Integer sumOfLinesRemoved;
+  public int sumOfLinesRemoved;
 
   @Min(0)
-  public Integer sumOfLinesAdded;
+  public int sumOfLinesAdded;
 
   @Min(0)
-  public Integer sumOfFilesChanged;
+  public int sumOfFilesChanged;
 
   @NotNull
   private Double score;
 
-  @NotNull
-  public Integer closedCount;
+  @Min(0)
+  public int closedCount;
 
   @Min(0)
-  public Integer sumOfComments;
+  public int sumOfComments;
 
   public Ranking() {}
 
@@ -100,7 +100,7 @@ public class Ranking {
     score = WEIGHT_LINES_OF_CODE * calcLinesOfCodeFactor()
         + WEIGHT_NUMBER_OF_COMMENTS * calcNumberOfCommentsFactor()
         + WEIGHT_NUMBER_OF_FILES * calcNumberOfFilesFactor()
-        + MINIMAL_SCORE;
+        + MINIMAL_SCORE * closedCount;
   }
 
   private double calcNumberOfCommentsFactor() {

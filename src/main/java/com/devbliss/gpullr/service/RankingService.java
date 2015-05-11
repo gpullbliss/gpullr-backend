@@ -88,7 +88,7 @@ public class RankingService {
       .filter(r -> r.getScore() > 0d)
       .sorted((r1, r2) -> r2.getScore().compareTo(r1.getScore()))
       .collect(Collectors.toList());
-
+    
     int count = 0;
     double previousScore = -1d;
     for (Ranking r : rankings) {
@@ -125,6 +125,7 @@ public class RankingService {
       .peek(p -> ranking.sumOfLinesAdded += p.linesAdded)
       .peek(p -> ranking.sumOfLinesRemoved += p.linesRemoved)
       .peek(p -> ranking.sumOfFilesChanged += p.filesChanged)
+      .peek(p -> ranking.closedCount++)
       .forEach(p -> ranking.sumOfComments += p.numberOfComments);
 
     ranking.calculateScore();
