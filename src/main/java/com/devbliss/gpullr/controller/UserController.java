@@ -8,8 +8,6 @@ import com.devbliss.gpullr.service.UserService;
 import com.devbliss.gpullr.service.dto.GithubOAuthAccessTokenDto;
 import com.devbliss.gpullr.service.dto.GithubUserDto;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,23 +34,6 @@ public class UserController {
 
   @Autowired
   private GithubOAuthService githubOAuthService;
-
-  @RequestMapping(method = RequestMethod.GET)
-  @Deprecated
-  public List<UserDto> getAllOrgaMembers() {
-    return userService
-        .findAllOrgaMembers()
-        .stream()
-        .map(userConverter::toDto)
-        .collect(Collectors.toList());
-  }
-
-  @RequestMapping(value = "/login/{id}", method = RequestMethod.POST)
-  @ResponseStatus(HttpStatus.CREATED)
-  @Deprecated
-  public void login(@PathVariable("id") int id) {
-    userService.login(id);
-  }
 
   @RequestMapping(value = "/oauth/github/{code}", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
