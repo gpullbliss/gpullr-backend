@@ -405,6 +405,8 @@ public class RankingServiceIntegrationTest {
     pullRequestRepository.save(createPullRequest(userGamma, ZonedDateTime.now().minusDays(34)));
     pullRequestRepository.save(createPullRequest(userGamma, ZonedDateTime.now().minusDays(38)));
     pullRequestRepository.save(createPullRequest(userGamma, ZonedDateTime.now().minusDays(41)));
+    
+    rankingService.recalculateRankings();
   }
 
   private User createUser(Integer id, String username, Boolean canLogin, String fullName) {
