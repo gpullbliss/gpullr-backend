@@ -46,26 +46,26 @@ public class RankingTest {
   @Test
   public void baseScoreForTrivialPullRequest() {
     // create a pull request with all score relevant data being 0:
-    Ranking r = new Ranking();
-    r.sumOfLinesAdded = 0;
-    r.sumOfLinesRemoved = 0;
-    r.sumOfComments = 0;
-    r.sumOfFilesChanged = 0;
+    Ranking ranking = new Ranking();
+    ranking.sumOfLinesAdded = 0;
+    ranking.sumOfLinesRemoved = 0;
+    ranking.sumOfComments = 0;
+    ranking.sumOfFilesChanged = 0;
 
     // make sure the calculated score is > 0 due to the base score every pull request gets:
-    r.calculateScore();
-    assertEquals(0d, r.getScore().doubleValue(), 0.0001d);
+    ranking.calculateScore();
+    assertEquals(0d, ranking.getScore().doubleValue(), 0.0001d);
 
-    r.closedCount = 1;
-    r.calculateScore();
-    assertEquals(5d, r.getScore().doubleValue(), 0.0001d);
+    ranking.closedCount = 1;
+    ranking.calculateScore();
+    assertEquals(5d, ranking.getScore().doubleValue(), 0.0001d);
 
-    r.closedCount = 2;
-    r.calculateScore();
-    assertEquals(10d, r.getScore().doubleValue(), 0.0001d);
+    ranking.closedCount = 2;
+    ranking.calculateScore();
+    assertEquals(10d, ranking.getScore().doubleValue(), 0.0001d);
 
-    r.closedCount = 10;
-    r.calculateScore();
-    assertEquals(50d, r.getScore().doubleValue(), 0.0001d);
+    ranking.closedCount = 10;
+    ranking.calculateScore();
+    assertEquals(50d, ranking.getScore().doubleValue(), 0.0001d);
   }
 }
