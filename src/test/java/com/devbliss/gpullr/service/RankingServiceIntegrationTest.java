@@ -160,6 +160,8 @@ public class RankingServiceIntegrationTest {
 
     // the number of pull requests for the rankings should be [3, 1]:
     assertTrue(rankings.get(0).getScore().doubleValue() > rankings.get(1).getScore().doubleValue());
+    assertEquals(3, rankings.get(0).closedCount);
+    assertEquals(1, rankings.get(1).closedCount);
 
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -188,6 +190,9 @@ public class RankingServiceIntegrationTest {
     // the number of pull requests for the rankings should be [6, 4, 1]:
     assertTrue(rankings.get(0).getScore().doubleValue() > rankings.get(1).getScore().doubleValue());
     assertTrue(rankings.get(1).getScore().doubleValue() > rankings.get(2).getScore().doubleValue());
+    assertEquals(6, rankings.get(0).closedCount);
+    assertEquals(4, rankings.get(1).closedCount);
+    assertEquals(1, rankings.get(2).closedCount);
 
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -217,6 +222,9 @@ public class RankingServiceIntegrationTest {
     assertEquals(rankings.get(0).getScore().doubleValue(), rankings.get(1).getScore().doubleValue(),
         COMPARISON_ACCURACY);
     assertTrue(rankings.get(1).getScore().doubleValue() > rankings.get(2).getScore().doubleValue());
+    assertEquals(6, rankings.get(0).closedCount);
+    assertEquals(6, rankings.get(1).closedCount);
+    assertEquals(4, rankings.get(2).closedCount);
 
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
@@ -245,6 +253,9 @@ public class RankingServiceIntegrationTest {
     // the number of pull requests for the rankings should be [12, 7, 6]:
     assertTrue(rankings.get(0).getScore().doubleValue() > rankings.get(1).getScore().doubleValue());
     assertTrue(rankings.get(1).getScore().doubleValue() > rankings.get(2).getScore().doubleValue());
+    assertEquals(12, rankings.get(0).closedCount);
+    assertEquals(7, rankings.get(1).closedCount);
+    assertEquals(6, rankings.get(2).closedCount);
 
     // the numeric rank values should be set in ascending order starting with 0:
     assertEquals(1, rankings.get(0).rank.intValue());
