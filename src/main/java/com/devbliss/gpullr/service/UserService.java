@@ -2,6 +2,7 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.UserSettings;
+import com.devbliss.gpullr.exception.BadRequestException;
 import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
@@ -38,7 +39,7 @@ public class UserService {
       if (dbUser != null && dbUser.userSettings != null) {
         user.userSettings = dbUser.userSettings;
       }
-    } else if(user.userSettings == null) {
+    } else if (user.userSettings == null) {
       user.userSettings = new UserSettings();
       user.userSettings.language = Constants.DEFAULT_LANGUAGE;
     }
@@ -61,10 +62,10 @@ public class UserService {
    */
   public List<User> findAllOrgaMembers() {
     return userRepository
-      .findByCanLoginIsTrue()
-      .stream()
-      .sorted((u1, u2) -> u1.username.toLowerCase().compareTo(u2.username.toLowerCase()))
-      .collect(Collectors.toList());
+        .findByCanLoginIsTrue()
+        .stream()
+        .sorted((u1, u2) -> u1.username.toLowerCase().compareTo(u2.username.toLowerCase()))
+        .collect(Collectors.toList());
   }
 
   public void requireLogin() throws LoginRequiredException {
@@ -75,6 +76,10 @@ public class UserService {
 
   public void login(int id) {
     User loggedInUser = userRepository.findOne(id);
+    if (loggedInUser == null || !loggedInUser.canLogin) {
+      throw new BadRequestException("Login data invalid");
+    }
+
     userSession.setUser(loggedInUser);
   }
 
@@ -89,8 +94,9 @@ public class UserService {
 
   public User updateUserSettings(int userId, UserSettings update) {
     User user = userRepository
-      .findById(userId)
-      .orElseThrow(() -> new NotFoundException("Cannot update user settings for non-existing user with id " + userId));
+        .findById(userId)
+        .orElseThrow(
+            () -> new NotFoundException("Cannot update user settings for non-existing user with id " + userId));
 
     if (user.userSettings != null) {
       // update existing user settings
