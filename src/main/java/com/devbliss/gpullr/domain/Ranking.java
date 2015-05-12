@@ -36,37 +36,87 @@ public class Ranking {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  public long id;
+  private long id;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  public User user;
+  private User user;
 
   @NotNull
   @Min(0)
-  public int rank;
+  private int rank;
 
   @Min(0)
-  public int sumOfLinesRemoved;
+  private int sumOfLinesRemoved;
 
   @Min(0)
-  public int sumOfLinesAdded;
+  private int sumOfLinesAdded;
 
   @Min(0)
-  public int sumOfFilesChanged;
+  private int sumOfFilesChanged;
 
   @NotNull
   private Double score;
 
   @Min(0)
-  public int closedCount;
+  private int closedCount;
 
   @Min(0)
-  public int sumOfComments;
+  private int sumOfComments;
 
-  public Ranking() {}
+  /**
+   * Only for JPA.
+   */
+  @SuppressWarnings("unused")
+  private Ranking() {}
+
+  public Ranking(RankingData rankingData, User user) {
+    this.sumOfLinesAdded = rankingData.getSumOfLinesAdded();
+    this.sumOfLinesRemoved = rankingData.getSumOfLinesRemoved();
+    this.sumOfFilesChanged = rankingData.getSumOfFilesChanged();
+    this.sumOfComments = rankingData.getSumOfComments();
+    this.closedCount = rankingData.getClosedCount();
+    this.user = user;
+    score = calculateScore();
+  }
 
   public Double getScore() {
     return score;
+  }
+
+  public int getRank() {
+    return rank;
+  }
+
+  public void setRank(int rank) {
+    this.rank = rank;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public User getUser() {
+    return user;
+  }
+
+  public int getSumOfLinesRemoved() {
+    return sumOfLinesRemoved;
+  }
+
+  public int getSumOfLinesAdded() {
+    return sumOfLinesAdded;
+  }
+
+  public int getSumOfFilesChanged() {
+    return sumOfFilesChanged;
+  }
+
+  public int getClosedCount() {
+    return closedCount;
+  }
+
+  public int getSumOfComments() {
+    return sumOfComments;
   }
 
   @Override
@@ -94,8 +144,8 @@ public class Ranking {
    * how trivial or small it may be.
    *
    */
-  public void calculateScore() {
-    score = WEIGHT_LINES_OF_CODE * calcLinesOfCodeFactor()
+  private Double calculateScore() {
+    return WEIGHT_LINES_OF_CODE * calcLinesOfCodeFactor()
         + WEIGHT_NUMBER_OF_COMMENTS * calcNumberOfCommentsFactor()
         + WEIGHT_NUMBER_OF_FILES * calcNumberOfFilesFactor()
         + MINIMAL_SCORE * closedCount;

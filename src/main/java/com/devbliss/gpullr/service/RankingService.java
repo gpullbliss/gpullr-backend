@@ -3,6 +3,7 @@ package com.devbliss.gpullr.service;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Ranking;
+import com.devbliss.gpullr.domain.RankingData;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
@@ -88,14 +89,14 @@ public class RankingService {
       .filter(r -> r.getScore() > 0d)
       .sorted((r1, r2) -> r2.getScore().compareTo(r1.getScore()))
       .collect(Collectors.toList());
-    
+
     int count = 0;
     double previousScore = -1d;
     for (Ranking r : rankings) {
       if (r.getScore() != previousScore) {
         count++;
       }
-      r.rank = count;
+      r.setRank(count);
       previousScore = r.getScore();
     }
 
@@ -112,23 +113,42 @@ public class RankingService {
       filter = pr -> true;
     }
 
-    Ranking ranking = new Ranking();
-    ranking.user = user;
-
     List<PullRequest> pullRequests = pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
       .stream()
       .filter(pr -> !pr.assignee.id.equals(pr.author.id))
       .filter(filter).collect(Collectors.toList());
 
+    RankingData rankingData;
+
+    if (pullRequests.isEmpty()) {
+      rankingData = emptyRankingData();
+    } else {
+      rankingData = pullrequestsToRankingData(pullRequests);
+    }
+
+    Ranking ranking = new Ranking(rankingData, user);
+    return ranking;
+  }
+
+  private RankingData emptyRankingData() {
+    RankingData rankingData = new RankingData();
+    rankingData.addToClosedCount(0);
+    rankingData.addToSumOfComments(0);
+    rankingData.addToSumOfFilesChanged(0);
+    rankingData.addToSumOfLinesAdded(0);
+    rankingData.addToSumOfLinesRemoved(0);
+    return rankingData;
+  }
+
+  private RankingData pullrequestsToRankingData(List<PullRequest> pullRequests) {
+    RankingData rankingData = new RankingData();
     pullRequests
       .stream()
-      .peek(p -> ranking.sumOfLinesAdded += p.linesAdded)
-      .peek(p -> ranking.sumOfLinesRemoved += p.linesRemoved)
-      .peek(p -> ranking.sumOfFilesChanged += p.filesChanged)
-      .peek(p -> ranking.closedCount++)
-      .forEach(p -> ranking.sumOfComments += p.numberOfComments);
-
-    ranking.calculateScore();
-    return ranking;
+      .peek(p -> rankingData.addToSumOfLinesAdded(p.linesAdded))
+      .peek(p -> rankingData.addToSumOfLinesRemoved(p.linesRemoved))
+      .peek(p -> rankingData.addToSumOfFilesChanged(p.filesChanged))
+      .peek(p -> rankingData.addToClosedCount(1))
+      .forEach(p -> rankingData.addToSumOfComments(p.numberOfComments));
+    return rankingData;
   }
 }

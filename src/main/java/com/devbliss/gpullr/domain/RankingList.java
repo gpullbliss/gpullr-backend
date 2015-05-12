@@ -49,7 +49,7 @@ public class RankingList {
         int result = r2.getScore().compareTo(r1.getScore());
 
         if (result == 0) {
-          result = r1.user.username.toLowerCase().compareTo(r2.user.username.toLowerCase());
+          result = r1.getUser().username.toLowerCase().compareTo(r2.getUser().username.toLowerCase());
         }
 
         return result;
