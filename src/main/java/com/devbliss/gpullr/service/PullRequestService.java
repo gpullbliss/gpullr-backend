@@ -208,6 +208,7 @@ public class PullRequestService {
       pullRequest = syncPullRequestData(existing.get(), pullRequest);
     } else {
       pullRequest = ensureClosedAtIfClosed(pullRequest);
+      pullRequest = ensureAssignedAtIfAssigned(pullRequest);
     }
 
     pullRequestRepository.save(pullRequest);
@@ -257,6 +258,7 @@ public class PullRequestService {
     }
 
     update = ensureClosedAtIfClosed(update);
+    update = ensureAssignedAtIfAssigned(update);
     return update;
   }
 
@@ -264,6 +266,15 @@ public class PullRequestService {
     if (pullRequest.state == State.CLOSED && pullRequest.closedAt == null) {
       pullRequest.closedAt = ZonedDateTime.now();
       LOGGER.debug("Set current date as fallback closedAt for pull request " + pullRequest);
+    }
+
+    return pullRequest;
+  }
+
+  private PullRequest ensureAssignedAtIfAssigned(PullRequest pullRequest) {
+    if (pullRequest.assignee != null && pullRequest.assignedAt == null) {
+      pullRequest.assignedAt = ZonedDateTime.now();
+      LOGGER.debug("Set current date as fallback assignedAt for pull request " + pullRequest);
     }
 
     return pullRequest;
