@@ -10,7 +10,6 @@ import com.devbliss.gpullr.session.UserSession;
 import com.devbliss.gpullr.util.Constants;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,19 +52,6 @@ public class UserService {
 
   public Optional<User> findById(Integer userId) {
     return userRepository.findById(userId);
-  }
-
-  /**
-   * Finds all users that are allowed to login to this application, sorted by username.
-   *
-   * @return possibly empty list of users
-   */
-  public List<User> findAllOrgaMembers() {
-    return userRepository
-        .findByCanLoginIsTrue()
-        .stream()
-        .sorted((u1, u2) -> u1.username.toLowerCase().compareTo(u2.username.toLowerCase()))
-        .collect(Collectors.toList());
   }
 
   public void requireLogin() throws LoginRequiredException {

@@ -1,10 +1,8 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +14,6 @@ import com.devbliss.gpullr.exception.LoginRequiredException;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.UserRepository;
 import com.devbliss.gpullr.session.UserSession;
-import java.util.Arrays;
 import java.util.List;
 import javax.validation.ConstraintViolationException;
 import org.junit.After;
@@ -97,34 +94,6 @@ public class UserServiceTest {
     assertEquals(ID, loaded.id.intValue());
     assertEquals(updatedAvatarUrl, loaded.avatarUrl);
     assertEquals(updatedUsername, loaded.username);
-  }
-
-  @Test
-  public void findAllOrgaMembers() {
-    // create one user that is NOT allowed to login:
-    userService.insertOrUpdate(new User(ID, USERNAME, FULL_NAME, AVATAR_URL, PROFILE_URL));
-    User user = userRepository.findOne(ID);
-    assertFalse(user.canLogin);
-
-    // create three users that are allowed - with unsorted usernames:
-    final List<String> usernames = Arrays.asList("lalala", "bla", "blubb");
-    usernames.forEach(u -> {
-      User orgUser = new User(u.length(), u);
-      orgUser.canLogin = CAN_LOGIN;
-      userService.insertOrUpdate(orgUser);
-    });
-
-    // verify the three allowed users are returned:
-    List<User> orgaMembers = userService.findAllOrgaMembers();
-    orgaMembers.forEach(mem -> assertTrue(mem.canLogin));
-    orgaMembers.forEach(mem -> assertFalse(mem.id.intValue() == ID));
-    orgaMembers.forEach(mem -> assertFalse(mem.username.equals(USERNAME)));
-    assertEquals(3, orgaMembers.size());
-
-    // verify alphabetical sort order:
-    assertEquals(usernames.get(0), orgaMembers.get(2).username);
-    assertEquals(usernames.get(1), orgaMembers.get(0).username);
-    assertEquals(usernames.get(2), orgaMembers.get(1).username);
   }
 
   @Test
