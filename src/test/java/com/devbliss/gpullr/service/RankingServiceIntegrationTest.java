@@ -164,8 +164,8 @@ public class RankingServiceIntegrationTest {
     assertEquals(1, rankings.get(1).closedCount);
 
     // the numeric rank values should be set in ascending order starting with 0:
-    assertEquals(1, rankings.get(0).rank.intValue());
-    assertEquals(2, rankings.get(1).rank.intValue());
+    assertEquals(1, rankings.get(0).rank);
+    assertEquals(2, rankings.get(1).rank);
   }
 
   @Test
@@ -195,9 +195,9 @@ public class RankingServiceIntegrationTest {
     assertEquals(1, rankings.get(2).closedCount);
 
     // the numeric rank values should be set in ascending order starting with 0:
-    assertEquals(1, rankings.get(0).rank.intValue());
-    assertEquals(2, rankings.get(1).rank.intValue());
-    assertEquals(3, rankings.get(2).rank.intValue());
+    assertEquals(1, rankings.get(0).rank);
+    assertEquals(2, rankings.get(1).rank);
+    assertEquals(3, rankings.get(2).rank);
   }
 
   @Test
@@ -227,9 +227,9 @@ public class RankingServiceIntegrationTest {
     assertEquals(4, rankings.get(2).closedCount);
 
     // the numeric rank values should be set in ascending order starting with 0:
-    assertEquals(1, rankings.get(0).rank.intValue());
-    assertEquals(1, rankings.get(1).rank.intValue());
-    assertEquals(2, rankings.get(2).rank.intValue());
+    assertEquals(1, rankings.get(0).rank);
+    assertEquals(1, rankings.get(1).rank);
+    assertEquals(2, rankings.get(2).rank);
   }
 
   @Test
@@ -258,9 +258,9 @@ public class RankingServiceIntegrationTest {
     assertEquals(6, rankings.get(2).closedCount);
 
     // the numeric rank values should be set in ascending order starting with 0:
-    assertEquals(1, rankings.get(0).rank.intValue());
-    assertEquals(2, rankings.get(1).rank.intValue());
-    assertEquals(3, rankings.get(2).rank.intValue());
+    assertEquals(1, rankings.get(0).rank);
+    assertEquals(2, rankings.get(1).rank);
+    assertEquals(3, rankings.get(2).rank);
   }
 
   @Test

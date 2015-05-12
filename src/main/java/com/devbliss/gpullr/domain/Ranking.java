@@ -16,8 +16,6 @@ import javax.validation.constraints.NotNull;
  * Aggregates all values of pull requests that are taken into account for score calculation.
  * {@link #calculateScore()} must be called manually after all values have been set in order to calculate the score
  * which is then stored in {@link #score}.
- * 
- * 
  *  
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
@@ -45,7 +43,7 @@ public class Ranking {
 
   @NotNull
   @Min(0)
-  public Integer rank;
+  public int rank;
 
   @Min(0)
   public int sumOfLinesRemoved;
