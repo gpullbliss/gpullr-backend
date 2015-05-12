@@ -1,4 +1,8 @@
 
+### Version 1.0.0-SNAPSHOT
+
+ - [feature] removed deprecated login controller actions
+
 ### Version 0.1.0-SNAPSHOT
 
  - [feature] added francais as allowed language
