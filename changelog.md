@@ -2,6 +2,7 @@
 ### Version 0.1.0-SNAPSHOT
 
  - [feature] added francais as allowed language
+ - [bug] fallback assign date when saving a pullrequest with assignee but no such date
  - [bug] fetching pull request events with updated repo url after repo renaming
  - [feature] implemented GitHub OAuth login web flow
  - [feature] added Fränkisch to list of valid languages
