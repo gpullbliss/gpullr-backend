@@ -1,5 +1,5 @@
 
-### Version 0.1.0-SNAPSHOT
+### Version 1.0.0-SNAPSHOT
 
  - [feature] removed deprecated login controller actions
  - [bug] fetching pull request events with updated repo url after repo renaming
