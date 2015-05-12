@@ -1,6 +1,7 @@
 
 ### Version 0.1.0-SNAPSHOT
 
+ - [feature] added français as allowed language
  - [bug] fetching pull request events with updated repo url after repo renaming
  - [feature] implemented GitHub OAuth login web flow
  - [feature] added Fränkisch to list of valid languages
@@ -63,4 +64,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Wed May 06 16:10:20 CEST 2015
+-- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Tue May 12 08:35:46 CEST 2015
