@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.util;
 
+import com.devbliss.gpullr.service.github.GithubApi;
+import com.devbliss.gpullr.service.github.GithubApiImpl;
 import com.devbliss.gpullr.util.http.GithubHttpClient;
 import com.devbliss.gpullr.util.http.GithubHttpClientImpl;
 import com.devbliss.gpullr.util.http.GithubHttpClientImplNoop;
@@ -24,6 +26,10 @@ public class GithubFactory {
   @Autowired
   @Qualifier("githubClientImpl")
   private GithubHttpClientImpl githClientImpl;
+
+  @Autowired
+  @Qualifier("githubApiImpl")
+  private GithubApiImpl githubApiImpl;
 
   @Bean
   @Profile({
@@ -58,5 +64,20 @@ public class GithubFactory {
   @Primary
   public GithubHttpClient createTestClient() {
     return new GithubHttpClientImplNoop();
+  }
+
+  /**
+   * Provides the "real" implementation that makes real calls. Test implementation is produced
+   * in {@link GithubApiMockFactory}.
+   * 
+   * @return
+   */
+  @Bean
+  @Profile({
+      "prod", "dev"
+  })
+  @Primary
+  public GithubApi createGithubApi() {
+    return githubApiImpl;
   }
 }

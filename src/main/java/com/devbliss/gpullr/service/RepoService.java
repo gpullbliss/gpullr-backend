@@ -65,6 +65,10 @@ public class RepoService {
       .forEach(this::persistRepo);
   }
 
+  public Optional<Repo> findById(Integer id) {
+    return repoRepository.findById(id);
+  }
+
   private void deactivateRepo(Repo repo) {
     LOGGER.info("Deactivating local repo '{}'", repo.name);
     repo.active = false;
