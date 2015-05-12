@@ -86,7 +86,8 @@ public class RankingService {
       .findByCanLoginIsTrue()
       .stream()
       .map(u -> getRanking(u, rankingScope))
-      .filter(r -> r.getScore() > 0d)
+      .filter(or -> or.isPresent())
+      .map(or -> or.get())
       .sorted((r1, r2) -> r2.getScore().compareTo(r1.getScore()))
       .collect(Collectors.toList());
 
@@ -103,7 +104,7 @@ public class RankingService {
     return rankings;
   }
 
-  private Ranking getRanking(User user, RankingScope rankingScope) {
+  private Optional<Ranking> getRanking(User user, RankingScope rankingScope) {
     Predicate<PullRequest> filter;
 
     if (rankingScope.daysInPast.isPresent()) {
@@ -118,16 +119,12 @@ public class RankingService {
       .filter(pr -> !pr.assignee.id.equals(pr.author.id))
       .filter(filter).collect(Collectors.toList());
 
-    RankingData rankingData;
-
     if (pullRequests.isEmpty()) {
-      rankingData = emptyRankingData();
+      return Optional.empty();
     } else {
-      rankingData = pullrequestsToRankingData(pullRequests);
+      RankingData rankingData = pullrequestsToRankingData(pullRequests);
+      return Optional.of(new Ranking(rankingData, user));
     }
-
-    Ranking ranking = new Ranking(rankingData, user);
-    return ranking;
   }
 
   private RankingData emptyRankingData() {
