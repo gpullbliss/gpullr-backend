@@ -127,16 +127,6 @@ public class RankingService {
     }
   }
 
-  private RankingData emptyRankingData() {
-    RankingData rankingData = new RankingData();
-    rankingData.addToClosedCount(0);
-    rankingData.addToSumOfComments(0);
-    rankingData.addToSumOfFilesChanged(0);
-    rankingData.addToSumOfLinesAdded(0);
-    rankingData.addToSumOfLinesRemoved(0);
-    return rankingData;
-  }
-
   private RankingData pullrequestsToRankingData(List<PullRequest> pullRequests) {
     RankingData rankingData = new RankingData();
     pullRequests
