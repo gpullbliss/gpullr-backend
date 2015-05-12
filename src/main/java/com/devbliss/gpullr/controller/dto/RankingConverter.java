@@ -17,13 +17,13 @@ public class RankingConverter {
 
   public RankingDto toDto(Ranking entity) {
     RankingDto dto = new RankingDto();
-    dto.rank = entity.rank;
-    dto.closedCount = entity.closedCount;
-    dto.sumOfScores = entity.sumOfScores;
-    dto.sumOfFilesChanged = entity.sumOfFilesChanged;
-    dto.sumOfLinesAdded = entity.sumOfLinesAdded;
-    dto.sumOfLinesRemoved = entity.sumOfLinesRemoved;
-    dto.user = userConverter.toMinimalDto(entity.user);
+    dto.rank = entity.getRank();
+    dto.closedCount = entity.getClosedCount();
+    dto.sumOfScores = entity.getScore();
+    dto.sumOfFilesChanged = entity.getSumOfFilesChanged();
+    dto.sumOfLinesAdded = entity.getSumOfLinesAdded();
+    dto.sumOfLinesRemoved = entity.getSumOfLinesRemoved();
+    dto.user = userConverter.toMinimalDto(entity.getUser());
     return dto;
   }
 
