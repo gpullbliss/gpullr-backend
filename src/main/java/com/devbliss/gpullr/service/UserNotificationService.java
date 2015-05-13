@@ -2,10 +2,10 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
-import com.devbliss.gpullr.domain.notifications.Notification;
-import com.devbliss.gpullr.domain.notifications.NotificationType;
+import com.devbliss.gpullr.domain.notifications.UserNotification;
+import com.devbliss.gpullr.domain.notifications.UserNotificationType;
 import com.devbliss.gpullr.exception.NotFoundException;
-import com.devbliss.gpullr.repository.NotificationRepository;
+import com.devbliss.gpullr.repository.UserNotificationRepository;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -18,41 +18,41 @@ import org.springframework.stereotype.Service;
  * Notification Service. Notifying the user of any merged / closed pull requests.
  */
 @Service
-public class NotificationService {
+public class UserNotificationService {
 
-  private final NotificationRepository notificationRepository;
+  private final UserNotificationRepository userNotificationRepository;
 
   private final ZonedDateTime applicationStartupDatetime;
 
   @Autowired
-  public NotificationService(
-      NotificationRepository notificationRepository,
+  public UserNotificationService(
+      UserNotificationRepository userNotificationRepository,
       ApplicationContext applicationContext) {
-    this.notificationRepository = notificationRepository;
+    this.userNotificationRepository = userNotificationRepository;
     applicationStartupDatetime = calculateApplicationStartupTime(applicationContext);
   }
 
-  public List<Notification> allUnseenNotificationsForUser(long receivingUserId) {
-    return notificationRepository.findByReceivingUserIdAndSeenIsFalse(receivingUserId);
+  public List<UserNotification> allUnseenNotificationsForUser(long receivingUserId) {
+    return userNotificationRepository.findByReceivingUserIdAndSeenIsFalse(receivingUserId);
   }
 
-  private void insertOrUpdate(Notification notification) {
-    notificationRepository.save(notification);
+  private void insertOrUpdate(UserNotification notification) {
+    userNotificationRepository.save(notification);
   }
 
   public void markAsSeen(long notificationId) {
-    Notification notification = notificationRepository
-      .findById(notificationId)
-      .orElseThrow(() -> new NotFoundException(
-          String.format("Notification with id=%s not found.", notificationId)));
+    UserNotification notification = userNotificationRepository
+        .findById(notificationId)
+        .orElseThrow(() -> new NotFoundException(
+            String.format("Notification with id=%s not found.", notificationId)));
     notification.seen = true;
-    notificationRepository.save(notification);
+    userNotificationRepository.save(notification);
   }
 
   public void markAllAsSeenForUser(long receivingUserId) {
-    List<Notification> notifications = notificationRepository.findByReceivingUserIdAndSeenIsFalse(receivingUserId);
+    List<UserNotification> notifications = userNotificationRepository.findByReceivingUserIdAndSeenIsFalse(receivingUserId);
     notifications.forEach(n -> n.seen = true);
-    notificationRepository.save(notifications);
+    userNotificationRepository.save(notifications);
   }
 
   public void createClosedPullRequestNotification(PullRequest pullRequest) {
@@ -63,10 +63,10 @@ public class NotificationService {
     }
 
     if (isDateAfterApplicationStartup(pullRequest) && closedPullRequestNotificationDoesNotExist(pullRequest)) {
-      Notification notification = new Notification();
+      UserNotification notification = new UserNotification();
       notification.actor = pullRequest.assignee;
       notification.timestamp = pullRequest.closedAt;
-      notification.notificationType = NotificationType.PULLREQUEST_CLOSED;
+      notification.notificationType = UserNotificationType.PULLREQUEST_CLOSED;
       notification.pullRequest = pullRequest;
       notification.receivingUserId = pullRequest.author.id;
       notification.seen = false;
@@ -80,7 +80,7 @@ public class NotificationService {
   }
 
   private boolean closedPullRequestNotificationDoesNotExist(PullRequest pullRequest) {
-    return !notificationRepository.findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt).isPresent();
+    return !userNotificationRepository.findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt).isPresent();
   }
 
   private ZonedDateTime calculateApplicationStartupTime(ApplicationContext applicationContext) {

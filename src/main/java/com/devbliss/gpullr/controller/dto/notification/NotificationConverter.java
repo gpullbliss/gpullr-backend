@@ -1,18 +1,19 @@
 package com.devbliss.gpullr.controller.dto.notification;
 
-import com.devbliss.gpullr.domain.notifications.Notification;
+import com.devbliss.gpullr.domain.notifications.SystemNotification;
+import com.devbliss.gpullr.domain.notifications.UserNotification;
 import org.springframework.stereotype.Component;
 
 /**
- * Converter for {@link com.devbliss.gpullr.domain.notifications.Notification} entity to DTO {@link NotificationDto}
+ * Converter for {@link UserNotification} entity to DTO {@link UserNotificationDto}
  * to be transferred by the {@link com.devbliss.gpullr.controller.NotificationController} to the calling client. Some
  * information is purposely left out.
  */
 @Component
 public class NotificationConverter {
 
-  public NotificationDto toDto(Notification entity) {
-    NotificationDto dto = new NotificationDto();
+  public UserNotificationDto toDto(UserNotification entity) {
+    UserNotificationDto dto = new UserNotificationDto();
     dto.createdAt = entity.timestamp.toString();
     dto.id = entity.id;
     dto.type = entity.notificationType;
@@ -22,4 +23,10 @@ public class NotificationConverter {
     return dto;
   }
 
+  public SystemNotificationDto toDto(SystemNotification entity) {
+    SystemNotificationDto dto = new SystemNotificationDto();
+    dto.notificationType = entity.notificationType;
+    dto.validUntil = entity.validUntil.toString();
+    return dto;
+  }
 }

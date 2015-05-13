@@ -1,0 +1,20 @@
+package com.devbliss.gpullr.domain;
+
+import com.devbliss.gpullr.util.http.GithubHttpResponse;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import org.springframework.context.ApplicationEvent;
+
+/**
+ * Created by abluem on 13/05/15.
+ */
+public class ApiRateLimitReachedEvent extends ApplicationEvent {
+
+  public final ZonedDateTime resetTime;
+
+  public ApiRateLimitReachedEvent(Object source, Instant offset) {
+    super(source);
+    resetTime = offset.atZone(ZoneId.systemDefault());
+  }
+}

@@ -80,7 +80,7 @@ public class PullRequestServiceUnitTest {
   private RepoRepository repoRepository;
 
   @Mock
-  private NotificationService notificationService;
+  private UserNotificationService notificationService;
 
   @Captor
   private ArgumentCaptor<PullRequest> pullRequestCaptor;
