@@ -4,17 +4,18 @@ import static com.devbliss.gpullr.domain.notifications.SystemNotificationType.AP
 
 import com.devbliss.gpullr.domain.ApiRateLimitReachedEvent;
 import com.devbliss.gpullr.domain.notifications.SystemNotification;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by abluem on 13/05/15.
  */
 @Service
 public class SystemNotificationService implements ApplicationListener<ApiRateLimitReachedEvent> {
@@ -29,8 +30,6 @@ public class SystemNotificationService implements ApplicationListener<ApiRateLim
 
   @Override
   public void onApplicationEvent(ApiRateLimitReachedEvent event) {
-    LOGGER.debug("===== API LIMIT REACHED, RESETTING AT {}", event.resetTime);
-
     SystemNotification notification = new SystemNotification(API_RATE_LIMIT_REACHED, event.resetTime);
 
     Optional<SystemNotification> notificationOptional = notifications
@@ -48,7 +47,15 @@ public class SystemNotificationService implements ApplicationListener<ApiRateLim
 
   }
 
+  /**
+   * @return
+   */
   public List<SystemNotification> getNotifications() {
+    notifications = notifications
+        .stream()
+        .filter(n -> n.validUntil.isAfter(ZonedDateTime.now()))
+        .collect(Collectors.toList());
+
     return notifications;
   }
 
