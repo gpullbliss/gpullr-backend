@@ -13,8 +13,8 @@ public class ApiRateLimitReachedEvent extends ApplicationEvent {
 
   public final ZonedDateTime resetTime;
 
-  public ApiRateLimitReachedEvent(Object source, Instant offset) {
+  public ApiRateLimitReachedEvent(Object source, Instant resetTime) {
     super(source);
-    resetTime = offset.atZone(ZoneId.systemDefault());
+    this.resetTime = resetTime.atZone(ZoneId.systemDefault());
   }
 }
