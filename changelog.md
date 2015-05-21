@@ -1,6 +1,7 @@
 
 ### Version 1.0.0-SNAPSHOT
 
+ - [bug] fixed PRT-122 (disappeared PRs)
  - [feature] removed deprecated login controller actions
 
 ### Version 0.1.0-SNAPSHOT
@@ -70,4 +71,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Tue May 12 08:35:46 CEST 2015
+-- Last change by: Andre Dörnbrack <andre.doernbrack@devbliss.com> Thu May 21 09:05:26 CEST 2015
