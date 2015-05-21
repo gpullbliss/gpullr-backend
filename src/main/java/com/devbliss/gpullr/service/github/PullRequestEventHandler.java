@@ -49,18 +49,22 @@ public class PullRequestEventHandler {
 
     if (pullRequestFromDb.isPresent() && pullRequestFromDb.get().updatedAt != null) {
       if (pullRequestFromEvent.updatedAt.isAfter(pullRequestFromDb.get().updatedAt)) {
-        pullRequestService.insertOrUpdate(pullRequestFromEvent);
+        savePullRequest(pullRequestFromEvent);
       }
     } else {
-      pullRequestService.insertOrUpdate(pullRequestFromEvent);
+      savePullRequest(pullRequestFromEvent);
     }
+  }
+
+  private void savePullRequest(PullRequest pullRequest) {
+    pullRequestService.insertOrUpdate(pullRequest);
 
     // unfortunately, the assignee is not set in GitHub PR event if state is OPEN, so we have to
     // fetch it manually:
-    if (pullRequestFromEvent.state == State.OPEN) {
-      pullRequestWatcher.startWatching(pullRequestFromEvent);
-    } else if (pullRequestFromEvent.state == State.CLOSED) {
-      pullRequestWatcher.stopWatching(pullRequestFromEvent);
+    if (pullRequest.state == State.OPEN) {
+      pullRequestWatcher.startWatching(pullRequest);
+    } else if (pullRequest.state == State.CLOSED) {
+      pullRequestWatcher.stopWatching(pullRequest);
     }
   }
 }
