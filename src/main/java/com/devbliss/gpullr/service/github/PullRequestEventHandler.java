@@ -5,11 +5,12 @@ import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.Log;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 /**
  * Handles pullRequest events fetched from GitHub and triggers the appropriate action in business layer.
@@ -31,8 +32,8 @@ public class PullRequestEventHandler {
 
   @Autowired
   public PullRequestEventHandler(
-          PullRequestService pullRequestService,
-          PullRequestWatcher pullRequestWatcher) {
+      PullRequestService pullRequestService,
+      PullRequestWatcher pullRequestWatcher) {
     this.pullRequestService = pullRequestService;
     this.pullRequestWatcher = pullRequestWatcher;
   }
