@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Unit test for correct pull request event handling. All external dependencies are mocked.
- * 
+ *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
