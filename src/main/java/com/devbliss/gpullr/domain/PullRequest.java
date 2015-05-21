@@ -46,6 +46,8 @@ public class PullRequest {
 
   public ZonedDateTime createdAt;
 
+  public ZonedDateTime updatedAt;
+
   public ZonedDateTime closedAt;
 
   @NotNull

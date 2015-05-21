@@ -230,6 +230,7 @@ public class GithubApiImpl implements GithubApi {
     Action action = Action.parse(payloadJson.getString(FIELD_KEY_ACTION));
     PullRequest pullRequest = parsePullRequestPayload(payloadJson.getJsonObject("pull_request"));
     pullRequest.repo = repo;
+
     return Optional.of(new PullRequestEvent(action, pullRequest));
   }
 
@@ -240,6 +241,7 @@ public class GithubApiImpl implements GithubApi {
     pullRequest.url = pullRequestJson.getString(FIELD_KEY_PULLREQUEST_URL);
     pullRequest.title = pullRequestJson.getString("title");
     pullRequest.createdAt = ZonedDateTime.parse(pullRequestJson.getString("created_at"));
+    pullRequest.updatedAt = ZonedDateTime.parse(pullRequestJson.getString("updated_at"));
     pullRequest.author = parseUser(pullRequestJson.getJsonObject("user"));
     pullRequest.linesAdded = pullRequestJson.getInt("additions");
     pullRequest.linesRemoved = pullRequestJson.getInt("deletions");

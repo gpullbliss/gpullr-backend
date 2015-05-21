@@ -35,7 +35,7 @@ import org.springframework.scheduling.TaskScheduler;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PullRequestWatchThreadUnitTest {
+  public class PullRequestWatchThreadUnitTest {
 
   private static final String ETAG = "abc123def";
 
