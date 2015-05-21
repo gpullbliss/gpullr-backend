@@ -41,6 +41,8 @@ public class PullRequestEventHandler {
     PullRequest pullRequestFromEvent = event.pullRequest;
     Optional<PullRequest> pullRequestFromDb = pullRequestService.findById(pullRequestFromEvent.id);
 
+    logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
+
     if (event.action == PullRequestEvent.Action.OPENED) {
       pullRequestFromEvent.state = State.OPEN;
     } else if (event.action == PullRequestEvent.Action.CLOSED) {
@@ -51,11 +53,9 @@ public class PullRequestEventHandler {
 
     if (pullRequestFromDb.isPresent() && pullRequestFromDb.get().updatedAt != null) {
       if (pullRequestFromEvent.updatedAt.isAfter(pullRequestFromDb.get().updatedAt)) {
-        logger.info("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
         pullRequestService.insertOrUpdate(pullRequestFromEvent);
       }
     } else {
-      logger.debug("handling pr ev: " + pullRequestFromEvent.title + " / " + pullRequestFromEvent.state);
       pullRequestService.insertOrUpdate(pullRequestFromEvent);
     }
 
