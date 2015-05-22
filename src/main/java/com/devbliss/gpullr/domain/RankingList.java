@@ -56,4 +56,8 @@ public class RankingList {
       })
       .collect(Collectors.toList());
   }
+
+  public void clearRankings() {
+    rankings.clear();
+  }
 }

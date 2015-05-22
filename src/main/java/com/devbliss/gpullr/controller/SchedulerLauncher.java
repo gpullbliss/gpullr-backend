@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.service.github.PullRequestWatcher;
+
 import java.time.Instant;
 import java.util.Date;
 import javax.annotation.PostConstruct;
@@ -35,15 +37,19 @@ public class SchedulerLauncher {
   @Autowired
   private RankingRecalculator rankingRecalculator;
 
+  @Autowired
+  private PullRequestWatcher pullRequestWatcher;
+
   public SchedulerLauncher() {}
 
   @PostConstruct
   public void startExecution() {
-    Date eventFetchStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS));
-    Date rankingCalculationStart = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS * 2));
+    Date in30Seconds = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS));
+    Date inOneMinute = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS * 2));
     executor.execute(githubReposRefresher::startFetchLoop);
     executor.execute(githubUserFetcher::startFetchLoop);
-    executor.schedule(githubEventFetcher::startFetchEventsLoop, eventFetchStart);
-    executor.schedule(rankingRecalculator::startFetchLoop, rankingCalculationStart);
+    // executor.schedule(githubEventFetcher::startFetchEventsLoop, in30Seconds);
+    executor.schedule(rankingRecalculator::startFetchLoop, inOneMinute);
+    executor.schedule(pullRequestWatcher::startWatchingAllOpenPullRequests, inOneMinute);
   }
 }

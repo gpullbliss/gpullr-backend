@@ -1,9 +1,10 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.repository.RankingRepository;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
@@ -62,6 +63,9 @@ public class RankingServiceIntegrationTest {
   @Autowired
   private RepoRepository repoRepository;
 
+  @Autowired
+  private RankingRepository rankingRepository;
+
   private RankingService rankingService;
 
   private User userAlpha;
@@ -77,7 +81,11 @@ public class RankingServiceIntegrationTest {
   @Before
   public void setup() {
     random = new Random();
-    rankingService = new RankingService(rankingListRepository, pullRequestRepository, userRepository);
+    rankingService = new RankingService(
+        rankingListRepository,
+        pullRequestRepository,
+        userRepository,
+        rankingRepository);
 
     // create 3 users that close pull requests:
     userAlpha = createUser(14, "zzz_alpha", true, "Alpha");

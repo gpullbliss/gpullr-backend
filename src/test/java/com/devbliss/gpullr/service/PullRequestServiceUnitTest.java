@@ -227,7 +227,7 @@ public class PullRequestServiceUnitTest {
     mockFindOpenPullRequests();
     when(userService.getCurrentUserIfLoggedIn()).thenReturn(Optional.of(author));
 
-    List<PullRequest> allOpen = pullRequestService.findAllOpen();
+    List<PullRequest> allOpen = pullRequestService.findAllOpen(true);
 
     verify(userService, atLeastOnce()).getCurrentUserIfLoggedIn();
     assertEquals(NEW_PR_TITLE, allOpen.get(0).title);

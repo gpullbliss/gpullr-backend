@@ -1,10 +1,11 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.service.PullRequestService;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import java.util.Date;
@@ -42,6 +43,9 @@ public class PullRequestWatcherUnitTest {
   @Mock
   private PullRequestWatchThread pullRequestWatchThread;
 
+  @Mock
+  private PullRequestService pullRequestService;
+
   private PullRequest pullRequest;
 
   private PullRequestWatcher pullRequestWatcher;
@@ -52,7 +56,7 @@ public class PullRequestWatcherUnitTest {
     pullRequest.id = PR_ID;
     pullRequest.repo = repo;
     when(pullRequestWatchThreadProducer.createThread(pullRequest)).thenReturn(pullRequestWatchThread);
-    pullRequestWatcher = new PullRequestWatcher(taskScheduler, pullRequestWatchThreadProducer);
+    pullRequestWatcher = new PullRequestWatcher(taskScheduler, pullRequestWatchThreadProducer, null);
     pullRequestWatcher.logger = logger;
   }
 

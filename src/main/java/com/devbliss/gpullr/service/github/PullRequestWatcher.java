@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.service.PullRequestService;
+
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
@@ -33,6 +35,8 @@ public class PullRequestWatcher {
 
   private final PullRequestWatchThreadProducer pullRequestWatchThreadProducer;
 
+  private final PullRequestService pullRequestService;
+
   /**
    * Map with pullRequest-id as key and the watcher thread as value
    */
@@ -41,16 +45,25 @@ public class PullRequestWatcher {
   @Autowired
   public PullRequestWatcher(
       TaskScheduler taskScheduler,
-      PullRequestWatchThreadProducer pullRequestWatchThreadProducer) {
+      PullRequestWatchThreadProducer pullRequestWatchThreadProducer,
+      PullRequestService pullRequestService) {
     this.taskScheduler = taskScheduler;
     this.pullRequestWatchThreadProducer = pullRequestWatchThreadProducer;
+    this.pullRequestService = pullRequestService;
+  }
+
+  /**
+   * Starts a watch thread for all open pull requests.
+   */
+  public void startWatchingAllOpenPullRequests() {
+    pullRequestService.findAllOpen(false).forEach(this::startWatching);
   }
 
   /**
    * Starts an assignee watcher for the given pull request which periodically fetches
    * certain data for the PR from GitHub API.
    * 
-   * Does nothing in case there is already such a watcher for the given pull request
+   * Does nothing in case there is already such a watcher for the given pull request.
    *   
    * @param pullRequest pull request to watch the assignee for
    */

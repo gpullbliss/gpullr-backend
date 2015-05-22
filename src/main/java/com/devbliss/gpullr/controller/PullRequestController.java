@@ -46,9 +46,9 @@ public class PullRequestController {
     List<PullRequest> pullRequests;
 
     if (repos == null || repos.isEmpty()) {
-      pullRequests = pullRequestService.findAllOpen();
+      pullRequests = pullRequestService.findAllOpen(true);
     } else {
-      pullRequests = pullRequestService.findAllOpen(repos.split(";"));
+      pullRequests = pullRequestService.findAllOpenFiltered(repos.split(";"));
     }
 
     return new ListDto<>(pullRequests
