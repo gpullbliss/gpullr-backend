@@ -24,7 +24,7 @@ public class RankingList {
 
   @OneToMany(cascade = CascadeType.ALL,
       fetch = FetchType.EAGER,
-      orphanRemoval = true)
+      orphanRemoval = false)
   private List<Ranking> rankings = new ArrayList<>();
 
   @NotNull
