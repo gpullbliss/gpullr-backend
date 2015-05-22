@@ -1,6 +1,7 @@
 
 ### Version 1.0.0-SNAPSHOT
 
+ - [feature] api rate limit reached notifications
  - [feature] removed deprecated login controller actions
 
 ### Version 0.1.0-SNAPSHOT
@@ -69,4 +70,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Tue May 12 08:35:46 CEST 2015
+-- Last change by: Alexander Blüm <alexander.bluem@devbliss.com> Fri May 22 14:33:59 CEST 2015
