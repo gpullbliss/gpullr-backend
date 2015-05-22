@@ -1,6 +1,7 @@
 
 ### Version 1.0.0-SNAPSHOT
 
+ - [feature] use a different github account for local dev development
  - [bug] fixed PR status in log message
  - [bug] only starting / stopping PR watch thread when PR is really updated
  - [bug] fixed PRT-122 (disappeared PRs)
@@ -73,4 +74,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Andre Dörnbrack <andre.doernbrack@devbliss.com> Fri May 22 10:54:06 CEST 2015
+-- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Thu May 21 15:41:34 CEST 2015
