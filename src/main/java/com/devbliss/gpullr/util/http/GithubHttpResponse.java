@@ -67,25 +67,22 @@ public class GithubHttpResponse {
 
   public final Optional<ZonedDateTime> rateLimitResetTime;
 
-  public final String uri;
-
   private ApplicationContext applicationContext;
 
   /**
    * Creates an instance of {@link GithubHttpResponse} from a HttpResponse. Makes sure the http response is closed
    * after processing.
    *
-   * @param resp
-   * @param applicationContext
-   * @return
+   * @param resp CloseableHttpResponse from a http client
+   * @param applicationContext ... for application wide event dispatching
+   * @return new instance of {@link GithubHttpResponse}
    */
-  public static GithubHttpResponse create(CloseableHttpResponse resp, URI uri, ApplicationContext applicationContext) {
-    return new GithubHttpResponse(resp, uri, applicationContext);
+  public static GithubHttpResponse create(CloseableHttpResponse resp, ApplicationContext applicationContext) {
+    return new GithubHttpResponse(resp, applicationContext);
   }
 
-  private GithubHttpResponse(CloseableHttpResponse resp, URI uri, ApplicationContext applicationContext) {
+  private GithubHttpResponse(CloseableHttpResponse resp, ApplicationContext applicationContext) {
     headers = parseHeaders(resp);
-    this.uri = uri.toString();
     this.applicationContext = applicationContext;
     statusCode = resp.getStatusLine().getStatusCode();
     rateLimitRemaining = parseRemainingRateLimit(headers);
@@ -117,7 +114,7 @@ public class GithubHttpResponse {
    * However, when the rate limit has been exceeded, this is the value of the rate limit reset time header (defaulting
    * to one hour from now) plus a random number of seconds.
    *
-   * @return
+   * @return next point in time to fetch next data
    */
   public Instant getNextFetch() {
 
