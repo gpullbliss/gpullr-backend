@@ -16,7 +16,7 @@ public abstract class AbstractGithubRequest extends HttpGet {
 
   private static final String HEADER_ETAG = "If-None-Match";
 
-  protected final Optional<String> etagHeader;
+  public final Optional<String> etagHeader;
 
   protected final int page;
 
