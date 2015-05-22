@@ -12,7 +12,6 @@ import com.devbliss.gpullr.repository.RankingListRepository;
 import com.devbliss.gpullr.repository.RankingRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -84,21 +83,13 @@ public class RankingService {
   private void deleteRankingListsOlderThan(ZonedDateTime calculationDate, RankingScope rankingScope) {
     List<RankingList> rankingListsToDelete = rankingListRepository
       .findByCalculationDateBeforeAndRankingScope(calculationDate, rankingScope);
-    rankingListsToDelete.forEach(rl -> System.err.println("rankings in list b4: " + rl.getRankings().size()));
     rankingListsToDelete.forEach(this::deleteRankingsOfList);
-    rankingListsToDelete.forEach(rl -> System.err.println("rankings in list at: " + rl.getRankings().size()));
     rankingListRepository.delete(rankingListsToDelete);
   }
 
   private void deleteRankingsOfList(RankingList rankingList) {
-    ArrayList<Ranking> rankingsToDelete = new ArrayList<>(rankingList.getRankings());
-    System.err.println("COUNT B4 CLEAR: " + rankingRepository.count());
     rankingList.clearRankings();
-    System.err.println("COUNT 8R CLEAR: " + rankingRepository.count());
     rankingListRepository.save(rankingList);
-    System.err.println("COUNT 8R SAVE: " + rankingRepository.count());
-    //rankingsToDelete.forEach(rankingRepository::delete);
-    System.err.println("COUNT 8R SAVE: " + rankingRepository.count());
   }
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
