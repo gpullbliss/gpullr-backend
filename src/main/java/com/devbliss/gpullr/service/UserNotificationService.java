@@ -50,7 +50,8 @@ public class UserNotificationService {
   }
 
   public void markAllAsSeenForUser(long receivingUserId) {
-    List<UserNotification> notifications = userNotificationRepository.findByReceivingUserIdAndSeenIsFalse(receivingUserId);
+    List<UserNotification> notifications = userNotificationRepository
+        .findByReceivingUserIdAndSeenIsFalse(receivingUserId);
     notifications.forEach(n -> n.seen = true);
     userNotificationRepository.save(notifications);
   }
@@ -80,7 +81,9 @@ public class UserNotificationService {
   }
 
   private boolean closedPullRequestNotificationDoesNotExist(PullRequest pullRequest) {
-    return !userNotificationRepository.findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt).isPresent();
+    return !userNotificationRepository
+        .findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt)
+        .isPresent();
   }
 
   private ZonedDateTime calculateApplicationStartupTime(ApplicationContext applicationContext) {

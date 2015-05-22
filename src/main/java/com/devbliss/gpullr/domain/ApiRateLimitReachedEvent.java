@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import org.springframework.context.ApplicationEvent;
 
 /**
+ *
  * Created by abluem on 13/05/15.
  */
 public class ApiRateLimitReachedEvent extends ApplicationEvent {

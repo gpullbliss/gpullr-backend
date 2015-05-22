@@ -19,7 +19,6 @@ import javax.validation.constraints.Min;
 /**
  * A notification addressed to a single user that will show up until the user marks it as "seen".
  * Informs the user about events he might be interested in, e.g. that one of his pull requests have been merged.
- * 
  */
 @Entity
 @Table(name = "Notification")

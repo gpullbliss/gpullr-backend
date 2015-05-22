@@ -30,11 +30,11 @@ public class Application {
 
     TaskScheduler taskScheduler = new DefaultManagedTaskScheduler();
 
-    Runnable r = () -> {
+    Runnable runnable = () -> {
       ApiRateLimitReachedEvent event = new ApiRateLimitReachedEvent(run, Instant.now().plus(3, ChronoUnit.MINUTES));
       run.publishEvent(event);
     };
 
-    taskScheduler.scheduleAtFixedRate(r, 2 * 60 * 1000);
+    taskScheduler.scheduleAtFixedRate(runnable, 2 * 60 * 1000);
   }
 }
