@@ -14,7 +14,7 @@ public class NotificationConverter {
 
   public UserNotificationDto toDto(UserNotification entity) {
     UserNotificationDto dto = new UserNotificationDto();
-    dto.createdAt = entity.timestamp.toString();
+    dto.createdAt = entity.timestamp.toOffsetDateTime().toString();
     dto.id = entity.id;
     dto.type = entity.notificationType;
     dto.actorName = (entity.actor != null) ? entity.actor.fullName : "";
@@ -26,7 +26,7 @@ public class NotificationConverter {
   public SystemNotificationDto toDto(SystemNotification entity) {
     SystemNotificationDto dto = new SystemNotificationDto();
     dto.notificationType = entity.notificationType;
-    dto.validUntil = entity.validUntil.toString();
+    dto.validUntil = entity.validUntil.toOffsetDateTime().toString();
     return dto;
   }
 }

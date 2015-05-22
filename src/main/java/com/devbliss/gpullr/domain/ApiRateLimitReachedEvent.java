@@ -1,6 +1,5 @@
 package com.devbliss.gpullr.domain;
 
-import com.devbliss.gpullr.util.http.GithubHttpResponse;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
