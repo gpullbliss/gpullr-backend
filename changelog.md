@@ -1,11 +1,15 @@
-
 ### Version 1.0.0-SNAPSHOT
 
  - [feature] api rate limit reached notifications
+ - [feature] use a different github account for local dev development
+ - [bug] fixed PR status in log message
+ - [bug] only starting / stopping PR watch thread when PR is really updated
+ - [bug] fixed PRT-122 (disappeared PRs)
  - [feature] removed deprecated login controller actions
 
 ### Version 0.1.0-SNAPSHOT
 
+ - [bug] fair ranking algorithm even fairer
  - [feature] added francais as allowed language
  - [bug] fallback assign date when saving a pullrequest with assignee but no such date
  - [bug] fetching pull request events with updated repo url after repo renaming

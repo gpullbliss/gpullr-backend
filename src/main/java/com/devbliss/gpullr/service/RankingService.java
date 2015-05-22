@@ -3,6 +3,7 @@ package com.devbliss.gpullr.service;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.Ranking;
+import com.devbliss.gpullr.domain.RankingData;
 import com.devbliss.gpullr.domain.RankingList;
 import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
@@ -82,27 +83,28 @@ public class RankingService {
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {
     List<Ranking> rankings = userRepository
-        .findByCanLoginIsTrue()
-        .stream()
-        .map(u -> getRanking(u, rankingScope))
-        .filter(r -> r.sumOfScores > 0d)
-        .sorted((r1, r2) -> r2.sumOfScores.compareTo(r1.sumOfScores))
-        .collect(Collectors.toList());
+      .findByCanLoginIsTrue()
+      .stream()
+      .map(u -> getRanking(u, rankingScope))
+      .filter(or -> or.isPresent())
+      .map(or -> or.get())
+      .sorted((r1, r2) -> r2.getScore().compareTo(r1.getScore()))
+      .collect(Collectors.toList());
 
     int count = 0;
     double previousScore = -1d;
     for (Ranking r : rankings) {
-      if (r.sumOfScores != previousScore) {
+      if (r.getScore() != previousScore) {
         count++;
       }
-      r.rank = count;
-      previousScore = r.sumOfScores;
+      r.setRank(count);
+      previousScore = r.getScore();
     }
 
     return rankings;
   }
 
-  private Ranking getRanking(User user, RankingScope rankingScope) {
+  private Optional<Ranking> getRanking(User user, RankingScope rankingScope) {
     Predicate<PullRequest> filter;
 
     if (rankingScope.daysInPast.isPresent()) {
@@ -112,34 +114,28 @@ public class RankingService {
       filter = pr -> true;
     }
 
-    Ranking ranking = new Ranking();
-    ranking.user = user;
-
     List<PullRequest> pullRequests = pullRequestRepository.findByAssigneeAndState(user, State.CLOSED)
-        .stream()
-        .filter(pr -> !pr.assignee.id.equals(pr.author.id))
-        .filter(filter).collect(Collectors.toList());
+      .stream()
+      .filter(pr -> !pr.assignee.id.equals(pr.author.id))
+      .filter(filter).collect(Collectors.toList());
 
-    ranking.closedCount = (int) pullRequests.stream()
-        .count();
+    if (pullRequests.isEmpty()) {
+      return Optional.empty();
+    } else {
+      RankingData rankingData = pullrequestsToRankingData(pullRequests);
+      return Optional.of(new Ranking(rankingData, user));
+    }
+  }
 
-    ranking.sumOfFilesChanged = pullRequests.stream()
-        .mapToInt(p -> p.filesChanged)
-        .sum();
-
-    ranking.sumOfLinesAdded = pullRequests.stream()
-        .mapToInt(p -> p.linesAdded)
-        .sum();
-
-    ranking.sumOfLinesRemoved = pullRequests.stream()
-        .mapToInt(p -> p.linesRemoved)
-        .sum();
-
-    ranking.sumOfScores = pullRequests.stream()
-        .map(PullRequest::calculateScore)
-        .reduce((sc0, sc1) -> sc0 + sc1)
-        .orElse(0d);
-
-    return ranking;
+  private RankingData pullrequestsToRankingData(List<PullRequest> pullRequests) {
+    RankingData rankingData = new RankingData();
+    pullRequests
+      .stream()
+      .peek(p -> rankingData.addToSumOfLinesAdded(p.linesAdded))
+      .peek(p -> rankingData.addToSumOfLinesRemoved(p.linesRemoved))
+      .peek(p -> rankingData.addToSumOfFilesChanged(p.filesChanged))
+      .peek(p -> rankingData.addToClosedCount(1))
+      .forEach(p -> rankingData.addToSumOfComments(p.numberOfComments));
+    return rankingData;
   }
 }

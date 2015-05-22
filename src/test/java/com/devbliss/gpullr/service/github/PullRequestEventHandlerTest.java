@@ -8,8 +8,11 @@ import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
+import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.service.RankingService;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Unit test for correct pull request event handling. All external dependencies are mocked.
- * 
+ *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
@@ -49,14 +52,30 @@ public class PullRequestEventHandlerTest {
 
   private PullRequestEventHandler pullRequestEventHandler;
 
+  private Repo testRepo;
+
   @Before
   public void setup() {
     pullRequestEventHandler = new PullRequestEventHandler(pullRequestService, pullRequestWatcher);
     pullRequestEventHandler.logger = LoggerFactory.getLogger(PullRequestEventHandler.class);
+
+    testRepo = new Repo();
+    testRepo.name = "Test";
+    testRepo.id = 1;
+
     existingPullRequest = new PullRequest();
     existingPullRequest.id = PR_ID;
+    existingPullRequest.number = 1;
+    existingPullRequest.repo = testRepo;
+
     pullRequestFromResponse = new PullRequest();
     pullRequestFromResponse.id = PR_ID;
+    pullRequestFromResponse.repo = testRepo;
+    pullRequestFromResponse.number = 2;
+
+    existingPullRequest.updatedAt = ZonedDateTime.now().minus(2, ChronoUnit.MINUTES);
+    pullRequestFromResponse.updatedAt = ZonedDateTime.now();
+
   }
 
   @Test
@@ -108,11 +127,11 @@ public class PullRequestEventHandlerTest {
     // verify PR is stored with state CLOSED and correct id:
     verify(pullRequestService).findById(PR_ID);
     verify(pullRequestService).insertOrUpdate(pullRequestCaptor.capture());
-    assertEquals(State.CLOSED, pullRequestCaptor.getValue().state);
+    assertEquals(State.OPEN, pullRequestCaptor.getValue().state);
     assertEquals(PR_ID, pullRequestCaptor.getValue().id);
 
     // verify watcher is stopped for the pull request:
-    verify(pullRequestWatcher).stopWatching(pullRequestFromResponse);
+    verify(pullRequestWatcher).startWatching(pullRequestFromResponse);
   }
 
   @Test

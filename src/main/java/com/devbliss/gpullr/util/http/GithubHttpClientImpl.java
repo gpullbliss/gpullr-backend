@@ -60,7 +60,7 @@ public class GithubHttpClientImpl implements GithubHttpClient {
   public GithubHttpResponse execute(AbstractGithubRequest req) {
     try {
       req.setHeader(AUTHORIZATION_HEADER_KEY, "token " + oauthToken);
-      logger.debug("HTTP request against GitHub: " + req.getURI());
+      logRequest(req);
       CloseableHttpResponse resp = httpClient.execute(req);
       GithubHttpResponse githubResp = GithubHttpResponse.create(resp, req.getURI(), applicationContext);
       logResponse(githubResp);
@@ -68,6 +68,16 @@ public class GithubHttpClientImpl implements GithubHttpClient {
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
+  }
+
+  private void logRequest(AbstractGithubRequest request) {
+    String etagValue = "<empty>";
+    if (request.etagHeader.isPresent()) {
+      etagValue = request.etagHeader.get();
+    }
+
+    logger.debug("HTTP request against GitHub: " + request.getURI()
+        + "[etag-header: " + etagValue + "]");
   }
 
   private void logResponse(GithubHttpResponse resp) {

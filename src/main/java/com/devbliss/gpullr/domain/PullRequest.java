@@ -1,7 +1,5 @@
 package com.devbliss.gpullr.domain;
 
-import static java.lang.Math.log;
-
 import java.time.ZonedDateTime;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -20,16 +18,6 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 public class PullRequest {
-
-  private static final double WEIGHT_LINES_OF_CODE = 5d;
-
-  private static final double WEIGHT_NUMBER_OF_COMMENTS = 1d;
-
-  private static final double WEIGHT_NUMBER_OF_FILES = 3d;
-
-  private static final double MINIMAL_SCORE = 5d;
-
-  private static final double WEIGHT_NEGATIVE_LINES_OF_CODE = .5d;
 
   private static final String SEPARATOR = " / ";
 
@@ -57,6 +45,8 @@ public class PullRequest {
   public String url;
 
   public ZonedDateTime createdAt;
+
+  public ZonedDateTime updatedAt;
 
   public ZonedDateTime closedAt;
 
@@ -92,24 +82,6 @@ public class PullRequest {
    */
   @NotNull
   public int numberOfComments;
-
-  /**
-   * Calculates the score for this pull request. It values the effort the assignee has to put in reviewing this
-   * pull requests and is taken into account for the ranking calculation.
-   * <p>
-   * It uses the lines of changed code, the number of changed files and the number of comments written by the
-   * assignee.Additionally, there is a basic score of {@link #MINIMAL_SCORE} every pull request gets even if the
-   * values mentioned above are all 0 - to honour the effort it costs to assign and review a pull request no matter
-   * how trivial or small it may be.
-   *
-   * @return
-   */
-  public Double calculateScore() {
-    return WEIGHT_LINES_OF_CODE * calcLinesOfCodeFactor()
-        + WEIGHT_NUMBER_OF_COMMENTS * calcNumberOfCommentsFactor()
-        + WEIGHT_NUMBER_OF_FILES * calcNumberOfFilesFactor()
-        + MINIMAL_SCORE;
-  }
 
   @Override
   public int hashCode() {
@@ -148,28 +120,5 @@ public class PullRequest {
   @Override
   public String toString() {
     return "[id=" + repo.id + SEPARATOR + repo.name + SEPARATOR + number + "]";
-  }
-
-  private double calcNumberOfCommentsFactor() {
-    double cm = numberOfComments;
-    return (cm < 1) ? 0 : log(cm) / log(2);
-  }
-
-  private double calcNumberOfFilesFactor() {
-    double fc = filesChanged;
-    return fc < 1 ? 0 : log(fc) / log(2);
-  }
-
-  private double calcLinesOfCodeFactor() {
-    double loc = linesAdded - linesRemoved;
-    double locLog = log(Math.abs(loc)) / log(2);
-
-    locLog = (locLog < 1) ? 0 : locLog;
-
-    if (loc < 0) {
-      return locLog * WEIGHT_NEGATIVE_LINES_OF_CODE;
-    }
-
-    return locLog;
   }
 }
