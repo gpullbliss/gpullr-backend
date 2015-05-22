@@ -2,6 +2,7 @@
 ### Version 1.0.0-SNAPSHOT
 
  - [feature] use a different github account for local dev development
+ - [bug] fixed PR status in log message
  - [bug] only starting / stopping PR watch thread when PR is really updated
  - [bug] fixed PRT-122 (disappeared PRs)
  - [feature] removed deprecated login controller actions
