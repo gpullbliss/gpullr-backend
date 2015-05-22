@@ -48,7 +48,7 @@ public class SchedulerLauncher {
     Date inOneMinute = Date.from(Instant.now().plusSeconds(DELAYED_TASK_START_AFTER_SECONDS * 2));
     executor.execute(githubReposRefresher::startFetchLoop);
     executor.execute(githubUserFetcher::startFetchLoop);
-    // executor.schedule(githubEventFetcher::startFetchEventsLoop, in30Seconds);
+    executor.schedule(githubEventFetcher::startFetchEventsLoop, in30Seconds);
     executor.schedule(rankingRecalculator::startFetchLoop, inOneMinute);
     executor.schedule(pullRequestWatcher::startWatchingAllOpenPullRequests, inOneMinute);
   }
