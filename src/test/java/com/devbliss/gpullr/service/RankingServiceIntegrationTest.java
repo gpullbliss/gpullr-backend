@@ -103,6 +103,7 @@ public class RankingServiceIntegrationTest {
   public void teardown() {
     pullRequestRepository.deleteAll();
     rankingListRepository.deleteAll();
+    rankingRepository.deleteAll();
     repoRepository.deleteAll();
     userRepository.deleteAll();
   }
