@@ -13,6 +13,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+/**
+ * {@link SystemNotificationService} unit test.
+ *
+ * Created by alexander bluem on 18/05/15.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class SystemNotificationServiceTest {
 

@@ -10,17 +10,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 /**
+ * Notification Service. Notifying the user of any backend system related events.
+ * Currently limited to API RATE LIMIT REACHED. All of these messages are held in memory as they are volatile and
+ * not required to be persisted.
+ *
+ * Created by alexander bluem on 13/05/15.
  */
 @Service
 public class SystemNotificationService implements ApplicationListener<ApiRateLimitReachedEvent> {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SystemNotificationService.class);
 
   private List<SystemNotification> notifications;
 

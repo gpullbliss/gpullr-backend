@@ -6,8 +6,10 @@ import java.time.ZonedDateTime;
 import org.springframework.context.ApplicationEvent;
 
 /**
+ * Event to be thrown whenever the GitHub API has been queried to the limit. The reset time indicates the time when
+ * the API is handing out data again.
  *
- * Created by abluem on 13/05/15.
+ * Created by alexander bluem on 13/05/15.
  */
 public class ApiRateLimitReachedEvent extends ApplicationEvent {
 
