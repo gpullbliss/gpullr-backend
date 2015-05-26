@@ -2,9 +2,13 @@ package com.devbliss.gpullr.util.http;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.devbliss.gpullr.domain.ApiRateLimitReachedEvent;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -17,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Unit tests for {@link GithubHttpResponse}.
@@ -37,7 +42,13 @@ public class GithubHttpResponseUnitTest {
   private CloseableHttpResponse resp;
 
   @Mock
+  private ApplicationContext applicationContext;
+
+  @Mock
   private StatusLine statusLine;
+
+  @Mock
+  private ApiRateLimitReachedEvent apiRateLimitReachedEvent;
 
   private URI uri;
 
@@ -55,11 +66,13 @@ public class GithubHttpResponseUnitTest {
     fakeHeaders(
         fakeHeader("X-RateLimit-Remaining", Integer.toString(RATE_LIMIT_REMAINING)),
         fakeHeader("X-RateLimit-Reset", rateLimitReset));
-    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri);
+    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri, applicationContext);
     assertEquals(RATE_LIMIT_REMAINING, githubHttpResponse.rateLimitRemaining);
     assertTrue(githubHttpResponse.rateLimitResetTime.isPresent());
     assertEquals(STATUS_CODE, githubHttpResponse.getStatusCode());
     assertEquals(URI_STRING, githubHttpResponse.uri);
+
+    verify(applicationContext, never()).publishEvent(any(ApiRateLimitReachedEvent.class));
   }
 
   @Test
@@ -68,16 +81,20 @@ public class GithubHttpResponseUnitTest {
     fakeHeaders(
         fakeHeader("X-RateLimit-Remaining", Integer.toString(RATE_LIMIT_REMAINING)),
         fakeHeader("X-Poll-Interval", Integer.toString(nextPollInSeconds)));
-    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri);
+    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri, applicationContext);
     assertInstantsAboutTheSame(Instant.now().plusSeconds(nextPollInSeconds), githubHttpResponse.getNextFetch());
+
+    verify(applicationContext, never()).publishEvent(any(ApiRateLimitReachedEvent.class));
   }
 
   @Test
   public void nextFetchWhenRateLimitOkAndPollIntervalHeaderNotSet() {
     final int defaultPollInSeconds = 60;
     fakeHeaders(fakeHeader("X-RateLimit-Remaining", Integer.toString(RATE_LIMIT_REMAINING)));
-    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri);
+    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri, applicationContext);
     assertInstantsAboutTheSame(Instant.now().plusSeconds(defaultPollInSeconds), githubHttpResponse.getNextFetch());
+
+    verify(applicationContext, never()).publishEvent(any(ApiRateLimitReachedEvent.class));
   }
 
   @Test
@@ -86,19 +103,21 @@ public class GithubHttpResponseUnitTest {
     fakeHeaders(
         fakeHeader("X-RateLimit-Remaining", "0"),
         fakeHeader("X-RateLimit-Reset", Long.toString(reset.getEpochSecond())));
-    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri);
+    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri, applicationContext);
     Instant nextFetch = githubHttpResponse.getNextFetch();
 
     // next fetch supposed to start at a random time within 120 seconds after reset time set in
     // response header:
     assertTrue(reset.plusSeconds(121).isAfter(nextFetch));
     assertTrue(reset.minusSeconds(1).isBefore(nextFetch));
+
+    verify(applicationContext).publishEvent(any(ApiRateLimitReachedEvent.class));
   }
 
   @Test
   public void nextFetchWhenRateLimitExceededAndResetHeaderNotSet() {
     fakeHeaders(fakeHeader("X-RateLimit-Remaining", "0"));
-    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri);
+    GithubHttpResponse githubHttpResponse = GithubHttpResponse.create(resp, uri, applicationContext);
     Instant nextFetch = githubHttpResponse.getNextFetch();
 
     // next fetch supposed to start at a random time within 120 seconds after default reset time (60
@@ -106,6 +125,8 @@ public class GithubHttpResponseUnitTest {
     Instant oneHourLater = Instant.now().plus(Duration.of(60, ChronoUnit.MINUTES));
     assertTrue(oneHourLater.plusSeconds(121).isAfter(nextFetch));
     assertTrue(oneHourLater.minusSeconds(1).isBefore(nextFetch));
+
+    verify(applicationContext).publishEvent(any(ApiRateLimitReachedEvent.class));
   }
 
   private void assertInstantsAboutTheSame(Instant i0, Instant i1) {

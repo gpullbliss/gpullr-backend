@@ -1,6 +1,6 @@
-
 ### Version 1.0.0-SNAPSHOT
 
+ - [feature] api rate limit reached notifications
  - [feature] use a different github account for local dev development
  - [bug] fixed PR status in log message
  - [bug] only starting / stopping PR watch thread when PR is really updated
@@ -74,4 +74,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Thu May 21 15:41:34 CEST 2015
+-- Last change by: Alexander Blüm <alexander.bluem@devbliss.com> Fri May 22 14:33:59 CEST 2015

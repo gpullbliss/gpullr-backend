@@ -13,15 +13,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.Min;
 
 /**
  * A notification addressed to a single user that will show up until the user marks it as "seen".
  * Informs the user about events he might be interested in, e.g. that one of his pull requests have been merged.
- * 
  */
 @Entity
-public class Notification {
+@Table(name = "Notification")
+public class UserNotification {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   public long id;
@@ -41,5 +42,5 @@ public class Notification {
   public PullRequest pullRequest;
 
   @Enumerated(value = EnumType.STRING)
-  public NotificationType notificationType;
+  public UserNotificationType notificationType;
 }
