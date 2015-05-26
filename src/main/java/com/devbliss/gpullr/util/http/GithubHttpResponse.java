@@ -67,6 +67,8 @@ public class GithubHttpResponse {
 
   public final Optional<ZonedDateTime> rateLimitResetTime;
 
+  public final String uri;
+
   private ApplicationContext applicationContext;
 
   /**
@@ -74,15 +76,17 @@ public class GithubHttpResponse {
    * after processing.
    *
    * @param resp CloseableHttpResponse from a http client
+   * @param uri called uri
    * @param applicationContext ... for application wide event dispatching
    * @return new instance of {@link GithubHttpResponse}
    */
-  public static GithubHttpResponse create(CloseableHttpResponse resp, ApplicationContext applicationContext) {
-    return new GithubHttpResponse(resp, applicationContext);
+  public static GithubHttpResponse create(CloseableHttpResponse resp, URI uri, ApplicationContext applicationContext) {
+    return new GithubHttpResponse(resp, uri, applicationContext);
   }
 
-  private GithubHttpResponse(CloseableHttpResponse resp, ApplicationContext applicationContext) {
+  private GithubHttpResponse(CloseableHttpResponse resp, URI uri, ApplicationContext applicationContext) {
     headers = parseHeaders(resp);
+    this.uri = uri.toString();
     this.applicationContext = applicationContext;
     statusCode = resp.getStatusLine().getStatusCode();
     rateLimitRemaining = parseRemainingRateLimit(headers);

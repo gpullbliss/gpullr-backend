@@ -62,7 +62,7 @@ public class GithubHttpClientImpl implements GithubHttpClient {
       req.setHeader(AUTHORIZATION_HEADER_KEY, "token " + oauthToken);
       logRequest(req);
       CloseableHttpResponse resp = httpClient.execute(req);
-      GithubHttpResponse githubResp = GithubHttpResponse.create(resp, applicationContext);
+      GithubHttpResponse githubResp = GithubHttpResponse.create(resp, req.getURI(), applicationContext);
       logResponse(githubResp);
       return githubResp;
     } catch (Exception e) {
