@@ -1,5 +1,6 @@
 ### Version 1.0.0-SNAPSHOT
 
+ - [bug] activate repos as they are available again
  - [feature] api rate limit reached notifications
  - [feature] use a different github account for local dev development
  - [bug] fixed PR status in log message
@@ -74,4 +75,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Alexander Blüm <alexander.bluem@devbliss.com> Fri May 22 14:33:59 CEST 2015
+-- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Wed May 27 13:40:03 CEST 2015
