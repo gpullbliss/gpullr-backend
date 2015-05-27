@@ -55,7 +55,7 @@ public class RepoService {
       } else {
         Repo repo = activeRepos.get(activeRepos.indexOf(existingRepo));
 
-        activateRepo(repo);
+        activateRepo(existingRepo);
         if (!repo.name.equals(existingRepo.name)) {
           renameRepo(existingRepo, repo.name);
         }
