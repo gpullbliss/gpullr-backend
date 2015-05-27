@@ -1,6 +1,6 @@
 ### Version 1.0.0-SNAPSHOT
 
- - [bug] activate repos as they are available again
+ - [bug] activate repos as they become available again
  - [feature] api rate limit reached notifications
  - [feature] use a different github account for local dev development
  - [bug] fixed PR status in log message
