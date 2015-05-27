@@ -50,9 +50,6 @@ public class RepoServiceTest {
 
   private ArgumentCaptor<RepoCreatedEvent> repoCreatedEventArgumentCaptor;
 
-  @Captor
-  private ArgumentCaptor<Repo> repoArgumentCaptor;
-
   @Before
   public void setup() {
     applicationContext = mock(ApplicationContext.class);
