@@ -3,7 +3,6 @@ package com.devbliss.gpullr.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -21,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
@@ -48,6 +49,9 @@ public class RepoServiceTest {
   private ApplicationContext applicationContext;
 
   private ArgumentCaptor<RepoCreatedEvent> repoCreatedEventArgumentCaptor;
+
+  @Captor
+  private ArgumentCaptor<Repo> repoArgumentCaptor;
 
   @Before
   public void setup() {
@@ -100,8 +104,31 @@ public class RepoServiceTest {
   }
 
   @Test
-  public void setActiveActivatesRepo() {
-    fail("implement me!");
+  public void activatesInactiveRepo() {
+    // create repo
+    Repo repo = new Repo(ID, NAME, DESCRIPTION);
+    repoService.setActiveRepos(Arrays.asList(repo));
+
+    // make sure it's there and active
+    Optional<Repo> dbRepo = repoService.findById(ID);
+    assertTrue(dbRepo.isPresent());
+    assertTrue(dbRepo.get().active);
+
+    // deactivate repo
+    repoService.setActiveRepos(Arrays.asList());
+
+    // make sure it's deactivated
+    dbRepo = repoService.findById(ID);
+    assertTrue(dbRepo.isPresent());
+    assertFalse(dbRepo.get().active);
+
+    // activate repo
+    repoService.setActiveRepos(Arrays.asList(repo));
+
+    // make sure it's active again
+    dbRepo = repoService.findById(ID);
+    assertTrue(dbRepo.isPresent());
+    assertTrue(dbRepo.get().active);
   }
 
   @Test
