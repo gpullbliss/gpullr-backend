@@ -54,6 +54,8 @@ public class RepoService {
         deactivateRepo(existingRepo);
       } else {
         Repo repo = activeRepos.get(activeRepos.indexOf(existingRepo));
+
+        activateRepo(repo);
         if (!repo.name.equals(existingRepo.name)) {
           renameRepo(existingRepo, repo.name);
         }
@@ -61,8 +63,8 @@ public class RepoService {
     });
 
     activeRepos.stream()
-      .filter(r -> !existingRepos.contains(r))
-      .forEach(this::persistRepo);
+        .filter(r -> !existingRepos.contains(r))
+        .forEach(this::persistRepo);
   }
 
   public Optional<Repo> findById(Integer id) {
@@ -73,6 +75,14 @@ public class RepoService {
     LOGGER.info("Deactivating local repo '{}'", repo.name);
     repo.active = false;
     repoRepository.save(repo);
+  }
+
+  private void activateRepo(Repo repo) {
+    if (!repo.active) {
+      LOGGER.info("Activating local repo '{}'", repo.name);
+      repo.active = true;
+      repoRepository.save(repo);
+    }
   }
 
   private void renameRepo(Repo repo, final String newName) {
