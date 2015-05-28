@@ -1,6 +1,6 @@
 ### Version 1.0.0-SNAPSHOT
 
- - [feature] switch to new oauth application
+ - [refactor] due to PRT 121 switch to new oauth application
  - [bug] activate repos as they become available again
  - [feature] api rate limit reached notifications
  - [feature] use a different github account for local dev development
