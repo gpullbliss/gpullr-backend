@@ -1,13 +1,13 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.service.PullRequestService;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
