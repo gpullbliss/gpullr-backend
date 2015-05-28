@@ -301,7 +301,7 @@ public class PullRequestServiceTest {
     testPr.repo = initRepo(BLACKLISTED_REPO_ID, "another repo");
     pullRequestService.insertOrUpdate(testPr);
 
-    List<PullRequest> allOpen = pullRequestService.findAllOpenFiltered();
+    List<PullRequest> allOpen = pullRequestService.findAllOpen(true);
 
     assertEquals(1, allOpen.size());
     assertEquals(PR_ID, (int) allOpen.get(0).id);
