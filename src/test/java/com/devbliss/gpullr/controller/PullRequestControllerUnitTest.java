@@ -1,7 +1,8 @@
 package com.devbliss.gpullr.controller;
 
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -21,9 +22,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Exceptionally, this controller is unit tested to verify the parsing logic.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PullRequestControllerUnitTest {
@@ -51,8 +51,8 @@ public class PullRequestControllerUnitTest {
   public void getOpenPullRequestsWithReposFilterNull() {
     when(pullRequestService.findAllOpen(true)).thenReturn(pullRequests);
     pullRequestController.findAllOpen(null);
-    verify(pullRequestService).findAllOpen(true);
-    verify(pullRequestService, never()).findAllOpen(any());
+
+    verify(pullRequestService).findAllOpen(eq(true));
     pullRequests.forEach(pr -> verify(pullRequestConverter).toDto(pr));
   }
 
@@ -61,7 +61,7 @@ public class PullRequestControllerUnitTest {
     when(pullRequestService.findAllOpen(true)).thenReturn(pullRequests);
     pullRequestController.findAllOpen("");
     verify(pullRequestService).findAllOpen(anyBoolean());
-    verify(pullRequestService, never()).findAllOpen(any());
+    verify(pullRequestService, never()).findAllOpenFiltered(any());
     pullRequests.forEach(pr -> verify(pullRequestConverter).toDto(pr));
   }
 
