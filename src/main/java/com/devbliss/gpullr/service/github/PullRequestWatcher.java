@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.Log;
 import java.time.Instant;
 import java.util.Date;
@@ -16,9 +17,9 @@ import org.springframework.stereotype.Component;
 /**
  * Holds threads refreshing certain data for each open pull request which are not delivered in the regular
  * pull request event data.
- * 
+ *
  * Reason: pull request events returned by GitHub API do NOT contain the assignee in all cases.
- * 
+ *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
  */
@@ -33,6 +34,8 @@ public class PullRequestWatcher {
 
   private final PullRequestWatchThreadProducer pullRequestWatchThreadProducer;
 
+  private final PullRequestService pullRequestService;
+
   /**
    * Map with pullRequest-id as key and the watcher thread as value
    */
@@ -41,17 +44,26 @@ public class PullRequestWatcher {
   @Autowired
   public PullRequestWatcher(
       TaskScheduler taskScheduler,
-      PullRequestWatchThreadProducer pullRequestWatchThreadProducer) {
+      PullRequestWatchThreadProducer pullRequestWatchThreadProducer,
+      PullRequestService pullRequestService) {
     this.taskScheduler = taskScheduler;
     this.pullRequestWatchThreadProducer = pullRequestWatchThreadProducer;
+    this.pullRequestService = pullRequestService;
+  }
+
+  /**
+   * Starts a watch thread for all open pull requests.
+   */
+  public void startWatchingAllOpenPullRequests() {
+    pullRequestService.findAllOpen(false).forEach(this::startWatching);
   }
 
   /**
    * Starts an assignee watcher for the given pull request which periodically fetches
    * certain data for the PR from GitHub API.
-   * 
-   * Does nothing in case there is already such a watcher for the given pull request
-   *   
+   *
+   * Does nothing in case there is already such a watcher for the given pull request.
+   *
    * @param pullRequest pull request to watch the assignee for
    */
   public void startWatching(PullRequest pullRequest) {
@@ -72,9 +84,9 @@ public class PullRequestWatcher {
   }
 
   /**
-   * Stops the assignee watcher for the given pull request (started with {@link #startWatching(PullRequest)}) in 
+   * Stops the assignee watcher for the given pull request (started with {@link #startWatching(PullRequest)}) in
    * case there is one, or does nothing there isn't.
-   * 
+   *
    * @param pullRequest pull request to stop the watcher for
    */
   public void stopWatching(PullRequest pullRequest) {
