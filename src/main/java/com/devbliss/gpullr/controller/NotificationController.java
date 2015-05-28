@@ -1,10 +1,10 @@
 package com.devbliss.gpullr.controller;
 
-import com.devbliss.gpullr.controller.dto.ListDto;
 import com.devbliss.gpullr.controller.dto.notification.NotificationConverter;
 import com.devbliss.gpullr.controller.dto.notification.NotificationDto;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.service.NotificationService;
+import com.devbliss.gpullr.service.SystemNotificationService;
+import com.devbliss.gpullr.service.UserNotificationService;
 import com.devbliss.gpullr.service.UserService;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
@@ -17,50 +17,63 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Notification Controller delegating data between {@link com.devbliss.gpullr.service.NotificationService} and user
+ * Notification Controller delegating data between {@link com.devbliss.gpullr.service.UserNotificationService} and user
  * by REST means.
  */
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController {
 
-  private final NotificationService notificationService;
+  private final UserNotificationService userNotificationService;
+
+  private final SystemNotificationService systemNotificationService;
 
   private final NotificationConverter notificationConverter;
 
   private final UserService userService;
 
   @Autowired
-  public NotificationController(NotificationService notificationService,
+  public NotificationController(UserNotificationService userNotificationService,
+      SystemNotificationService systemNotificationService,
       NotificationConverter notificationConverter,
       UserService userService) {
-    this.notificationService = notificationService;
+    this.userNotificationService = userNotificationService;
+    this.systemNotificationService = systemNotificationService;
     this.notificationConverter = notificationConverter;
     this.userService = userService;
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public ListDto<NotificationDto> getMyNotifications() {
+  public NotificationDto getMyNotifications() {
     User user = userService.whoAmI();
-    return new ListDto<>(
-        notificationService
-            .allUnseenNotificationsForUser(user.id)
-            .stream()
-            .map(notificationConverter::toDto)
-            .collect(Collectors.toList()));
+    NotificationDto dto = new NotificationDto();
+
+    dto.userNotifications = userNotificationService
+        .allUnseenNotificationsForUser(user.id)
+        .stream()
+        .map(notificationConverter::toDto)
+        .collect(Collectors.toList());
+
+    dto.systemNotifications = systemNotificationService
+        .getNotifications()
+        .stream()
+        .map(notificationConverter::toDto)
+        .collect(Collectors.toList());
+
+    return dto;
   }
 
   @RequestMapping(method = RequestMethod.DELETE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void markAllMyNotificationsAsRead() {
     User user = userService.whoAmI();
-    notificationService.markAllAsSeenForUser(user.id);
+    userNotificationService.markAllAsSeenForUser(user.id);
   }
 
   @RequestMapping(value = "/{notificationId}",
       method = RequestMethod.DELETE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void markMyNotificationAsRead(@PathVariable("notificationId") @NotNull Long notificationId) {
-    notificationService.markAsSeen(notificationId);
+    userNotificationService.markAsSeen(notificationId);
   }
 }

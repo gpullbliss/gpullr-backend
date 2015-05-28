@@ -99,6 +99,34 @@ public class RepoServiceTest {
   }
 
   @Test
+  public void activatesInactiveRepo() {
+    // create repo
+    Repo repo = new Repo(ID, NAME, DESCRIPTION);
+    repoService.setActiveRepos(Arrays.asList(repo));
+
+    // make sure it's there and active
+    Optional<Repo> dbRepo = repoService.findById(ID);
+    assertTrue(dbRepo.isPresent());
+    assertTrue(dbRepo.get().active);
+
+    // deactivate repo
+    repoService.setActiveRepos(Arrays.asList());
+
+    // make sure it's deactivated
+    dbRepo = repoService.findById(ID);
+    assertTrue(dbRepo.isPresent());
+    assertFalse(dbRepo.get().active);
+
+    // activate repo
+    repoService.setActiveRepos(Arrays.asList(repo));
+
+    // make sure it's active again
+    dbRepo = repoService.findById(ID);
+    assertTrue(dbRepo.isPresent());
+    assertTrue(dbRepo.get().active);
+  }
+
+  @Test
   public void setActiveUpdatesRenamedRepo() {
     final String updatedName = "updated repo";
 

@@ -7,11 +7,11 @@ import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
-import com.devbliss.gpullr.domain.notifications.Notification;
+import com.devbliss.gpullr.domain.notifications.UserNotification;
 import com.devbliss.gpullr.exception.NotFoundException;
-import com.devbliss.gpullr.repository.NotificationRepository;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
+import com.devbliss.gpullr.repository.UserNotificationRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -33,10 +33,10 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
 @ActiveProfiles("test")
-public class NotificationServiceTest {
+public class UserNotificationServiceTest {
 
   @Autowired
-  private NotificationRepository notificationRepository;
+  private UserNotificationRepository userNotificationRepository;
 
   @Autowired
   private UserRepository userRepository;
@@ -50,7 +50,7 @@ public class NotificationServiceTest {
   @Autowired
   private ApplicationContext applicationContext;
 
-  private NotificationService notificationService;
+  private UserNotificationService notificationService;
 
   private Repo repo;
 
@@ -63,12 +63,12 @@ public class NotificationServiceTest {
     repo = repoRepository.save(new Repo(0x1337, "mega repository name", "mega, I said."));
     assignee = userRepository.save(new User(1, "interested code reviewer"));
     receivingUser = userRepository.save(new User(2, "flying fingaz codr"));
-    notificationService = new NotificationService(notificationRepository, applicationContext);
+    notificationService = new UserNotificationService(userNotificationRepository, applicationContext);
   }
 
   @After
   public void tearDown() throws Exception {
-    notificationRepository.deleteAll();
+    userNotificationRepository.deleteAll();
     pullRequestRepository.deleteAll();
     userRepository.deleteAll();
     repoRepository.deleteAll();
@@ -80,7 +80,7 @@ public class NotificationServiceTest {
         ZonedDateTime.now().plusMinutes(1L));
     notificationService.createClosedPullRequestNotification(pullRequest);
 
-    List<Notification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(1, notifications.size());
     assertEquals(assignee.id, notifications.get(0).actor.id);
     assertTrue(notifications.get(0).seen == false);
@@ -92,7 +92,7 @@ public class NotificationServiceTest {
         ZonedDateTime.now().plusMinutes(1L));
 
     notificationService.createClosedPullRequestNotification(pullRequest);
-    List<Notification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(1, allUnreadNotifications.size());
 
     notificationService.markAsSeen(allUnreadNotifications.get(0).id);
@@ -111,7 +111,7 @@ public class NotificationServiceTest {
     pullRequest = createAndSaveClosedPullRequest(0xC003, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L));
     notificationService.createClosedPullRequestNotification(pullRequest);
 
-    List<Notification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(3, allUnreadNotifications.size());
 
     notificationService.markAsSeen(allUnreadNotifications.get(0).id);
@@ -131,11 +131,11 @@ public class NotificationServiceTest {
     pullRequest = createAndSaveClosedPullRequest(prId1, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L));
     notificationService.createClosedPullRequestNotification(pullRequest);
 
-    List<Notification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(1, allUnreadNotifications.size());
 
     notificationService.markAllAsSeenForUser(receivingUser.id);
-    List<Notification> unreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> unreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(0, unreadNotifications.size());
 
     notificationService.markAsSeen(allUnreadNotifications.get(0).id);
@@ -154,7 +154,7 @@ public class NotificationServiceTest {
         createAndSaveClosedPullRequest(0xC002, assignee, receivingUser, ZonedDateTime.now().minusMinutes(1L));
     notificationService.createClosedPullRequestNotification(pullRequest);
 
-    List<Notification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(0, allUnreadNotifications.size());
   }
 

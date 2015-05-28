@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.util.http;
 
+import com.devbliss.gpullr.domain.ApiRateLimitReachedEvent;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import java.io.IOException;
 import java.net.URI;
@@ -26,13 +27,13 @@ import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Wraps a HTTP response received from GitHub API. Contains headers, statuscode and the response body (if any) parsed
  * to a list of {@link JsonObject}s.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 public class GithubHttpResponse {
 
@@ -68,21 +69,26 @@ public class GithubHttpResponse {
 
   public final String uri;
 
+  private ApplicationContext applicationContext;
+
   /**
    * Creates an instance of {@link GithubHttpResponse} from a HttpResponse. Makes sure the http response is closed
    * after processing.
-   * 
-   * @param resp
-   * @return
+   *
+   * @param resp CloseableHttpResponse from a http client
+   * @param uri called uri
+   * @param applicationContext ... for application wide event dispatching
+   * @return new instance of {@link GithubHttpResponse}
    */
-  public static GithubHttpResponse create(CloseableHttpResponse resp, URI uri) {
-    return new GithubHttpResponse(resp, uri);
+  public static GithubHttpResponse create(CloseableHttpResponse resp, URI uri, ApplicationContext applicationContext) {
+    return new GithubHttpResponse(resp, uri, applicationContext);
   }
 
-  private GithubHttpResponse(CloseableHttpResponse resp, URI uri) {
+  private GithubHttpResponse(CloseableHttpResponse resp, URI uri, ApplicationContext applicationContext) {
     headers = parseHeaders(resp);
-    statusCode = resp.getStatusLine().getStatusCode();
     this.uri = uri.toString();
+    this.applicationContext = applicationContext;
+    statusCode = resp.getStatusLine().getStatusCode();
     rateLimitRemaining = parseRemainingRateLimit(headers);
     rateLimitResetTime = parseRateLimitResetTime(headers);
 
@@ -107,12 +113,12 @@ public class GithubHttpResponse {
 
   /**
    * Tells when the next request for the same resource is allowed, respecting the restrictions from GitHub:
-   * 
+   * <p>
    * Normally, this is simply now plus number of seconds stated in poll interval header defaulting to 60 seconds.
-   * However, when the rate limit has been exceeded, this is the value of the rate limit reset time header (defaulting 
+   * However, when the rate limit has been exceeded, this is the value of the rate limit reset time header (defaulting
    * to one hour from now) plus a random number of seconds.
-   * 
-   * @return
+   *
+   * @return next point in time to fetch next data
    */
   public Instant getNextFetch() {
 
@@ -120,16 +126,24 @@ public class GithubHttpResponse {
       Random random = new Random();
       int addition = random.nextInt(RANDOM_ADDITIONAL_SECONDS_RANGE);
 
+      Instant nextFetchOnRateLimit;
+
       if (rateLimitResetTime.isPresent()) {
         logger.debug("Ratelimit exceeded, next fetch at reset time plus random: " + addition);
-        return Instant.from(rateLimitResetTime.get()).plusSeconds(addition);
+        nextFetchOnRateLimit = Instant
+            .from(rateLimitResetTime.get())
+            .plusSeconds(addition);
       } else {
         logger.debug("Ratelimit exceeded, next fetch at default reset time plus random: " + addition);
-        return Instant
-          .now()
-          .plus(Duration.of(DEFAULT_WAIT_MINUTES_IF_RATE_LIMIT_EXCEEDED, ChronoUnit.MINUTES))
-          .plusSeconds(addition);
+        nextFetchOnRateLimit = Instant
+            .now()
+            .plus(Duration.of(DEFAULT_WAIT_MINUTES_IF_RATE_LIMIT_EXCEEDED, ChronoUnit.MINUTES))
+            .plusSeconds(addition);
       }
+
+      applicationContext.publishEvent(new ApiRateLimitReachedEvent(this, nextFetchOnRateLimit));
+
+      return nextFetchOnRateLimit;
     }
 
     String pollIntervalHeader = headers.get(HEADER_POLL_INTERVAL);
@@ -185,8 +199,8 @@ public class GithubHttpResponse {
     if (header != null) {
       long epoch = Long.valueOf(header);
       return Optional.of(ZonedDateTime
-        .ofInstant(Instant.ofEpochSecond(epoch), ZoneId.of("UTC"))
-        .withZoneSameInstant(ZoneId.systemDefault()));
+          .ofInstant(Instant.ofEpochSecond(epoch), ZoneId.of("UTC"))
+          .withZoneSameInstant(ZoneId.systemDefault()));
     } else {
       logger.warn(String.format(MSG_NO_HEADER_FOUND, REMAINING_RATE_RESET_HEADER_KEY));
       return Optional.empty();
@@ -197,10 +211,10 @@ public class GithubHttpResponse {
     if (json.getValueType() == ValueType.ARRAY) {
       JsonArray array = (JsonArray) json;
       return Optional.of(array
-        .stream()
-        .filter(v -> v.getValueType() == ValueType.OBJECT)
-        .map(v -> (JsonObject) v)
-        .collect(Collectors.toList()));
+          .stream()
+          .filter(v -> v.getValueType() == ValueType.OBJECT)
+          .map(v -> (JsonObject) v)
+          .collect(Collectors.toList()));
     } else {
       return Optional.empty();
     }

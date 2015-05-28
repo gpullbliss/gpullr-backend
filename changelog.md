@@ -1,6 +1,7 @@
-
 ### Version 1.0.0-SNAPSHOT
 
+ - [bug] activate repos as they become available again
+ - [feature] api rate limit reached notifications
  - [feature] use a different github account for local dev development
  - [bug] fixed PR status in log message
  - [bug] only starting / stopping PR watch thread when PR is really updated
@@ -74,4 +75,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Thu May 21 15:41:34 CEST 2015
+-- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Wed May 27 13:40:03 CEST 2015

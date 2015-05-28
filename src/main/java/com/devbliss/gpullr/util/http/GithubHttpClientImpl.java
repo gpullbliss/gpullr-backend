@@ -9,8 +9,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
@@ -37,7 +39,12 @@ public class GithubHttpClientImpl implements GithubHttpClient {
 
   private CloseableHttpClient httpClient;
 
-  public GithubHttpClientImpl() {
+  private ApplicationContext applicationContext;
+
+  @Autowired
+  public GithubHttpClientImpl(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
     connectionManager.setDefaultMaxPerRoute(5);
     connectionManager.setMaxTotal(600);
@@ -55,7 +62,7 @@ public class GithubHttpClientImpl implements GithubHttpClient {
       req.setHeader(AUTHORIZATION_HEADER_KEY, "token " + oauthToken);
       logRequest(req);
       CloseableHttpResponse resp = httpClient.execute(req);
-      GithubHttpResponse githubResp = GithubHttpResponse.create(resp, req.getURI());
+      GithubHttpResponse githubResp = GithubHttpResponse.create(resp, req.getURI(), applicationContext);
       logResponse(githubResp);
       return githubResp;
     } catch (Exception e) {

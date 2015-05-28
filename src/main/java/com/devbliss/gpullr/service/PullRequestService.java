@@ -44,7 +44,7 @@ public class PullRequestService {
 
   private final RepoRepository repoRepository;
 
-  private final NotificationService notificationService;
+  private final UserNotificationService notificationService;
 
   @Autowired
   public PullRequestService(
@@ -53,7 +53,7 @@ public class PullRequestService {
       GithubApi githubApi,
       UserService userService,
       RepoRepository repoRepository,
-      NotificationService notificationService) {
+      UserNotificationService notificationService) {
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
     this.githubApi = githubApi;

@@ -42,7 +42,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Qualifier("githubApiImpl")
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(value = "thread",
+    proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class GithubApiImpl implements GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
@@ -160,9 +161,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       Request req = client.entry()
-        .method(Request.PATCH).body().set(json)
-        .back().uri().path(uri)
-        .back();
+          .method(Request.PATCH).body().set(json)
+          .back().uri().path(uri)
+          .back();
 
       Response resp = req.fetch();
 
@@ -185,9 +186,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       Request req = client.entry()
-        .method(Request.PATCH).body().set(json)
-        .back().uri().path(uri)
-        .back();
+          .method(Request.PATCH).body().set(json)
+          .back().uri().path(uri)
+          .back();
 
       req.fetch();
 
@@ -372,9 +373,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       return resp.getJsonObjects().get()
-        .stream()
-        .map(mapper)
-        .collect(Collectors.toList());
+          .stream()
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -386,12 +387,12 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-        .readArray()
-        .stream()
-        .filter(v -> v.getValueType() == ValueType.OBJECT)
-        .map(v -> (JsonObject) v)
-        .map(mapper)
-        .collect(Collectors.toList());
+          .readArray()
+          .stream()
+          .filter(v -> v.getValueType() == ValueType.OBJECT)
+          .map(v -> (JsonObject) v)
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }
