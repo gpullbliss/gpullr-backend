@@ -14,6 +14,7 @@ import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RankingListRepository;
+import com.devbliss.gpullr.repository.RankingRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
@@ -62,6 +63,9 @@ public class RankingServiceIntegrationTest {
   @Autowired
   private RepoRepository repoRepository;
 
+  @Autowired
+  private RankingRepository rankingRepository;
+
   private RankingService rankingService;
 
   private User userAlpha;
@@ -77,7 +81,11 @@ public class RankingServiceIntegrationTest {
   @Before
   public void setup() {
     random = new Random();
-    rankingService = new RankingService(rankingListRepository, pullRequestRepository, userRepository);
+    rankingService = new RankingService(
+        rankingListRepository,
+        pullRequestRepository,
+        userRepository,
+        rankingRepository);
 
     // create 3 users that close pull requests:
     userAlpha = createUser(14, "zzz_alpha", true, "Alpha");
@@ -95,6 +103,7 @@ public class RankingServiceIntegrationTest {
   public void teardown() {
     pullRequestRepository.deleteAll();
     rankingListRepository.deleteAll();
+    rankingRepository.deleteAll();
     repoRepository.deleteAll();
     userRepository.deleteAll();
   }

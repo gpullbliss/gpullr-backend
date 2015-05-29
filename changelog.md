@@ -1,6 +1,7 @@
 ### Version 1.0.0-SNAPSHOT
 
  - [refactor] due to PRT 121 switch to new oauth application
+ - [bug] old PRs not disappearing
  - [bug] activate repos as they become available again
  - [feature] api rate limit reached notifications
  - [feature] use a different github account for local dev development

@@ -68,25 +68,13 @@ public class GithubEventFetcherTest {
   }
 
   @Test
-  public void githubEventFetcherListensToRepoCreatedEvent() {
-    /*
-     * GithubEventFetcher#startFetchEventsLoop is automatically called at startup. The task
-     * scheduler is called 3 times, 2 of them being the initial launch at startup, and the 3rd time
-     * being the one triggered by the publish event:
-     */
-    verify(githubApi, times(2)).fetchAllEvents(repo, Optional.empty());
-    applicationContext.publishEvent(new RepoCreatedEvent(this, repo));
-    verify(githubApi, times(3)).fetchAllEvents(repo, Optional.empty());
-  }
-
-  @Test
   public void fetchLoop() {
     /*
      * GithubEventFetcher#startFetchEventsLoop is automatically called at startup. The task
      * scheduler is called 3 times, 2 of them being the initial launch at startup, and the 3rd time
      * being the one triggered by the repsonse handler method:
      */
-    verify(taskScheduler, times(3)).schedule(fetchRunnable.capture(), any(Date.class));
+    verify(taskScheduler, times(4)).schedule(fetchRunnable.capture(), any(Date.class));
 
     /*
      * The second captured runnable is the one of the initial fetch call at startup:
@@ -96,7 +84,7 @@ public class GithubEventFetcherTest {
     /*
      * The third captured runnable is the one of the refresh call scheduled when handling response:
      */
-    Runnable fetchAgainRunnable = fetchRunnable.getAllValues().get(2);
+    Runnable fetchAgainRunnable = fetchRunnable.getAllValues().get(3);
 
     // the inital fetch is done with the original values:
     initialFetchRunnable.run();
@@ -111,5 +99,17 @@ public class GithubEventFetcherTest {
     fetchAgainRunnable.run();
     verify(githubApi, times(2)).fetchAllEvents(repoCaptor.capture(), eq(Optional.empty()));
     assertEquals(RENAMED_REPO_NAME, repoCaptor.getAllValues().get(2).name);
+  }
+
+  @Test
+  public void githubEventFetcherListensToRepoCreatedEvent() {
+    /*
+     * GithubEventFetcher#startFetchEventsLoop is automatically called at startup. The task
+     * scheduler is called 3 times, 2 of them being the initial launch at startup, and the 3rd time
+     * being the one triggered by the publish event:
+     */
+    verify(githubApi, times(2)).fetchAllEvents(repo, Optional.empty());
+    applicationContext.publishEvent(new RepoCreatedEvent(this, repo));
+    verify(githubApi, times(3)).fetchAllEvents(repo, Optional.empty());
   }
 }
