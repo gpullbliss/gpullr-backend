@@ -8,7 +8,7 @@ import java.util.Optional;
  */
 public class GetPullRequestCommentsRequest extends AbstractGithubRequest {
 
-  private static final String URI_TEMPLATE = "https://api.github.com/repos/devbliss/%s/pulls/comments/%d";
+  private static final String URI_TEMPLATE = "https://api.github.com/repos/devbliss/%s/pulls/%d/comments";
 
   private PullRequest pullRequest;
 
