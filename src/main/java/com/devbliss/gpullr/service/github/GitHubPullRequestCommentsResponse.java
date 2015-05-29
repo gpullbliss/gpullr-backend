@@ -5,12 +5,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Created by andre on 28/05/15.
- */
-public class GetPullRequestCommentsResponse extends AbstractGithubResponse<List<PullRequestComment>> {
+public class GitHubPullRequestCommentsResponse extends AbstractGithubResponse<List<PullRequestComment>> {
 
-  public GetPullRequestCommentsResponse(
+  public GitHubPullRequestCommentsResponse(
       List<PullRequestComment> pullRequestComments,
       Instant nextFetch,
       Optional<String> etagHeader) {

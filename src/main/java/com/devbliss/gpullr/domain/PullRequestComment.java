@@ -4,23 +4,103 @@ import java.time.ZonedDateTime;
 
 public class PullRequestComment {
 
-  public String url;
+  private String url;
 
-  public int id;
+  private int id;
 
-  public String commitId;
+  private String commitId;
 
-  public String originalCommitId;
+  private String originalCommitId;
 
-  public int position;
+  private int position;
 
-  public int originalPosition;
+  private int originalPosition;
 
-  public String body;
+  private String body;
 
-  public ZonedDateTime createdAt;
+  private ZonedDateTime createdAt;
 
-  public ZonedDateTime updatedAt;
+  private ZonedDateTime updatedAt;
 
-  public String pullRequestUrl;
+  private String pullRequestUrl;
+
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public String getCommitId() {
+    return commitId;
+  }
+
+  public void setCommitId(String commitId) {
+    this.commitId = commitId;
+  }
+
+  public String getOriginalCommitId() {
+    return originalCommitId;
+  }
+
+  public void setOriginalCommitId(String originalCommitId) {
+    this.originalCommitId = originalCommitId;
+  }
+
+  public int getPosition() {
+    return position;
+  }
+
+  public void setPosition(int position) {
+    this.position = position;
+  }
+
+  public int getOriginalPosition() {
+    return originalPosition;
+  }
+
+  public void setOriginalPosition(int originalPosition) {
+    this.originalPosition = originalPosition;
+  }
+
+  public String getBody() {
+    return body;
+  }
+
+  public void setBody(String body) {
+    this.body = body;
+  }
+
+  public ZonedDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(ZonedDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public ZonedDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(ZonedDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public String getPullRequestUrl() {
+    return pullRequestUrl;
+  }
+
+  public void setPullRequestUrl(String pullRequestUrl) {
+    this.pullRequestUrl = pullRequestUrl;
+  }
 }

@@ -58,6 +58,7 @@ public class PullRequestWatchThread extends Thread {
       .ifPresent(pr -> {
         handleResponse(githubApi.fetchPullRequest(pr, etagHeader));
         handleResponse(githubApi.fetchBuildStatus(pr, etagHeader));
+        handleResponse(githubApi.fetchPullRequestComments(pr, etagHeader));
       });
   }
 
@@ -74,5 +75,9 @@ public class PullRequestWatchThread extends Thread {
     if (resp.payload.size() > 0) {
       pullRequestService.saveBuildstatus(pullRequestId, resp.payload.get(0));
     }
+  }
+
+  private void handleResponse(GitHubPullRequestCommentsResponse resp) {
+
   }
 }
