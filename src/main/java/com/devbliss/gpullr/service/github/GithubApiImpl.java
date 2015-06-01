@@ -137,9 +137,9 @@ public class GithubApiImpl implements GithubApi {
     return result;
   }
 
-  private PullRequestComment parseComment(JsonObject jsonObject) {
-
-  }
+//  private PullRequestComment parseComment(JsonObject jsonObject) {
+//
+//  }
 
   @Override
   public GithubPullRequestBuildStatusResponse fetchBuildStatus(PullRequest pullRequest, Optional<String> etagHeader) {
