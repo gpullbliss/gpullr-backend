@@ -1,5 +1,6 @@
 ### Version 1.0.0-SNAPSHOT
 
+ - [refactor] due to PRT 121 switch to new oauth application
  - [bug] old PRs not disappearing
  - [bug] activate repos as they become available again
  - [feature] api rate limit reached notifications
@@ -76,4 +77,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Thu May 28 11:12:35 CEST 2015
+-- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Thu May 28 12:54:36 CEST 2015
