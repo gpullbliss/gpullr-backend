@@ -3,7 +3,7 @@ package com.devbliss.gpullr.util.http;
 import com.devbliss.gpullr.service.github.AbstractGithubRequest;
 
 /**
- * Performs HTTP calls against the GitHub API.
+ * Performs (synchronous) HTTP calls against the GitHub API.
  * 
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  *

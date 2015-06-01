@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.domain.Commit;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequestComment;
 import com.devbliss.gpullr.domain.PullRequestEvent;
@@ -7,6 +8,8 @@ import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
+import com.devbliss.gpullr.service.github.commits.GetPullRequestCommitsRequest;
+import com.devbliss.gpullr.service.github.commits.GetPullRequestCommitsResponseParser;
 import com.devbliss.gpullr.util.Log;
 import com.devbliss.gpullr.util.http.GithubHttpClient;
 import com.devbliss.gpullr.util.http.GithubHttpResponse;
@@ -99,6 +102,9 @@ public class GithubApiImpl implements GithubApi {
   @Autowired
   private PullRequestBuildStatusParser pullRequestBuildStatusParser;
 
+  @Autowired
+  private GetPullRequestCommitsResponseParser getPullRequestCommitsResponseParser;
+
   @Override
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
@@ -116,7 +122,6 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       Optional<PullRequest> fetchedPullRequest = handleResponse(resp, this::parsePullRequestPayloadIncludingState);
-      // FETCH STATE
       return new GithubPullRequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -133,16 +138,8 @@ public class GithubApiImpl implements GithubApi {
     Optional<String> etag = resp.getEtag();
     Instant nextFetch = resp.getNextFetch();
     GitHubPullRequestCommentsResponse result = new GitHubPullRequestCommentsResponse(comments, nextFetch, etag);
-
-//    handleResponse(resp, jo -> parseComment(jo)).forEach(
-//        ope -> ope.ifPresent(result.payload::add));
-
     return result;
   }
-
-//  private PullRequestComment parseComment(JsonObject jsonObject) {
-//
-//  }
 
   @Override
   public GithubPullRequestBuildStatusResponse fetchBuildStatus(PullRequest pullRequest, Optional<String> etagHeader) {
@@ -185,9 +182,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       Request req = client.entry()
-          .method(Request.PATCH).body().set(json)
-          .back().uri().path(uri)
-          .back();
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
 
       Response resp = req.fetch();
 
@@ -204,15 +201,32 @@ public class GithubApiImpl implements GithubApi {
   }
 
   @Override
+  public void fetchPullRequestCommits(PullRequest pullRequest, Optional<String> etagHeader) {
+    GetPullRequestCommitsRequest req = new GetPullRequestCommitsRequest(pullRequest, etagHeader);
+    GithubHttpResponse resp = githubClient.execute(req);
+    List<Commit> commits = getPullRequestCommitsResponseParser.parse(resp, pullRequest.title);
+    System.err.println("********** P U L L R E Q U E S T :: ***********");
+    System.err.println("... for PR: " + pullRequest);
+    System.err.println(resp.headers);
+
+    while (hasMorePages(resp)) {
+      resp = githubClient.execute(req.requestForNextPage());
+      commits.addAll(getPullRequestCommitsResponseParser.parse(resp, pullRequest.title));
+    }
+
+    // TODO build response object and return it:
+  }
+
+  @Override
   public void unassignUserFromPullRequest(User user, PullRequest pull) {
     JsonObject json = Json.createObjectBuilder().add(FIELD_KEY_ASSIGNEE, "").build();
     final String uri = buildIssueUri(pull.repo.name, pull.number);
 
     try {
       Request req = client.entry()
-          .method(Request.PATCH).body().set(json)
-          .back().uri().path(uri)
-          .back();
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
 
       req.fetch();
 
@@ -397,9 +411,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       return resp.getJsonObjects().get()
-          .stream()
-          .map(mapper)
-          .collect(Collectors.toList());
+        .stream()
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -411,12 +425,12 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }

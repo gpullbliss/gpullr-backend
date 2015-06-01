@@ -59,6 +59,7 @@ public class PullRequestWatchThread extends Thread {
         handleResponse(githubApi.fetchPullRequest(pr, etagHeader));
         handleResponse(githubApi.fetchBuildStatus(pr, etagHeader));
         handleResponse(githubApi.fetchPullRequestComments(pr, etagHeader));
+        githubApi.fetchPullRequestCommits(pr, etagHeader);
       });
   }
 

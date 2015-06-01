@@ -129,6 +129,10 @@ public class PullRequest {
 
   @Override
   public String toString() {
-    return "[id=" + repo.id + SEPARATOR + repo.name + SEPARATOR + number + "]";
+    if (repo != null) {
+      return "[repoid=" + repo.id + SEPARATOR + repo.name + SEPARATOR + number + "]";
+    } else {
+      return "[" + title + SEPARATOR + number + "]";
+    }
   }
 }

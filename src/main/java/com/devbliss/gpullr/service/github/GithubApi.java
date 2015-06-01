@@ -39,4 +39,6 @@ public interface GithubApi {
   void assignUserToPullRequest(User user, PullRequest pull);
 
   void unassignUserFromPullRequest(User user, PullRequest pull);
+
+  void fetchPullRequestCommits(PullRequest pullRequest, Optional<String> etagHeader);
 }
