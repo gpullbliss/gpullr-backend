@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequestComment;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
@@ -123,6 +124,27 @@ public class GithubApiImpl implements GithubApi {
   }
 
   @Override
+  public GitHubPullRequestCommentsResponse fetchPullRequestComments(PullRequest pullRequest,
+      Optional<String> etagHeader) {
+    GetPullRequestCommentsRequest req = new GetPullRequestCommentsRequest(etagHeader, 0, pullRequest);
+    GithubHttpResponse resp = githubClient.execute(req);
+
+    List<PullRequestComment> comments = new ArrayList<>();
+    Optional<String> etag = resp.getEtag();
+    Instant nextFetch = resp.getNextFetch();
+    GitHubPullRequestCommentsResponse result = new GitHubPullRequestCommentsResponse(comments, nextFetch, etag);
+
+//    handleResponse(resp, jo -> parseComment(jo)).forEach(
+//        ope -> ope.ifPresent(result.payload::add));
+
+    return result;
+  }
+
+//  private PullRequestComment parseComment(JsonObject jsonObject) {
+//
+//  }
+
+  @Override
   public GithubPullRequestBuildStatusResponse fetchBuildStatus(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestBuildStatusRequest req = new GetPullRequestBuildStatusRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
@@ -139,8 +161,10 @@ public class GithubApiImpl implements GithubApi {
       Optional<String> etag = resp.getEtag();
       Instant nextFetch = resp.getNextFetch();
       GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
+
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
           ope -> ope.ifPresent(result.payload::add));
+
       return result;
     } catch (IOException e) {
       throw new UnexpectedException(e);
