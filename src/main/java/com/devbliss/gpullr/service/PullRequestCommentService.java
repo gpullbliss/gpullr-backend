@@ -21,6 +21,7 @@ public class PullRequestCommentService {
   }
 
   public void save(List<PullRequestComment> pullRequestComments) {
+    LOGGER.debug("saving {} pullrequestComments", pullRequestComments.size());
     pullRequestCommentRepository.save(pullRequestComments);
   }
 }

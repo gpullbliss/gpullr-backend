@@ -86,7 +86,7 @@ public class PullRequestWatchThread extends Thread {
   }
 
   private void handleResponse(GitHubPullRequestCommentsResponse resp, PullRequest pullRequest) {
-    LOGGER.info("handleResponse: " + resp);
+    LOGGER.info("get {} comments for PR {} ...", resp.payload.size(), pullRequest.title);
     resp.payload.stream().forEach(pullRequestComment -> pullRequestComment.setPullRequest(pullRequest));
     pullRequestCommentService.save(resp.payload);
   }
