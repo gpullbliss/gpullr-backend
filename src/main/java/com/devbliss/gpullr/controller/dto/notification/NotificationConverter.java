@@ -1,5 +1,6 @@
 package com.devbliss.gpullr.controller.dto.notification;
 
+import com.devbliss.gpullr.controller.dto.notification.usernotification.UserNotificationDto;
 import com.devbliss.gpullr.domain.notifications.SystemNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
 import org.springframework.stereotype.Component;

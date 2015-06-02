@@ -5,5 +5,5 @@ package com.devbliss.gpullr.domain.notifications;
  * the {@link UserNotification}.
  */
 public enum UserNotificationType {
-  PULLREQUEST_CLOSED
+  PULLREQUEST_CLOSED, COMMENT
 }

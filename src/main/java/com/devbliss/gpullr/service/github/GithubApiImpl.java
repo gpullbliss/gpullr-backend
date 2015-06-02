@@ -132,14 +132,51 @@ public class GithubApiImpl implements GithubApi {
   @Override
   public GitHubPullRequestCommentsResponse fetchPullRequestComments(PullRequest pullRequest,
       Optional<String> etagHeader) {
+
     GetPullRequestCommentsRequest req = new GetPullRequestCommentsRequest(etagHeader, 0, pullRequest);
     GithubHttpResponse resp = githubClient.execute(req);
 
-    List<PullRequestComment> comments = new ArrayList<>();
-    Optional<String> etag = resp.getEtag();
-    Instant nextFetch = resp.getNextFetch();
-    GitHubPullRequestCommentsResponse result = new GitHubPullRequestCommentsResponse(comments, nextFetch, etag);
-    return result;
+    try {
+      Optional<List<PullRequestComment>> pullRequestComments = handleListResponse(resp,
+          this::parsePullRequestCommentsPayload);
+
+      List<PullRequestComment> comments = new ArrayList<>();
+      if (pullRequestComments.isPresent()) {
+        comments = pullRequestComments.get();
+      }
+
+      logger.debug("Finished PR comments fetch for {} with item count: {} and status code: {}",
+          pullRequest.branchName, comments.size(), resp.getStatusCode());
+
+      return new GitHubPullRequestCommentsResponse(comments, resp.getNextFetch(), resp.getEtag());
+    } catch (IOException e) {
+      throw new UnexpectedException(e);
+    }
+  }
+
+  private List<PullRequestComment> parsePullRequestCommentsPayload(List<JsonObject> jsonList) {
+    List<PullRequestComment> list = new ArrayList<>();
+
+    jsonList.forEach(el -> list.add(parseComment(el)));
+
+    return list;
+  }
+
+  private PullRequestComment parseComment(JsonObject object) {
+    PullRequestComment pullRequestComment = new PullRequestComment();
+
+    pullRequestComment.setBody(object.getString("body"));
+    pullRequestComment.setCommitId(object.getString("commit_id"));
+    pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString("created_at")));
+    pullRequestComment.setId(object.getInt("id"));
+    pullRequestComment.setOriginalCommitId(object.getString("original_commit_id"));
+    pullRequestComment.setOriginalPosition(object.getInt("original_position"));
+    pullRequestComment.setPosition(object.getInt("position"));
+    pullRequestComment.setPullRequestUrl(object.getString("pull_request_url"));
+    pullRequestComment.setUpdatedAt(ZonedDateTime.parse(object.getString("updated_at")));
+    pullRequestComment.setUrl(object.getString("url"));
+
+    return pullRequestComment;
   }
 
   @Override
@@ -214,7 +251,7 @@ public class GithubApiImpl implements GithubApi {
       resp = githubClient.execute(req.requestForNextPage());
       commits.addAll(getPullRequestCommitsResponseParser.parse(resp, pullRequest.title));
     }
-    
+
     return new GetPullRequestCommitsResponse(commits, resp.getNextFetch(), resp.getEtag());
     // TODO build response object and return it:
   }
@@ -371,6 +408,22 @@ public class GithubApiImpl implements GithubApi {
     } else {
       logger.warn(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
       return new ArrayList<>();
+    }
+  }
+
+  private <T> Optional<T> handleListResponse(GithubHttpResponse resp, Function<List<JsonObject>, T> mapper)
+      throws IOException {
+
+    int statusCode = resp.getStatusCode();
+
+    if (statusCode == org.apache.http.HttpStatus.SC_OK) {
+
+      return Optional.of(mapper.apply(resp.getJsonObjects().get()));
+
+    } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
+      return Optional.empty();
+    } else {
+      throw new UnexpectedException(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
     }
   }
 
