@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.domain;
 
+import java.time.ZonedDateTime;
+
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -10,17 +12,15 @@ public class Commit {
 
   @ManyToOne(optional = false)
   public PullRequest pullRequest;
-
-  public Commit() {
-
-  }
-
-  public Commit(String sha) {
-    this.sha = sha;
-  }
   
-  public Commit(String sha, PullRequest pullRequest) {
+  public ZonedDateTime commitDate;
+
+  protected Commit() {
+    // for JPA
+  }
+
+  public Commit(String sha, ZonedDateTime commitDate) {
     this.sha = sha;
-    this.pullRequest = pullRequest;
+    this.commitDate = commitDate;
   }
 }

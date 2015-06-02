@@ -140,6 +140,10 @@ public class PullRequestService {
 
     return pullRequests;
   }
+  
+  public boolean shouldCommitsBeFetchedForPullRequest(PullRequest pullRequest) {
+    return pullRequest.assignee != null;
+  }
 
   private Repo findRepoByIdOrName(String idOrName) {
     Optional<Repo> repo;

@@ -1,6 +1,9 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.service.CommitService;
 import com.devbliss.gpullr.service.PullRequestService;
+import com.devbliss.gpullr.service.github.commits.GetPullRequestCommitsResponse;
 import java.util.Date;
 import java.util.Optional;
 import org.springframework.scheduling.TaskScheduler;
@@ -26,17 +29,21 @@ public class PullRequestWatchThread extends Thread {
 
   private final PullRequestService pullRequestService;
 
+  private final CommitService commitService;
+
   private boolean stopped = false;
 
   public PullRequestWatchThread(
       int pullRequestId,
       TaskScheduler taskScheduler,
       GithubApi githubApi,
-      PullRequestService pullRequestService) {
+      PullRequestService pullRequestService,
+      CommitService commitService) {
     this.pullRequestId = pullRequestId;
     this.taskScheduler = taskScheduler;
     this.githubApi = githubApi;
     this.pullRequestService = pullRequestService;
+    this.commitService = commitService;
   }
 
   @Override
@@ -59,7 +66,10 @@ public class PullRequestWatchThread extends Thread {
         handleResponse(githubApi.fetchPullRequest(pr, etagHeader));
         handleResponse(githubApi.fetchBuildStatus(pr, etagHeader));
         handleResponse(githubApi.fetchPullRequestComments(pr, etagHeader));
-        githubApi.fetchPullRequestCommits(pr, etagHeader);
+
+        if (pullRequestService.shouldCommitsBeFetchedForPullRequest(pr)) {
+          handleResponse(githubApi.fetchPullRequestCommits(pr, etagHeader), pr);
+        }
       });
   }
 
@@ -80,5 +90,9 @@ public class PullRequestWatchThread extends Thread {
 
   private void handleResponse(GitHubPullRequestCommentsResponse resp) {
 
+  }
+
+  private void handleResponse(GetPullRequestCommitsResponse resp, PullRequest pullRequest) {
+    commitService.saveCommitsIfRelevant(resp.payload, pullRequest);
   }
 }

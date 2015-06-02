@@ -11,6 +11,7 @@ import com.devbliss.gpullr.domain.BuildStatus.State;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.service.CommitService;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.http.GithubHttpResponse;
 import java.time.Instant;
@@ -61,6 +62,9 @@ public class PullRequestWatchThreadUnitTest {
   private Repo repo;
 
   @Mock
+  private CommitService commitService;
+
+  @Mock
   private GithubHttpResponse resp;
 
   @Captor
@@ -107,8 +111,12 @@ public class PullRequestWatchThreadUnitTest {
     when(githubApi.fetchBuildStatus(pullRequest, emptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
     when(githubApi.fetchBuildStatus(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
     when(pullRequestService.findById(PULLREQUEST_ID)).thenReturn(Optional.of(pullRequest));
-    pullRequestWatchThread = new PullRequestWatchThread(pullRequest.id, taskScheduler, githubApi,
-        pullRequestService);
+    pullRequestWatchThread = new PullRequestWatchThread(
+        pullRequest.id,
+        taskScheduler,
+        githubApi,
+        pullRequestService,
+        commitService);
   }
 
   @Test

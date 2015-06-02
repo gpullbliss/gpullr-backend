@@ -9,6 +9,7 @@ import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
 import com.devbliss.gpullr.service.github.commits.GetPullRequestCommitsRequest;
+import com.devbliss.gpullr.service.github.commits.GetPullRequestCommitsResponse;
 import com.devbliss.gpullr.service.github.commits.GetPullRequestCommitsResponseParser;
 import com.devbliss.gpullr.util.Log;
 import com.devbliss.gpullr.util.http.GithubHttpClient;
@@ -201,7 +202,7 @@ public class GithubApiImpl implements GithubApi {
   }
 
   @Override
-  public void fetchPullRequestCommits(PullRequest pullRequest, Optional<String> etagHeader) {
+  public GetPullRequestCommitsResponse fetchPullRequestCommits(PullRequest pullRequest, Optional<String> etagHeader) {
     GetPullRequestCommitsRequest req = new GetPullRequestCommitsRequest(pullRequest, etagHeader);
     GithubHttpResponse resp = githubClient.execute(req);
     List<Commit> commits = getPullRequestCommitsResponseParser.parse(resp, pullRequest.title);
@@ -213,7 +214,8 @@ public class GithubApiImpl implements GithubApi {
       resp = githubClient.execute(req.requestForNextPage());
       commits.addAll(getPullRequestCommitsResponseParser.parse(resp, pullRequest.title));
     }
-
+    
+    return new GetPullRequestCommitsResponse(commits, resp.getNextFetch(), resp.getEtag());
     // TODO build response object and return it:
   }
 

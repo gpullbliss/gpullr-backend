@@ -4,6 +4,7 @@ import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.exception.UnexpectedException;
+import com.devbliss.gpullr.service.github.commits.GetPullRequestCommitsResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -40,5 +41,5 @@ public interface GithubApi {
 
   void unassignUserFromPullRequest(User user, PullRequest pull);
 
-  void fetchPullRequestCommits(PullRequest pullRequest, Optional<String> etagHeader);
+  GetPullRequestCommitsResponse fetchPullRequestCommits(PullRequest pullRequest, Optional<String> etagHeader);
 }
