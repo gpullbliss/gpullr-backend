@@ -44,6 +44,9 @@ public class UserSettings {
 
   public String language;
 
+  @Column(name = "DESKTOP_NOTIFICATION")
+  public boolean desktopNotification;
+
   public UserSettings() {}
 
   public UserSettings(OrderOption unassignedPullRequestsOrdering) {
@@ -55,9 +58,10 @@ public class UserSettings {
     this.repoBlackList = repoBlackList;
   }
 
-  public UserSettings(OrderOption defaultPullRequestListOrdering, List<Integer> repoBlackList, String language) {
+  public UserSettings(OrderOption defaultPullRequestListOrdering, List<Integer> repoBlackList, String language, boolean desktopNotification) {
     this(defaultPullRequestListOrdering, repoBlackList);
     this.language = language;
+    this.desktopNotification = desktopNotification;
   }
 
   @AssertTrue

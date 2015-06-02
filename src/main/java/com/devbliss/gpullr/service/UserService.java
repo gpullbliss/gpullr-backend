@@ -41,6 +41,7 @@ public class UserService {
     } else if (user.userSettings == null) {
       user.userSettings = new UserSettings();
       user.userSettings.language = Constants.DEFAULT_LANGUAGE;
+      user.userSettings.desktopNotification = true;
     }
 
     userRepository.save(user);
@@ -90,6 +91,7 @@ public class UserService {
       user.userSettings.unassignedPullRequestsOrdering = update.unassignedPullRequestsOrdering;
       user.userSettings.repoBlackList = update.repoBlackList;
       user.userSettings.language = update.language;
+      user.userSettings.desktopNotification = update.desktopNotification;
     } else {
       user.userSettings = update;
     }
