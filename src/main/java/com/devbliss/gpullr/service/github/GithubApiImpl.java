@@ -155,18 +155,8 @@ public class GithubApiImpl implements GithubApi {
 
   private PullRequestComment parseComment(JsonObject object) {
     PullRequestComment pullRequestComment = new PullRequestComment();
-
-    pullRequestComment.setBody(object.getString("body"));
-    pullRequestComment.setCommitId(object.getString("commit_id"));
     pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString("created_at")));
     pullRequestComment.setId(object.getInt("id"));
-    pullRequestComment.setOriginalCommitId(object.getString("original_commit_id"));
-    pullRequestComment.setOriginalPosition(object.getInt("original_position"));
-    pullRequestComment.setPosition(object.getInt("position"));
-    pullRequestComment.setPullRequestUrl(object.getString("pull_request_url"));
-    pullRequestComment.setUpdatedAt(ZonedDateTime.parse(object.getString("updated_at")));
-    pullRequestComment.setUrl(object.getString("url"));
-
     return pullRequestComment;
   }
 

@@ -108,7 +108,7 @@ public class PullRequestWatchThreadUnitTest {
     when(githubApi.fetchBuildStatus(pullRequest, nonEmptyEtagHeader)).thenReturn(githubPullRequestBuildStatusResponse);
     when(pullRequestService.findById(PULLREQUEST_ID)).thenReturn(Optional.of(pullRequest));
     pullRequestWatchThread = new PullRequestWatchThread(pullRequest.id, taskScheduler, githubApi,
-        pullRequestService);
+        pullRequestService, pullRequestCommentService);
   }
 
   @Test
