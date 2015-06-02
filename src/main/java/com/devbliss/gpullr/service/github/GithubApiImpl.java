@@ -123,6 +123,7 @@ public class GithubApiImpl implements GithubApi {
   @Override
   public GitHubPullRequestCommentsResponse fetchPullRequestComments(PullRequest pullRequest,
       Optional<String> etagHeader) {
+
     GetPullRequestCommentsRequest req = new GetPullRequestCommentsRequest(etagHeader, 0, pullRequest);
     GithubHttpResponse resp = githubClient.execute(req);
 
@@ -135,6 +136,9 @@ public class GithubApiImpl implements GithubApi {
         comments = pullRequestComments.get();
       }
 
+      logger.debug("Finished PR comments fetch for {} with item count: {} and status code: {}",
+          pullRequest.branchName, comments.size(), resp.getStatusCode());
+
       return new GitHubPullRequestCommentsResponse(comments, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -143,6 +147,7 @@ public class GithubApiImpl implements GithubApi {
 
   private List<PullRequestComment> parsePullRequestCommentsPayload(List<JsonObject> jsonList) {
     List<PullRequestComment> list = new ArrayList<>();
+
     jsonList.forEach(el -> list.add(parseComment(el)));
 
     return list;
