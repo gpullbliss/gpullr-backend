@@ -25,7 +25,7 @@ public class NotificationConverter {
         dto.setRepoTitle(entity.pullRequest.repo.name);
         return dto;
 
-      case COMMENT:
+      case PULLREQUEST_NEW_COMMENT:
         // TODO: implement
         return null;
       default:

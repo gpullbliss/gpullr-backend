@@ -2,24 +2,27 @@ package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.service.CommitService;
+import com.devbliss.gpullr.service.PullRequestCommentService;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.service.github.commits.GetPullRequestCommitsResponse;
 import java.util.Date;
 import java.util.Optional;
+import org.slf4j.Logger;
 import org.springframework.scheduling.TaskScheduler;
 
 /**
- * Watcher for details for a certain pull requests. 
+ * Watcher for details for a certain pull requests.
  * Once started, it runs forever until {@link #pleaseStop()} has been called.
  * Adds anything which is not delivered in the regular pull request event payload.
- * 
- * When running, it periodically fetches the details of its pull request from GitHub API. 
+ * <p>
+ * When running, it periodically fetches the details of its pull request from GitHub API.
  * It uses the ETAG header in order not to waste the request quota.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 public class PullRequestWatchThread extends Thread {
+
+  private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(PullRequestWatchThread.class);
 
   public final int pullRequestId;
 
@@ -31,6 +34,8 @@ public class PullRequestWatchThread extends Thread {
 
   private final CommitService commitService;
 
+  private final PullRequestCommentService pullRequestCommentService;
+
   private boolean stopped = false;
 
   public PullRequestWatchThread(
@@ -38,12 +43,14 @@ public class PullRequestWatchThread extends Thread {
       TaskScheduler taskScheduler,
       GithubApi githubApi,
       PullRequestService pullRequestService,
+      PullRequestCommentService pullRequestCommentService,
       CommitService commitService) {
     this.pullRequestId = pullRequestId;
     this.taskScheduler = taskScheduler;
     this.githubApi = githubApi;
     this.pullRequestService = pullRequestService;
     this.commitService = commitService;
+    this.pullRequestCommentService = pullRequestCommentService;
   }
 
   @Override
@@ -65,7 +72,7 @@ public class PullRequestWatchThread extends Thread {
       .ifPresent(pr -> {
         handleResponse(githubApi.fetchPullRequest(pr, etagHeader));
         handleResponse(githubApi.fetchBuildStatus(pr, etagHeader));
-        handleResponse(githubApi.fetchPullRequestComments(pr, etagHeader));
+        handleResponse(githubApi.fetchPullRequestComments(pr, etagHeader), pr);
 
         if (pullRequestService.shouldCommitsBeFetchedForPullRequest(pr)) {
           handleResponse(githubApi.fetchPullRequestCommits(pr, etagHeader), pr);
@@ -88,8 +95,10 @@ public class PullRequestWatchThread extends Thread {
     }
   }
 
-  private void handleResponse(GitHubPullRequestCommentsResponse resp) {
-
+  private void handleResponse(GitHubPullRequestCommentsResponse resp, PullRequest pullRequest) {
+    LOGGER.info("get {} comments for PR {} ...", resp.payload.size(), pullRequest.title);
+    resp.payload.stream().forEach(pullRequestComment -> pullRequestComment.setPullRequest(pullRequest));
+    pullRequestCommentService.save(resp.payload);
   }
 
   private void handleResponse(GetPullRequestCommitsResponse resp, PullRequest pullRequest) {

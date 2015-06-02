@@ -1,11 +1,12 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.service.PullRequestCommentService;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import com.devbliss.gpullr.domain.BuildStatus;
 import com.devbliss.gpullr.domain.BuildStatus.State;
 import com.devbliss.gpullr.domain.PullRequest;
@@ -60,6 +61,9 @@ public class PullRequestWatchThreadUnitTest {
 
   @Mock
   private Repo repo;
+  
+  @Mock
+  private PullRequestCommentService pullRequestCommentService;
 
   @Mock
   private CommitService commitService;
@@ -116,6 +120,7 @@ public class PullRequestWatchThreadUnitTest {
         taskScheduler,
         githubApi,
         pullRequestService,
+        pullRequestCommentService,
         commitService);
   }
 
