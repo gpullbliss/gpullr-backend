@@ -17,7 +17,7 @@ public class CommentNotificationDto implements UserNotificationDto {
 
   private long commentCount;
 
-  private UserNotificationType type = UserNotificationType.PULLREQUEST_NEW_COMMENT;
+  private String type = UserNotificationType.PULLREQUEST_COMMENTED;
 
   @Override
   public long getId() {
@@ -62,7 +62,7 @@ public class CommentNotificationDto implements UserNotificationDto {
   }
 
   @Override
-  public UserNotificationType getType() {
+  public String getType() {
     return type;
   }
 }

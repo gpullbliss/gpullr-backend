@@ -2,8 +2,10 @@ package com.devbliss.gpullr.controller.dto.notification;
 
 import com.devbliss.gpullr.controller.dto.notification.usernotification.MergedNotificationDto;
 import com.devbliss.gpullr.controller.dto.notification.usernotification.UserNotificationDto;
+import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
 import com.devbliss.gpullr.domain.notifications.SystemNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
+import com.devbliss.gpullr.domain.notifications.UserNotificationType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,16 +18,16 @@ public class NotificationConverter {
 
   public UserNotificationDto toDto(UserNotification entity) {
     switch (entity.notificationType) {
-      case PULLREQUEST_CLOSED:
+      case UserNotificationType.PULLREQUEST_CLOSED:
         MergedNotificationDto dto = new MergedNotificationDto();
         dto.setId(entity.id);
         dto.setCreatedAt(entity.timestamp.toOffsetDateTime().toString());
-        dto.setActorName((entity.actor != null) ? entity.actor.fullName : "");
+        dto.setActorName((((PullRequestClosedUserNotification) entity).actor != null) ? ((PullRequestClosedUserNotification) entity).actor.fullName : "");
         dto.setPullRequestTitle(entity.pullRequest.title);
         dto.setRepoTitle(entity.pullRequest.repo.name);
         return dto;
 
-      case PULLREQUEST_NEW_COMMENT:
+      case UserNotificationType.PULLREQUEST_COMMENTED:
         // TODO: implement
         return null;
       default:

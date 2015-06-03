@@ -2,9 +2,11 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
+import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotificationType;
 import com.devbliss.gpullr.exception.NotFoundException;
+import com.devbliss.gpullr.repository.PullRequestCommentRepository;
 import com.devbliss.gpullr.repository.UserNotificationRepository;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -22,13 +24,17 @@ public class UserNotificationService {
 
   private final UserNotificationRepository userNotificationRepository;
 
+  private final PullRequestCommentRepository pullRequestCommentRepository;
+
   private final ZonedDateTime applicationStartupDatetime;
 
   @Autowired
   public UserNotificationService(
       UserNotificationRepository userNotificationRepository,
-      ApplicationContext applicationContext) {
+      ApplicationContext applicationContext,
+      PullRequestCommentRepository pullRequestCommentRepository) {
     this.userNotificationRepository = userNotificationRepository;
+    this.pullRequestCommentRepository = pullRequestCommentRepository;
     applicationStartupDatetime = calculateApplicationStartupTime(applicationContext);
   }
 
@@ -63,7 +69,7 @@ public class UserNotificationService {
     }
 
     if (isDateAfterApplicationStartup(pullRequest) && closedPullRequestNotificationDoesNotExist(pullRequest)) {
-      UserNotification notification = new UserNotification();
+      PullRequestClosedUserNotification notification = new PullRequestClosedUserNotification();
       notification.actor = pullRequest.assignee;
       notification.timestamp = pullRequest.closedAt;
       notification.notificationType = UserNotificationType.PULLREQUEST_CLOSED;
@@ -75,7 +81,7 @@ public class UserNotificationService {
   }
 
   public void calculateCommentNotifications(){
-
+    pullRequestCommentRepository.findAll();
   }
 
   private boolean isDateAfterApplicationStartup(PullRequest pullRequest) {

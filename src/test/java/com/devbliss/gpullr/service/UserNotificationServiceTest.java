@@ -8,6 +8,7 @@ import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequestComment;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestCommentRepository;
@@ -72,7 +73,7 @@ public class UserNotificationServiceTest {
     repo = repoRepository.save(new Repo(0x1337, "mega repository name", "mega, I said."));
     assignee = userRepository.save(new User(1, "interested code reviewer"));
     receivingUser = userRepository.save(new User(2, "flying fingaz codr"));
-    notificationService = new UserNotificationService(userNotificationRepository, applicationContext);
+    notificationService = new UserNotificationService(userNotificationRepository, applicationContext, pullRequestCommentRepository);
   }
 
   @After
@@ -92,7 +93,8 @@ public class UserNotificationServiceTest {
 
     List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(1, notifications.size());
-    assertEquals(assignee.id, notifications.get(0).actor.id);
+    assertTrue(notifications.get(0) instanceof PullRequestClosedUserNotification);
+    assertEquals(assignee.id, ((PullRequestClosedUserNotification) notifications.get(0)).actor.id);
     assertTrue(notifications.get(0).seen == false);
   }
 
@@ -188,8 +190,6 @@ public class UserNotificationServiceTest {
     List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(0, notifications.size());
 
-
-
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = 234;
     pullRequest.repo = repo;
@@ -206,8 +206,10 @@ public class UserNotificationServiceTest {
 
     pullRequestCommentService.save(Arrays.asList(pullRequestComment));
 
+    notificationService.calculateCommentNotifications();
+
     notifications = notificationService.allUnseenNotificationsForUser(author.id);
-    assertEquals(0, notifications.size());
+    assertEquals(1, notifications.size());
 
   }
 

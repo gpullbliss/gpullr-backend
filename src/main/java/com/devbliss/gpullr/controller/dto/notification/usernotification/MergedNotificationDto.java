@@ -17,7 +17,7 @@ public class MergedNotificationDto implements UserNotificationDto {
 
   private String pullRequestTitle;
 
-  private UserNotificationType userNotificationType = UserNotificationType.PULLREQUEST_CLOSED;
+  private String userNotificationType = UserNotificationType.PULLREQUEST_CLOSED;
 
   @Override
   public long getId() {
@@ -61,7 +61,7 @@ public class MergedNotificationDto implements UserNotificationDto {
     this.pullRequestTitle = pullRequestTitle;
   }
 
-  public UserNotificationType getType() {
+  public String getType() {
     return userNotificationType;
   }
 

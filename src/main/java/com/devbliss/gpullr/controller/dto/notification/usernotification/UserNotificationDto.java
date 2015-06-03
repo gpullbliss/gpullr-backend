@@ -12,6 +12,6 @@ public interface UserNotificationDto {
 
   String getCreatedAt();
 
-  UserNotificationType getType();
+  String getType();
 
 }
