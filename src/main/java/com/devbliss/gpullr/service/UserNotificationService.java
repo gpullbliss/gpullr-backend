@@ -2,6 +2,7 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
+import com.devbliss.gpullr.domain.PullRequestComment;
 import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
 import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
@@ -13,6 +14,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -49,16 +51,16 @@ public class UserNotificationService {
 
   public void markAsSeen(long notificationId) {
     UserNotification notification = userNotificationRepository
-        .findById(notificationId)
-        .orElseThrow(() -> new NotFoundException(
-            String.format("Notification with id=%s not found.", notificationId)));
+      .findById(notificationId)
+      .orElseThrow(() -> new NotFoundException(
+          String.format("Notification with id=%s not found.", notificationId)));
     notification.seen = true;
     userNotificationRepository.save(notification);
   }
 
   public void markAllAsSeenForUser(long receivingUserId) {
     List<UserNotification> notifications = userNotificationRepository
-        .findByReceivingUserIdAndSeenIsFalse(receivingUserId);
+      .findByReceivingUserIdAndSeenIsFalse(receivingUserId);
     notifications.forEach(n -> n.seen = true);
     userNotificationRepository.save(notifications);
   }
@@ -81,15 +83,31 @@ public class UserNotificationService {
     }
   }
 
-  public void calculateCommentNotifications(){
-    pullRequestCommentRepository.findAll().forEach(prcp -> {
-      PullRequestCommentedUserNotification notification = new PullRequestCommentedUserNotification();
-      notification.receivingUserId = prcp.getPullRequest().author.id;
-      notification.pullRequest = prcp.getPullRequest();
-      notification.count = 1;
+  public void calculateCommentNotifications() {
+    pullRequestCommentRepository.findAll().forEach(this::ensureNotification);
+  }
 
-      userNotificationRepository.save(notification);
-    });
+  private void ensureNotification(PullRequestComment pullRequestComment) {
+
+    Optional<UserNotification> existingNotification =
+        userNotificationRepository.findByPullRequestIdAndNotificationTypeAndSeenIsFalse(
+            pullRequestComment.getPullRequest().id,
+            UserNotificationType.PULLREQUEST_COMMENTED);
+
+    PullRequestCommentedUserNotification notification;
+
+    if (existingNotification.isPresent()) {
+      notification = (PullRequestCommentedUserNotification) existingNotification.get();
+      notification.count++;
+
+    } else {
+      notification = new PullRequestCommentedUserNotification();
+      notification.receivingUserId = pullRequestComment.getPullRequest().author.id;
+      notification.pullRequest = pullRequestComment.getPullRequest();
+      notification.count = 1;
+    }
+
+    userNotificationRepository.save(notification);
   }
 
   private boolean isDateAfterApplicationStartup(PullRequest pullRequest) {
@@ -99,8 +117,8 @@ public class UserNotificationService {
 
   private boolean closedPullRequestNotificationDoesNotExist(PullRequest pullRequest) {
     return !userNotificationRepository
-        .findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt)
-        .isPresent();
+      .findByPullRequestIdAndTimestamp(pullRequest.id, pullRequest.closedAt)
+      .isPresent();
   }
 
   private ZonedDateTime calculateApplicationStartupTime(ApplicationContext applicationContext) {

@@ -75,7 +75,8 @@ public class UserNotificationServiceTest {
     repo = repoRepository.save(new Repo(0x1337, "mega repository name", "mega, I said."));
     assignee = userRepository.save(new User(1, "interested code reviewer"));
     receivingUser = userRepository.save(new User(2, "flying fingaz codr"));
-    notificationService = new UserNotificationService(userNotificationRepository, applicationContext, pullRequestCommentRepository);
+    notificationService = new UserNotificationService(userNotificationRepository, applicationContext,
+        pullRequestCommentRepository);
   }
 
   @After
@@ -89,8 +90,8 @@ public class UserNotificationServiceTest {
 
   @Test
   public void notificationsAvailable() {
-    PullRequest pullRequest = createAndSaveClosedPullRequest(0xBABE, assignee, receivingUser,
-        ZonedDateTime.now().plusMinutes(1L));
+    PullRequest pullRequest = createAndSavePullRequest(0xBABE, assignee, receivingUser,
+        ZonedDateTime.now().plusMinutes(1L), PullRequest.State.CLOSED);
     notificationService.createClosedPullRequestNotification(pullRequest);
 
     List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
@@ -102,8 +103,8 @@ public class UserNotificationServiceTest {
 
   @Test
   public void markNotificationAsSeen() {
-    PullRequest pullRequest = createAndSaveClosedPullRequest(0xBABE, assignee, receivingUser,
-        ZonedDateTime.now().plusMinutes(1L));
+    PullRequest pullRequest = createAndSavePullRequest(0xBABE, assignee, receivingUser,
+        ZonedDateTime.now().plusMinutes(1L), PullRequest.State.CLOSED);
 
     notificationService.createClosedPullRequestNotification(pullRequest);
     List<UserNotification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
@@ -118,11 +119,14 @@ public class UserNotificationServiceTest {
   public void markAllNotificationsAsSeen() {
     PullRequest pullRequest;
 
-    pullRequest = createAndSaveClosedPullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L));
+    pullRequest = createAndSavePullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L),
+        PullRequest.State.CLOSED);
     notificationService.createClosedPullRequestNotification(pullRequest);
-    pullRequest = createAndSaveClosedPullRequest(0xC002, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L));
+    pullRequest = createAndSavePullRequest(0xC002, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L),
+        PullRequest.State.CLOSED);
     notificationService.createClosedPullRequestNotification(pullRequest);
-    pullRequest = createAndSaveClosedPullRequest(0xC003, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L));
+    pullRequest = createAndSavePullRequest(0xC003, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L),
+        PullRequest.State.CLOSED);
     notificationService.createClosedPullRequestNotification(pullRequest);
 
     List<UserNotification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
@@ -142,7 +146,8 @@ public class UserNotificationServiceTest {
     PullRequest pullRequest;
     int prId1 = 0xC001;
 
-    pullRequest = createAndSaveClosedPullRequest(prId1, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L));
+    pullRequest = createAndSavePullRequest(prId1, assignee, receivingUser, ZonedDateTime.now().plusMinutes(1L),
+        PullRequest.State.CLOSED);
     notificationService.createClosedPullRequestNotification(pullRequest);
 
     List<UserNotification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
@@ -162,10 +167,12 @@ public class UserNotificationServiceTest {
     PullRequest pullRequest;
 
     pullRequest =
-        createAndSaveClosedPullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L));
+        createAndSavePullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L),
+            PullRequest.State.CLOSED);
     notificationService.createClosedPullRequestNotification(pullRequest);
     pullRequest =
-        createAndSaveClosedPullRequest(0xC002, assignee, receivingUser, ZonedDateTime.now().minusMinutes(1L));
+        createAndSavePullRequest(0xC002, assignee, receivingUser, ZonedDateTime.now().minusMinutes(1L),
+            PullRequest.State.CLOSED);
     notificationService.createClosedPullRequestNotification(pullRequest);
 
     List<UserNotification> allUnreadNotifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
@@ -180,55 +187,122 @@ public class UserNotificationServiceTest {
   @Test(expected = IllegalArgumentException.class)
   public void pullRequestMustBeClosedToCreateClosedPullRequestNotification() {
     PullRequest pullRequest =
-        createAndSaveClosedPullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L));
+        createAndSavePullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L),
+            PullRequest.State.CLOSED);
     pullRequest.state = PullRequest.State.OPEN;
     notificationService.createClosedPullRequestNotification(pullRequest);
   }
 
   @Test
-  public void calculateCommentNotification() {
-    User author = receivingUser;
+  public void calculateOneCommentNotificationForOneComment() {
 
+    // at the beginning, there should be no notification:
     List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(0, notifications.size());
 
-    PullRequest pullRequest = new PullRequest();
-    pullRequest.id = 234;
-    pullRequest.repo = repo;
-    pullRequest.state = PullRequest.State.OPEN;
-    pullRequest.assignee = assignee;
-    pullRequest.author = receivingUser;
+    // creating one pullrequest and a comment for it:
+    PullRequest pullRequest = createAndSavePullRequest(
+        234,
+        assignee,
+        receivingUser,
+        ZonedDateTime.now().minusHours(2),
+        PullRequest.State.OPEN);
+    createAndSavePullRequestComment(123, pullRequest);
 
-    pullRequestRepository.save(pullRequest);
-
-    PullRequestComment pullRequestComment = new PullRequestComment();
-    pullRequestComment.setId(123);
-    pullRequestComment.setCreatedAt(ZonedDateTime.now().minusHours(1));
-    pullRequestComment.setPullRequest(pullRequest);
-
-    pullRequestCommentService.save(Arrays.asList(pullRequestComment));
-
+    // after triggering notification calculation, there should be one comment notification:
     notificationService.calculateCommentNotifications();
 
-    notifications = notificationService.allUnseenNotificationsForUser(author.id);
+    notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(1, notifications.size());
     assertTrue(notifications.get(0) instanceof PullRequestCommentedUserNotification);
-
     assertEquals(UserNotificationType.PULLREQUEST_COMMENTED, notifications.get(0).notificationType);
-
+    PullRequestCommentedUserNotification notification = (PullRequestCommentedUserNotification) notifications.get(0);
+    assertEquals(1, notification.count);
   }
 
-  private PullRequest createAndSaveClosedPullRequest(Integer id,
+  @Test
+  public void calculateOneCommentNotificationForTwoCommentsOnSamePullRequest() {
+    // at the beginning, there should be no notification:
+    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    assertEquals(0, notifications.size());
+
+    // creating one pullrequest and two comments for it:
+    PullRequest pullRequest = createAndSavePullRequest(
+        234,
+        assignee,
+        receivingUser,
+        ZonedDateTime.now().minusHours(2),
+        PullRequest.State.OPEN);
+    createAndSavePullRequestComment(123, pullRequest);
+    createAndSavePullRequestComment(124, pullRequest);
+
+    // after triggering notification calculation, there should be one comment notification:
+    notificationService.calculateCommentNotifications();
+    notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    assertEquals(1, notifications.size());
+    assertTrue(notifications.get(0) instanceof PullRequestCommentedUserNotification);
+    assertEquals(UserNotificationType.PULLREQUEST_COMMENTED, notifications.get(0).notificationType);
+    PullRequestCommentedUserNotification notification = (PullRequestCommentedUserNotification) notifications.get(0);
+    assertEquals(2, notification.count);
+  }
+
+  @Test
+  public void calculateTwoCommentNotificationForTwoCommentsOnSamePullRequestWhereOneIsSeen() {
+    // at the beginning, there should be no notification:
+    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    assertEquals(0, notifications.size());
+
+    // creating one pullrequest and two comments for it and trigger notification calculation:
+    PullRequest pullRequest = createAndSavePullRequest(
+        234,
+        assignee,
+        receivingUser,
+        ZonedDateTime.now().minusHours(2),
+        PullRequest.State.OPEN);
+    createAndSavePullRequestComment(123, pullRequest);
+    createAndSavePullRequestComment(124, pullRequest);
+    notificationService.calculateCommentNotifications();
+
+    // mark notification as seen:
+    notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    notificationService.markAsSeen(notifications.get(0).id);
+
+    // create another comment for the pull request:
+    createAndSavePullRequestComment(125, pullRequest);
+
+    // after triggering the notification calculation again, there should be a new unseen
+    // notification:
+    notificationService.calculateCommentNotifications();
+    notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    assertEquals(1, notifications.size());
+    assertTrue(notifications.get(0) instanceof PullRequestCommentedUserNotification);
+    assertEquals(UserNotificationType.PULLREQUEST_COMMENTED, notifications.get(0).notificationType);
+    PullRequestCommentedUserNotification notification = (PullRequestCommentedUserNotification) notifications.get(0);
+    assertEquals(1, notification.count);
+  }
+
+  private PullRequestComment createAndSavePullRequestComment(int id, PullRequest pullRequest) {
+    PullRequestComment pullRequestComment = new PullRequestComment();
+    pullRequestComment.setId(id);
+    pullRequestComment.setCreatedAt(ZonedDateTime.now().minusHours(1));
+    pullRequestComment.setPullRequest(pullRequest);
+    pullRequestCommentService.save(Arrays.asList(pullRequestComment));
+    return pullRequestComment;
+  }
+
+  private PullRequest createAndSavePullRequest(
+      Integer id,
       User assignee,
       User receivingUser,
-      ZonedDateTime prCloseTime) {
+      ZonedDateTime prCloseTime,
+      PullRequest.State state) {
     PullRequest pullRequest = new PullRequest();
     pullRequest.id = id;
     pullRequest.repo = repo;
     pullRequest.assignee = assignee;
     pullRequest.author = receivingUser;
     pullRequest.closedAt = prCloseTime;
-    pullRequest.state = PullRequest.State.CLOSED;
+    pullRequest.state = state;
     pullRequest = pullRequestRepository.save(pullRequest);
     return pullRequest;
   }

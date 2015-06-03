@@ -19,4 +19,8 @@ public interface UserNotificationRepository extends CrudRepository<UserNotificat
   List<UserNotification> findByReceivingUserIdAndSeenIsFalse(Long receivingUserId);
 
   Optional<UserNotification> findByPullRequestIdAndTimestamp(Integer pullRequestId, ZonedDateTime timestamp);
+
+  Optional<UserNotification> findByPullRequestIdAndNotificationTypeAndSeenIsFalse(
+      int pullRequestId,
+      String notificationType);
 }
