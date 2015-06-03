@@ -37,14 +37,22 @@ public class UserService {
       User dbUser = userRepository.findOne(user.id);
       if (dbUser != null && dbUser.userSettings != null) {
         user.userSettings = dbUser.userSettings;
+      } else {
+        user.userSettings = getNewUserSettings();
       }
     } else if (user.userSettings == null) {
-      user.userSettings = new UserSettings();
-      user.userSettings.language = Constants.DEFAULT_LANGUAGE;
-      user.userSettings.desktopNotification = true;
+      user.userSettings = getNewUserSettings();
     }
 
     userRepository.save(user);
+  }
+
+  private UserSettings getNewUserSettings() {
+    UserSettings userSettings = new UserSettings();
+    userSettings.language = Constants.DEFAULT_LANGUAGE;
+    userSettings.desktopNotification = true;
+
+    return userSettings;
   }
 
   public List<User> findAll() {
