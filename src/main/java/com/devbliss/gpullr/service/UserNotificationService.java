@@ -57,7 +57,6 @@ public class UserNotificationService {
   }
 
   public void createClosedPullRequestNotification(PullRequest pullRequest) {
-
     if (pullRequest.state != State.CLOSED) {
       throw new IllegalArgumentException("Cannot create closedPullRequestNotification for pullrequest " + pullRequest
           + " with state " + pullRequest.state);
@@ -73,6 +72,10 @@ public class UserNotificationService {
       notification.seen = false;
       insertOrUpdate(notification);
     }
+  }
+
+  public void calculateCommentNotifications(){
+
   }
 
   private boolean isDateAfterApplicationStartup(PullRequest pullRequest) {

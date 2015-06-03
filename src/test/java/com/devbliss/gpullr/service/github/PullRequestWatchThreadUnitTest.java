@@ -11,6 +11,7 @@ import com.devbliss.gpullr.domain.BuildStatus.State;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
+import com.devbliss.gpullr.service.PullRequestCommentService;
 import com.devbliss.gpullr.service.PullRequestService;
 import com.devbliss.gpullr.util.http.GithubHttpResponse;
 import java.time.Instant;
@@ -53,6 +54,9 @@ public class PullRequestWatchThreadUnitTest {
 
   @Mock
   private PullRequestService pullRequestService;
+
+  @Mock
+  private PullRequestCommentService pullRequestCommentService;
 
   @Mock
   private User assignee;

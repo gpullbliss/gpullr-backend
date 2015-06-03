@@ -5,15 +5,18 @@ import static org.junit.Assert.assertTrue;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.PullRequest;
+import com.devbliss.gpullr.domain.PullRequestComment;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
 import com.devbliss.gpullr.exception.NotFoundException;
+import com.devbliss.gpullr.repository.PullRequestCommentRepository;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserNotificationRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -50,6 +53,12 @@ public class UserNotificationServiceTest {
   @Autowired
   private ApplicationContext applicationContext;
 
+  @Autowired
+  private PullRequestCommentService pullRequestCommentService;
+
+  @Autowired
+  private PullRequestCommentRepository pullRequestCommentRepository;
+
   private UserNotificationService notificationService;
 
   private Repo repo;
@@ -68,6 +77,7 @@ public class UserNotificationServiceTest {
 
   @After
   public void tearDown() throws Exception {
+    pullRequestCommentRepository.deleteAll();
     userNotificationRepository.deleteAll();
     pullRequestRepository.deleteAll();
     userRepository.deleteAll();
@@ -169,6 +179,36 @@ public class UserNotificationServiceTest {
         createAndSaveClosedPullRequest(0xC001, assignee, receivingUser, ZonedDateTime.now().minusMinutes(10L));
     pullRequest.state = PullRequest.State.OPEN;
     notificationService.createClosedPullRequestNotification(pullRequest);
+  }
+
+  @Test
+  public void calculateCommentNotification() {
+    User author = receivingUser;
+
+    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    assertEquals(0, notifications.size());
+
+
+
+    PullRequest pullRequest = new PullRequest();
+    pullRequest.id = 234;
+    pullRequest.repo = repo;
+    pullRequest.state = PullRequest.State.OPEN;
+    pullRequest.assignee = assignee;
+    pullRequest.author = receivingUser;
+
+    pullRequestRepository.save(pullRequest);
+
+    PullRequestComment pullRequestComment = new PullRequestComment();
+    pullRequestComment.setId(123);
+    pullRequestComment.setCreatedAt(ZonedDateTime.now().minusHours(1));
+    pullRequestComment.setPullRequest(pullRequest);
+
+    pullRequestCommentService.save(Arrays.asList(pullRequestComment));
+
+    notifications = notificationService.allUnseenNotificationsForUser(author.id);
+    assertEquals(0, notifications.size());
+
   }
 
   private PullRequest createAndSaveClosedPullRequest(Integer id,
