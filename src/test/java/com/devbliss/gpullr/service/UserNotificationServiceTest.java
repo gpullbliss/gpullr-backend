@@ -9,7 +9,9 @@ import com.devbliss.gpullr.domain.PullRequestComment;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
+import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
+import com.devbliss.gpullr.domain.notifications.UserNotificationType;
 import com.devbliss.gpullr.exception.NotFoundException;
 import com.devbliss.gpullr.repository.PullRequestCommentRepository;
 import com.devbliss.gpullr.repository.PullRequestRepository;
@@ -210,6 +212,9 @@ public class UserNotificationServiceTest {
 
     notifications = notificationService.allUnseenNotificationsForUser(author.id);
     assertEquals(1, notifications.size());
+    assertTrue(notifications.get(0) instanceof PullRequestCommentedUserNotification);
+
+    assertEquals(UserNotificationType.PULLREQUEST_COMMENTED, notifications.get(0).notificationType);
 
   }
 
