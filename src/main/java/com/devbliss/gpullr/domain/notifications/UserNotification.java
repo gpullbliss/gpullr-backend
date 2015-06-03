@@ -31,7 +31,7 @@ public abstract class UserNotification {
   @Column(name = "TMSTMP")
   public ZonedDateTime timestamp;
 
-  public Boolean seen;
+  public boolean seen;
 
   @Min(1)
   public long receivingUserId;

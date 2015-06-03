@@ -3,6 +3,7 @@ package com.devbliss.gpullr.service;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
 import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
+import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotificationType;
 import com.devbliss.gpullr.exception.NotFoundException;
@@ -81,7 +82,14 @@ public class UserNotificationService {
   }
 
   public void calculateCommentNotifications(){
-    pullRequestCommentRepository.findAll();
+    pullRequestCommentRepository.findAll().forEach(prcp -> {
+      PullRequestCommentedUserNotification notification = new PullRequestCommentedUserNotification();
+      notification.receivingUserId = prcp.getPullRequest().author.id;
+      notification.pullRequest = prcp.getPullRequest();
+      notification.count = 1;
+
+      userNotificationRepository.save(notification);
+    });
   }
 
   private boolean isDateAfterApplicationStartup(PullRequest pullRequest) {
