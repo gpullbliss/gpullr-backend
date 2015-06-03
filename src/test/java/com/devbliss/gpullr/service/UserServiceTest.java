@@ -108,7 +108,8 @@ public class UserServiceTest {
     UserSettings userSettings = new UserSettings();
     userSettings.language = "fr";
     userSettings.desktopNotification = false;
-    userService.insertOrUpdate(new User(ID, updatedUsername, updatedFullName, updatedAvatarUrl, true, updatedProfileUrl, userSettings));
+    userService.insertOrUpdate(
+        new User(ID, updatedUsername, updatedFullName, updatedAvatarUrl, true, updatedProfileUrl, userSettings));
 
     // verify update:
     users = userService.findAll();

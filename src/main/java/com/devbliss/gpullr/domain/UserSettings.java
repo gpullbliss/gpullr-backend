@@ -34,7 +34,7 @@ public class UserSettings {
   @Column(name = "UNASSIGNED_PULLREQUESTS_ORDERING")
   @Enumerated(value = EnumType.STRING)
   public OrderOption unassignedPullRequestsOrdering;
-  
+
   @Column(name = "ASSIGNED_PULLREQUESTS_ORDERING")
   @Enumerated(value = EnumType.STRING)
   public OrderOption assignedPullRequestsOrdering;
@@ -47,7 +47,8 @@ public class UserSettings {
   @Column(name = "DESKTOP_NOTIFICATION")
   public boolean desktopNotification;
 
-  public UserSettings() {}
+  public UserSettings() {
+  }
 
   public UserSettings(OrderOption unassignedPullRequestsOrdering) {
     this.unassignedPullRequestsOrdering = unassignedPullRequestsOrdering;
@@ -58,7 +59,8 @@ public class UserSettings {
     this.repoBlackList = repoBlackList;
   }
 
-  public UserSettings(OrderOption defaultPullRequestListOrdering, List<Integer> repoBlackList, String language, boolean desktopNotification) {
+  public UserSettings(OrderOption defaultPullRequestListOrdering, List<Integer> repoBlackList, String language,
+      boolean desktopNotification) {
     this(defaultPullRequestListOrdering, repoBlackList);
     this.language = language;
     this.desktopNotification = desktopNotification;
