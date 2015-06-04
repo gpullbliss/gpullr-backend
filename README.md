@@ -17,7 +17,7 @@ The purpose of gPullR is to provide a handy tool for visualization and organizat
 
 ## Getting started
 ### Technology stack
-The following technologies needs to be installed before you can start running the application:
+The following technologies need to be installed before you can start running the application:
 
   * [Java 8](https://java.com/download/)
   * [Gradle](http://gradle.org/)
@@ -56,7 +56,7 @@ The application uses dedicated GitHub user ([gpullr-backend for the live system]
 **Deprecation notice**: Those users will be removed soon.
 
 ### devbliss organization (deprecated)
-All data that isexchanged with GitHub is centred by the organization `devbliss`. So all repositories fetched and managed are part of that organization. Only users that are part of that organization are able to login in successfully to that application.
+All data that is exchanged with GitHub is centred by the organization `devbliss`. So all repositories fetched and managed are part of that organization. Only users that are part of that organization are able to login in successfully to that application.
 
 **Deprecation notice**: Since the use of a organziation to filter data will remain, it will be possible to use this application without any configured application.
 
