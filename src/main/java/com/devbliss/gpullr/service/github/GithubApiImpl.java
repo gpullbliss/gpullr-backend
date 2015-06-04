@@ -49,6 +49,7 @@ import org.springframework.stereotype.Component;
     proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class GithubApiImpl implements GithubApi {
 
+  private static final String FIELD_KEY_COMMENT = "comment";
   private static final String FIELD_KEY_PULL_REQUEST = "pull_request";
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
   private static final String EVENT_TYPE_ISSUE_COMMENT = "IssueCommentEvent";
@@ -133,7 +134,7 @@ public class GithubApiImpl implements GithubApi {
   private Optional<PullRequestCommentEvent> parseCommentEvent(JsonObject object) {
     Comment pullRequestComment = new Comment();
     pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString(FIELD_KEY_CREATED_AT)));
-    pullRequestComment.setId(object.getInt(FIELD_KEY_ID));
+    pullRequestComment.setId(object.getJsonObject(FIELD_KEY_COMMENT).getInt(FIELD_KEY_ID));
     int pullRequestId = object.getJsonObject(FIELD_KEY_PULL_REQUEST).getInt(FIELD_KEY_ID);
     return Optional.of(new PullRequestCommentEvent(pullRequestComment, pullRequestId));
   }
