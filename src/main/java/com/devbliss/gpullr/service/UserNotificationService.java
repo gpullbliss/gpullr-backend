@@ -100,20 +100,17 @@ public class UserNotificationService {
     if (existingNotification.isPresent()) {
       notification = (PullRequestCommentedUserNotification) existingNotification.get();
       notification.count++;
-      userNotificationRepository.save(notification);
 
     } else {
       notification = new PullRequestCommentedUserNotification();
       notification.receivingUserId = comment.getPullRequest().author.id;
       notification.pullRequest = comment.getPullRequest();
       notification.count = 1;
-      userNotificationRepository.save(notification);
-      System.err.println("NOTIFICATION ID: " + notification.id);
-      System.err.println("COMMENT ID: " + comment.getId());
-      comment.notifications.add(notification);
-      commentRepository.save(comment);
     }
-
+    
+    userNotificationRepository.save(notification);
+    comment.notifications.add(notification);
+    commentRepository.save(comment);
   }
 
   private boolean isDateAfterApplicationStartup(PullRequest pullRequest) {
