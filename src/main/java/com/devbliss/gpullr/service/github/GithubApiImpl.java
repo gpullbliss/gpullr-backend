@@ -1,7 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
-import com.devbliss.gpullr.domain.PullRequestComment;
+import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
@@ -128,10 +128,10 @@ public class GithubApiImpl implements GithubApi {
     GithubHttpResponse resp = githubClient.execute(req);
 
     try {
-      Optional<List<PullRequestComment>> pullRequestComments = handleListResponse(resp,
+      Optional<List<Comment>> pullRequestComments = handleListResponse(resp,
           this::parsePullRequestCommentsPayload);
 
-      List<PullRequestComment> comments = new ArrayList<>();
+      List<Comment> comments = new ArrayList<>();
       if(pullRequestComments.isPresent()) {
         comments = pullRequestComments.get();
       }
@@ -145,16 +145,16 @@ public class GithubApiImpl implements GithubApi {
     }
   }
 
-  private List<PullRequestComment> parsePullRequestCommentsPayload(List<JsonObject> jsonList) {
-    List<PullRequestComment> list = new ArrayList<>();
+  private List<Comment> parsePullRequestCommentsPayload(List<JsonObject> jsonList) {
+    List<Comment> list = new ArrayList<>();
 
     jsonList.forEach(el -> list.add(parseComment(el)));
 
     return list;
   }
 
-  private PullRequestComment parseComment(JsonObject object) {
-    PullRequestComment pullRequestComment = new PullRequestComment();
+  private Comment parseComment(JsonObject object) {
+    Comment pullRequestComment = new Comment();
     pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString("created_at")));
     pullRequestComment.setId(object.getInt("id"));
     return pullRequestComment;

@@ -2,13 +2,13 @@ package com.devbliss.gpullr.service;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
-import com.devbliss.gpullr.domain.PullRequestComment;
+import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
 import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotificationType;
 import com.devbliss.gpullr.exception.NotFoundException;
-import com.devbliss.gpullr.repository.PullRequestCommentRepository;
+import com.devbliss.gpullr.repository.CommentRepository;
 import com.devbliss.gpullr.repository.UserNotificationRepository;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -27,7 +27,7 @@ public class UserNotificationService {
 
   private final UserNotificationRepository userNotificationRepository;
 
-  private final PullRequestCommentRepository pullRequestCommentRepository;
+  private final CommentRepository pullRequestCommentRepository;
 
   private final ZonedDateTime applicationStartupDatetime;
 
@@ -35,7 +35,7 @@ public class UserNotificationService {
   public UserNotificationService(
       UserNotificationRepository userNotificationRepository,
       ApplicationContext applicationContext,
-      PullRequestCommentRepository pullRequestCommentRepository) {
+      CommentRepository pullRequestCommentRepository) {
     this.userNotificationRepository = userNotificationRepository;
     this.pullRequestCommentRepository = pullRequestCommentRepository;
     applicationStartupDatetime = calculateApplicationStartupTime(applicationContext);
@@ -87,11 +87,11 @@ public class UserNotificationService {
     pullRequestCommentRepository.findAll().forEach(this::ensureNotification);
   }
 
-  private void ensureNotification(PullRequestComment pullRequestComment) {
+  private void ensureNotification(Comment comment) {
 
     Optional<UserNotification> existingNotification =
         userNotificationRepository.findByPullRequestIdAndNotificationTypeAndSeenIsFalse(
-            pullRequestComment.getPullRequest().id,
+            comment.getPullRequest().id,
             UserNotificationType.PULLREQUEST_COMMENTED);
 
     PullRequestCommentedUserNotification notification;
@@ -102,8 +102,8 @@ public class UserNotificationService {
 
     } else {
       notification = new PullRequestCommentedUserNotification();
-      notification.receivingUserId = pullRequestComment.getPullRequest().author.id;
-      notification.pullRequest = pullRequestComment.getPullRequest();
+      notification.receivingUserId = comment.getPullRequest().author.id;
+      notification.pullRequest = comment.getPullRequest();
       notification.count = 1;
     }
 

@@ -1,7 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
-import com.devbliss.gpullr.service.PullRequestCommentService;
+import com.devbliss.gpullr.service.CommentService;
 import com.devbliss.gpullr.service.PullRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
@@ -21,13 +21,13 @@ public class PullRequestWatchThreadProducer {
 
   private PullRequestService pullRequestService;
 
-  private PullRequestCommentService pullRequestCommentService;
+  private CommentService pullRequestCommentService;
 
   @Autowired
   public PullRequestWatchThreadProducer(TaskScheduler taskScheduler,
       GithubApi githubApi,
       PullRequestService pullRequestService,
-      PullRequestCommentService pullRequestCommentService) {
+      CommentService pullRequestCommentService) {
     this.taskScheduler = taskScheduler;
     this.githubApi = githubApi;
     this.pullRequestService = pullRequestService;

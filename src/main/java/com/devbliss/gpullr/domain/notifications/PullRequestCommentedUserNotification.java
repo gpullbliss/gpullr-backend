@@ -1,6 +1,6 @@
 package com.devbliss.gpullr.domain.notifications;
 
-import com.devbliss.gpullr.domain.PullRequestComment;
+import com.devbliss.gpullr.domain.Comment;
 import java.util.List;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -24,6 +24,6 @@ public class PullRequestCommentedUserNotification extends UserNotification {
       joinColumns = @JoinColumn(name = "NOTIFICATION_ID"),
       inverseJoinColumns = @JoinColumn(name = "COMMENT_ID")
       )
-  public List<PullRequestComment> comments;
+  public List<Comment> comments;
 
 }

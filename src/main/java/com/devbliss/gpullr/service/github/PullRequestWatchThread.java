@@ -1,7 +1,7 @@
 package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.PullRequest;
-import com.devbliss.gpullr.service.PullRequestCommentService;
+import com.devbliss.gpullr.service.CommentService;
 import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Date;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class PullRequestWatchThread extends Thread {
 
   private final PullRequestService pullRequestService;
 
-  private final PullRequestCommentService pullRequestCommentService;
+  private final CommentService pullRequestCommentService;
 
   private boolean stopped = false;
 
@@ -39,7 +39,7 @@ public class PullRequestWatchThread extends Thread {
       TaskScheduler taskScheduler,
       GithubApi githubApi,
       PullRequestService pullRequestService,
-      PullRequestCommentService pullRequestCommentService) {
+      CommentService pullRequestCommentService) {
     this.pullRequestId = pullRequestId;
     this.taskScheduler = taskScheduler;
     this.githubApi = githubApi;

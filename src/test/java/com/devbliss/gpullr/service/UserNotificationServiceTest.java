@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.devbliss.gpullr.Application;
 import com.devbliss.gpullr.domain.PullRequest;
-import com.devbliss.gpullr.domain.PullRequestComment;
+import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
@@ -13,7 +13,7 @@ import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotifica
 import com.devbliss.gpullr.domain.notifications.UserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotificationType;
 import com.devbliss.gpullr.exception.NotFoundException;
-import com.devbliss.gpullr.repository.PullRequestCommentRepository;
+import com.devbliss.gpullr.repository.CommentRepository;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserNotificationRepository;
@@ -57,10 +57,10 @@ public class UserNotificationServiceTest {
   private ApplicationContext applicationContext;
 
   @Autowired
-  private PullRequestCommentService pullRequestCommentService;
+  private CommentService pullRequestCommentService;
 
   @Autowired
-  private PullRequestCommentRepository pullRequestCommentRepository;
+  private CommentRepository pullRequestCommentRepository;
 
   private UserNotificationService notificationService;
 
@@ -207,7 +207,7 @@ public class UserNotificationServiceTest {
         receivingUser,
         ZonedDateTime.now().minusHours(2),
         PullRequest.State.OPEN);
-    createAndSavePullRequestComment(123, pullRequest);
+    createAndSaveComment(123, pullRequest);
 
     // after triggering notification calculation, there should be one comment notification:
     notificationService.calculateCommentNotifications();
@@ -233,8 +233,8 @@ public class UserNotificationServiceTest {
         receivingUser,
         ZonedDateTime.now().minusHours(2),
         PullRequest.State.OPEN);
-    createAndSavePullRequestComment(123, pullRequest);
-    createAndSavePullRequestComment(124, pullRequest);
+    createAndSaveComment(123, pullRequest);
+    createAndSaveComment(124, pullRequest);
 
     // after triggering notification calculation, there should be one comment notification:
     notificationService.calculateCommentNotifications();
@@ -259,8 +259,8 @@ public class UserNotificationServiceTest {
         receivingUser,
         ZonedDateTime.now().minusHours(2),
         PullRequest.State.OPEN);
-    createAndSavePullRequestComment(123, pullRequest);
-    createAndSavePullRequestComment(124, pullRequest);
+    createAndSaveComment(123, pullRequest);
+    createAndSaveComment(124, pullRequest);
     notificationService.calculateCommentNotifications();
 
     // mark notification as seen:
@@ -268,7 +268,7 @@ public class UserNotificationServiceTest {
     notificationService.markAsSeen(notifications.get(0).id);
 
     // create another comment for the pull request:
-    createAndSavePullRequestComment(125, pullRequest);
+    createAndSaveComment(125, pullRequest);
 
     // after triggering the notification calculation again, there should be a new unseen
     // notification:
@@ -281,8 +281,8 @@ public class UserNotificationServiceTest {
     assertEquals(1, notification.count);
   }
 
-  private PullRequestComment createAndSavePullRequestComment(int id, PullRequest pullRequest) {
-    PullRequestComment pullRequestComment = new PullRequestComment();
+  private Comment createAndSaveComment(int id, PullRequest pullRequest) {
+    Comment pullRequestComment = new Comment();
     pullRequestComment.setId(id);
     pullRequestComment.setCreatedAt(ZonedDateTime.now().minusHours(1));
     pullRequestComment.setPullRequest(pullRequest);
