@@ -73,6 +73,8 @@ public class GithubApiImpl implements GithubApi {
 
   private static final String FIELD_KEY_DESCRIPTION = "description";
 
+  private static final String FIELD_KEY_STATE = "state";
+
   private static final String OBJECT_KEY_HEAD = "head";
 
   private static final String FIELD_KEY_BRANCHNAME = "ref";
@@ -119,7 +121,8 @@ public class GithubApiImpl implements GithubApi {
     GithubHttpResponse resp = githubClient.execute(req);
 
     try {
-      Optional<PullRequest> fetchedPullRequest = handleResponse(resp, this::parsePullRequestPayload);
+      Optional<PullRequest> fetchedPullRequest = handleResponse(resp, this::parsePullRequestPayloadIncludingState);
+      // FETCH STATE
       return new GithubPullRequestResponse(fetchedPullRequest, resp.getNextFetch(), resp.getEtag());
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -260,6 +263,24 @@ public class GithubApiImpl implements GithubApi {
     pullRequest.repo = repo;
 
     return Optional.of(new PullRequestEvent(action, pullRequest));
+  }
+
+  private PullRequest parsePullRequestPayloadIncludingState(JsonObject pullRequestJson) {
+    PullRequest pullRequest = parsePullRequestPayload(pullRequestJson);
+
+    if (pullRequestJson.containsKey(FIELD_KEY_STATE)) {
+      String stateString = pullRequestJson.getString(FIELD_KEY_STATE);
+
+      if (stateString != null) {
+        pullRequest.state = PullRequest.State.parse(stateString);
+      }
+    }
+
+    if (pullRequest.state == null) {
+      logger.warn("Could not parse state of pullRequest " + pullRequest);
+    }
+
+    return pullRequest;
   }
 
   private PullRequest parsePullRequestPayload(JsonObject pullRequestJson) {

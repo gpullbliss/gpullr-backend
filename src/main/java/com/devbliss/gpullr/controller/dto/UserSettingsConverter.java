@@ -17,6 +17,7 @@ public class UserSettingsConverter {
     dto.id = entity.id;
     dto.repoBlackList = entity.repoBlackList;
     dto.language = entity.language;
+    dto.desktopNotification = entity.desktopNotification;
 
     if (entity.assignedPullRequestsOrdering != null) {
       dto.assignedPullRequestsOrdering = toOrderOptionDto(entity.assignedPullRequestsOrdering);
@@ -34,6 +35,7 @@ public class UserSettingsConverter {
     entity.id = dto.id;
     entity.repoBlackList = dto.repoBlackList;
     entity.language = dto.language;
+    entity.desktopNotification = dto.desktopNotification;
 
     if (dto.assignedPullRequestsOrdering != null) {
       entity.assignedPullRequestsOrdering = toOrderOption(dto.assignedPullRequestsOrdering);

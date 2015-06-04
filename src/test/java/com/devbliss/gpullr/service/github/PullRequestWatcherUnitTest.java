@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
+import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,9 @@ public class PullRequestWatcherUnitTest {
   @Mock
   private PullRequestWatchThread pullRequestWatchThread;
 
+  @Mock
+  private PullRequestService pullRequestService;
+
   private PullRequest pullRequest;
 
   private PullRequestWatcher pullRequestWatcher;
@@ -52,7 +56,7 @@ public class PullRequestWatcherUnitTest {
     pullRequest.id = PR_ID;
     pullRequest.repo = repo;
     when(pullRequestWatchThreadProducer.createThread(pullRequest)).thenReturn(pullRequestWatchThread);
-    pullRequestWatcher = new PullRequestWatcher(taskScheduler, pullRequestWatchThreadProducer);
+    pullRequestWatcher = new PullRequestWatcher(taskScheduler, pullRequestWatchThreadProducer, null);
     pullRequestWatcher.logger = logger;
   }
 

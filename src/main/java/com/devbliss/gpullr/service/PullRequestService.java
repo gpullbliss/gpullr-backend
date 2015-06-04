@@ -82,29 +82,32 @@ public class PullRequestService {
    *
    * @return possibly empty list of pull requests
    */
-  public List<PullRequest> findAllOpen() {
+  public List<PullRequest> findAllOpen(boolean specificForCurrentUser) {
     List<PullRequest> prs = pullRequestRepository.findAllByState(State.OPEN);
-    Optional<User> user = userService.getCurrentUserIfLoggedIn();
 
-    if (user.isPresent()) {
-      UserSettings userSettings = user.get().userSettings;
-      if (hasBlacklistedRepos(user.get())) {
-        prs = prs
-          .stream()
-          .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
-          .collect(Collectors.toList());
+    if (specificForCurrentUser) {
+      Optional<User> user = userService.getCurrentUserIfLoggedIn();
+
+      if (user.isPresent()) {
+        UserSettings userSettings = user.get().userSettings;
+        if (hasBlacklistedRepos(user.get())) {
+          prs = prs
+            .stream()
+            .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
+            .collect(Collectors.toList());
+        }
       }
     }
 
     return prs;
   }
 
-  public List<PullRequest> findAllOpen(String... repoIdsOrNames) {
+  public List<PullRequest> findAllOpenFiltered(String... repoIdsOrNames) {
     List<Repo> repos = Stream.of(repoIdsOrNames)
       .map(ion -> findRepoByIdOrName(ion))
       .collect(Collectors.toList());
 
-    List<PullRequest> openPullRequests = findAllOpen();
+    List<PullRequest> openPullRequests = findAllOpen(true);
 
     return openPullRequests
       .stream()

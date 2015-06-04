@@ -23,4 +23,6 @@ public class UserSettingsDto {
 
   public String language;
 
+  public boolean desktopNotification;
+
 }
