@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.devbliss.gpullr.Application;
-import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Comment;
+import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
