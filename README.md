@@ -35,16 +35,15 @@ The application supports several profiles, which are supposed to ease the handli
 * prod
 
 ## Using the application
-### GitHub user (deprecated)
-describe the backend user that is used
+### GitHub user **(deprecated)**
+The application uses dedicated GitHub user ([gpullr-backend for the live system](https://github.com/gpullr-backend)[gpullr-dev for local development](https://github.com/gpullr-dev)) to request data from the GitHub Api. Those user needs access (read/write) to all repositories that should be managed with gPullR.
 
-### devbliss organization (deprecated)
-all information is organization centred
+**Deprecation notice**: Those users will be removed soon.
 
-### Login using curl
-**Login:** `curl -b cookies.txt -c cookies.txt -v -XPOST http://127.0.0.1:8888/users/login/95374`
+### devbliss organization **(deprecated)**
+All data that isexchanged with GitHub is centred by the organization `devbliss`. So all repositories fetched and managed are part of that organization. Only users that are part of that organization are able to login in successfully to that application.
 
-**check session:** `curl -b cookies.txt -c cookies.txt -v http://127.0.0.1:8888/users/me`
+**Deprecation notice**: Since the use of a organziation to filter data will remain, it will be possible to use this application without any configured application.
 
 ### Updating schema
 The application stores its local data in a file-based H2 database, accessed via JPA (Hibernate) through Spring Data
