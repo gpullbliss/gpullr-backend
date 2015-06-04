@@ -15,22 +15,19 @@ After you cloned the application `git clone https://github.com/devbliss/gpullr-b
 
 To run the application, type
 `./gradlew run`
+The application will bind to port 8888 and instantly requests information from the [GitHub API](https://developer.github.com/v3/).
 
 To build the application, type
 `./gradlew build`
+The `build.gradle` is configured to build a fatJar, when executing `./gradlew build`. This jar is all you need to deploy gPullR backend. You can run it, executing `java -jar gpullr-backend-{version}.jar -Dspring.profiles.active={profile} -Xms64m -Xmx256m`.
 
 To test the application, type
 `./gradlew test`
 
-### How to add features
-
-TODO
-
 ### Deployment
-## Running the application
-The `build.gradle` is configured to build a fatJar, when executing `gradle build` (or `./gradlew build`). This jar is all you need to deploy gPullR backend. You can run it, executing `java -jar gpullr-backend-{version}.jar -Dspring.profiles.active={profile} -Xms64m -Xmx256m`.
+Deploying gPullR backend is achieved by a [jenkins job](http://jenkins.devbliss.com/view/gPullR/job/gPullR-backend-build/), which executes `./gradlew build` and copies the generated jar file to the [live system](http://gpullr.devbliss.com/).
 
-## Profiles
+### Profiles
 The application supports several profiles, which are supposed to ease the handling of different environments. Supported profiles are:
 
 * test
