@@ -3,6 +3,17 @@ The purpose of gPullR is to provide a handy tool for visualization and organizat
 
 ![components](/docs/components.png)
 
+-  [Getting started] (#getting-started)
+  -  [Technology stack] (#technology-stack)
+  -  [How to run it locally] (#how-to-run-it-locally)
+  -  [Deployment] (#deployment)
+  -  [Profiles] (#profiles)
+-  [Using the application] (#using-the-application)
+  -  [GitHub user] (#github-user-deprecated)
+  -  [devbliss organization] (#devbliss-organization-deprecated)
+  -  [Updating schema] (updating-schema)
+-  [Technologies] (#technologies)
+
 ## Getting started
 ### Technology stack
 The following technologies needs to be installed before you can start running the application:
@@ -35,12 +46,12 @@ The application supports several profiles, which are supposed to ease the handli
 * prod
 
 ## Using the application
-### GitHub user **(deprecated)**
+### GitHub user (deprecated)
 The application uses dedicated GitHub user ([gpullr-backend for the live system](https://github.com/gpullr-backend)[gpullr-dev for local development](https://github.com/gpullr-dev)) to request data from the GitHub Api. Those user needs access (read/write) to all repositories that should be managed with gPullR.
 
 **Deprecation notice**: Those users will be removed soon.
 
-### devbliss organization **(deprecated)**
+### devbliss organization (deprecated)
 All data that isexchanged with GitHub is centred by the organization `devbliss`. So all repositories fetched and managed are part of that organization. Only users that are part of that organization are able to login in successfully to that application.
 
 **Deprecation notice**: Since the use of a organziation to filter data will remain, it will be possible to use this application without any configured application.
