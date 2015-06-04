@@ -7,6 +7,7 @@ The purpose of gPullR is to provide a handy tool for visualization and organizat
   -  [Technology stack] (#technology-stack)
   -  [How to run it locally] (#how-to-run-it-locally)
   -  [Deployment] (#deployment)
+  -  [Server provisioning] (#server-provisioning)
   -  [Profiles] (#profiles)
 -  [Using the application] (#using-the-application)
   -  [GitHub user] (#github-user-deprecated)
@@ -37,6 +38,9 @@ To test the application, type
 
 ### Deployment
 Deploying gPullR backend is achieved by a [jenkins job](http://jenkins.devbliss.com/view/gPullR/job/gPullR-backend-build/), which executes `./gradlew build` and copies the generated jar file to the [live system](http://gpullr.devbliss.com/).
+
+### Server provisioning
+The Server which hosts the whole application is provisioned with puppet, hosted by [bingo-puppet](https://github.com/devbliss/bingo-puppet/tree/master/modules/gpullr) on a machine provided by [Bingo](http://staging.bingo.devbliss.com/instances).
 
 ### Profiles
 The application supports several profiles, which are supposed to ease the handling of different environments. Supported profiles are:
