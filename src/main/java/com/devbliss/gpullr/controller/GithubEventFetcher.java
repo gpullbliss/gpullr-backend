@@ -43,7 +43,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   private final PullRequestEventHandler pullRequestEventHandler;
 
   private final ThreadPoolTaskScheduler executor;
-  
+
   private final CommentEventHandler commentEventHandler;
 
   @Autowired
@@ -51,7 +51,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
       GithubApi githubApi,
       RepoService repoService,
       PullRequestEventHandler pullRequestEventHandler,
-      ThreadPoolTaskScheduler executor, 
+      ThreadPoolTaskScheduler executor,
       CommentEventHandler commentEventHandler) {
     this.githubApi = githubApi;
     this.repoService = repoService;
@@ -113,11 +113,9 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   }
 
   private void handleEvent(Event event) {
-    if(event.getClass().equals(PullRequestEvent.class)) {
-      pullRequestEventHandler.handlePullRequestEvent((PullRequestEvent)event);
-    }
-
-    else if(event.getClass().equals(PullRequestCommentEvent.class)){
+    if (event.getClass().equals(PullRequestEvent.class)) {
+      pullRequestEventHandler.handlePullRequestEvent((PullRequestEvent) event);
+    } else if (event.getClass().equals(PullRequestCommentEvent.class)) {
       commentEventHandler.handleCommentEvent((PullRequestCommentEvent) event);
     }
   }

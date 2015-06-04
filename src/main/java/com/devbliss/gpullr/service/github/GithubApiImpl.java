@@ -155,11 +155,7 @@ public class GithubApiImpl implements GithubApi {
       Optional<String> etag = resp.getEtag();
       Instant nextFetch = resp.getNextFetch();
       List<Event> events = new ArrayList<>();
-
-      // events.add(new PullRequestCommentEvent(null));
-
       GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
-
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
           ope -> ope.ifPresent(result.payload::add));
 

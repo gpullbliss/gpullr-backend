@@ -1,6 +1,5 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.service.CommentService;
 import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Date;
