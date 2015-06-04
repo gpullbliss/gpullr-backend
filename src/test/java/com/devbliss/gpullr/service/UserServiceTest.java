@@ -1,8 +1,10 @@
 package com.devbliss.gpullr.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +47,8 @@ public class UserServiceTest {
 
   private static final Boolean CAN_LOGIN = true;
 
+  private static final String DEFAULT_LANGUAGE = "en";
+
   @Autowired
   private UserRepository userRepository;
 
@@ -79,6 +83,9 @@ public class UserServiceTest {
     assertEquals(AVATAR_URL, loaded.avatarUrl);
     assertEquals(USERNAME, loaded.username);
     assertEquals(PROFILE_URL, loaded.profileUrl);
+    assertEquals(DEFAULT_LANGUAGE, loaded.userSettings.language);
+    assertTrue(loaded.userSettings.desktopNotification);
+    assertFalse(loaded.canLogin);
 
     // update user:
     final String updatedAvatarUrl = AVATAR_URL + "_/updated";
@@ -94,6 +101,26 @@ public class UserServiceTest {
     assertEquals(ID, loaded.id.intValue());
     assertEquals(updatedAvatarUrl, loaded.avatarUrl);
     assertEquals(updatedUsername, loaded.username);
+    assertEquals(DEFAULT_LANGUAGE, loaded.userSettings.language);
+    assertTrue(loaded.userSettings.desktopNotification);
+    assertFalse(loaded.canLogin);
+
+    UserSettings userSettings = new UserSettings();
+    userSettings.language = "fr";
+    userSettings.desktopNotification = false;
+    userService.insertOrUpdate(
+        new User(ID, updatedUsername, updatedFullName, updatedAvatarUrl, true, updatedProfileUrl, userSettings));
+
+    // verify update:
+    users = userService.findAll();
+    assertEquals(1, users.size());
+    loaded = users.get(0);
+    assertEquals(ID, loaded.id.intValue());
+    assertEquals(updatedAvatarUrl, loaded.avatarUrl);
+    assertEquals(updatedUsername, loaded.username);
+    assertEquals("fr", loaded.userSettings.language);
+    assertFalse(loaded.userSettings.desktopNotification);
+    assertTrue(loaded.canLogin);
   }
 
   @Test

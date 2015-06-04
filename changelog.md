@@ -1,5 +1,6 @@
 ### Version 1.0.0-SNAPSHOT
 
+ - [feature] PRT 31 - enable/disable desktop notifications at user settings
  - [refactor] due to PRT 121 switch to new oauth application
  - [bug] old PRs not disappearing
  - [bug] activate repos as they become available again
@@ -77,4 +78,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Thu May 28 12:54:36 CEST 2015
+-- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Wed Jun 03 11:47:41 CEST 2015
