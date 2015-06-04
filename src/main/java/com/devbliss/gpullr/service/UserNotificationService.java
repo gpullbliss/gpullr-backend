@@ -1,8 +1,8 @@
 package com.devbliss.gpullr.service;
 
+import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequest.State;
-import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
 import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotification;
@@ -27,7 +27,7 @@ public class UserNotificationService {
 
   private final UserNotificationRepository userNotificationRepository;
 
-  private final CommentRepository pullRequestCommentRepository;
+  private final CommentRepository commentRepository;
 
   private final ZonedDateTime applicationStartupDatetime;
 
@@ -37,7 +37,7 @@ public class UserNotificationService {
       ApplicationContext applicationContext,
       CommentRepository pullRequestCommentRepository) {
     this.userNotificationRepository = userNotificationRepository;
-    this.pullRequestCommentRepository = pullRequestCommentRepository;
+    this.commentRepository = pullRequestCommentRepository;
     applicationStartupDatetime = calculateApplicationStartupTime(applicationContext);
   }
 
@@ -84,30 +84,36 @@ public class UserNotificationService {
   }
 
   public void calculateCommentNotifications() {
-    pullRequestCommentRepository.findAll().forEach(this::ensureNotification);
+    commentRepository.findAllUnreferenced().forEach(this::ensureNotification);
   }
 
   private void ensureNotification(Comment comment) {
 
     Optional<UserNotification> existingNotification =
-        userNotificationRepository.findByPullRequestIdAndNotificationTypeAndSeenIsFalse(
-            comment.getPullRequest().id,
-            UserNotificationType.PULLREQUEST_COMMENTED);
+        userNotificationRepository
+          .findByPullRequestIdAndNotificationTypeAndSeenIsFalse(
+              comment.getPullRequest().id,
+              UserNotificationType.PULLREQUEST_COMMENTED);
 
     PullRequestCommentedUserNotification notification;
 
     if (existingNotification.isPresent()) {
       notification = (PullRequestCommentedUserNotification) existingNotification.get();
       notification.count++;
+      userNotificationRepository.save(notification);
 
     } else {
       notification = new PullRequestCommentedUserNotification();
       notification.receivingUserId = comment.getPullRequest().author.id;
       notification.pullRequest = comment.getPullRequest();
       notification.count = 1;
+      userNotificationRepository.save(notification);
+      System.err.println("NOTIFICATION ID: " + notification.id);
+      System.err.println("COMMENT ID: " + comment.getId());
+      comment.notifications.add(notification);
+      commentRepository.save(comment);
     }
 
-    userNotificationRepository.save(notification);
   }
 
   private boolean isDateAfterApplicationStartup(PullRequest pullRequest) {

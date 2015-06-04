@@ -1,8 +1,16 @@
 package com.devbliss.gpullr.domain;
 
+import javax.persistence.CascadeType;
+
+import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotification;
 import java.time.ZonedDateTime;
+import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -19,6 +27,13 @@ public class Comment {
 
   @ManyToOne(optional = false)
   private PullRequest pullRequest;
+
+  @ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+  @JoinTable(
+      name = "NOTIFICATION_COMMENTS",
+      joinColumns = @JoinColumn(name = "COMMENT_ID"),
+      inverseJoinColumns = @JoinColumn(name = "NOTIFICATION_ID"))
+  public List<PullRequestCommentedUserNotification> notifications;
 
   public String getDiffHunk() {
     return diffHunk;
