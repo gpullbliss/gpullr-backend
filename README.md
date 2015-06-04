@@ -1,5 +1,5 @@
 # gPullR backend
-The purpose of gPullR is to provide a handy tool for visualization and organization of pull requests and the process of code review. This project provides the backend and its underlying business logic. It stores data like all concerned users, repositories, pull requests and so on. The backend provides a RESTful interface for information exchange with RESTful clients like [gPullR frontend][gpullr-frontend].
+The purpose of gPullR is to provide a handy tool for visualization and organization of pull requests and the process of code review. This project provides the backend and its underlying business logic. It stores data like all concerned users, repositories, pull requests and so on. The backend provides a RESTful interface for information exchange with RESTful clients like [gPullR frontend](https://github.com/devbliss/gpullr-frontend/).
 
 ![components](/docs/components.png)
 
@@ -57,9 +57,6 @@ Make sure to rename `schema.sql` to any other name before temporarily switching 
 
  and copy-paste the relevant parts to `schema.sql`. Don't forget to deactivate generate-ddl afterwards again!
 
-### Jenkins
-[Jenkins view] (http://jenkins.devbliss.com/view/gPullR)
-
 # Technologies
 The project depends on the following key technologies:
 
@@ -67,5 +64,3 @@ The project depends on the following key technologies:
 * [Hibernate] (http://hibernate.org/)
 * [H2 Database Enging] (http://www.h2database.com/html/main.html)
 * [Apache HttpClient] (http://hc.apache.org/httpclient-3.x/) for communication with [Github] (https://github.com/)
-
-[gpullr-frontend]: https://github.com/devbliss/gpullr-frontend/        "gPullR frontend"
