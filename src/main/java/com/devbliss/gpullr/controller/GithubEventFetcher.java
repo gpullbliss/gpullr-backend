@@ -1,5 +1,7 @@
 package com.devbliss.gpullr.controller;
 
+import com.devbliss.gpullr.domain.Event;
+import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.RepoCreatedEvent;
 import com.devbliss.gpullr.service.RepoService;
@@ -92,7 +94,7 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   }
 
   private void handleEventsResponse(GithubEventsResponse response, Repo repo) {
-    response.payload.forEach(pullRequestEventHandler::handlePullRequestEvent);
+    response.payload.forEach(event -> handleEvent(event));
     Date start = Date.from(response.nextFetch);
     executor.schedule(() -> fetchEventsAgain(repo, response.etagHeader), start);
     LOGGER.debug("Fetched "
@@ -102,5 +104,15 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
         + " / active threads in executor="
         + executor.getActiveCount() + ", queueSize="
         + executor.getScheduledThreadPoolExecutor().getQueue().size());
+  }
+
+  private void handleEvent(Event event) {
+    if(event.getClass().getSimpleName().toString().equals("PullRequestEvent")) {
+      pullRequestEventHandler.handlePullRequestEvent((PullRequestEvent)event);
+    }
+
+    if(event.getClass().getSimpleName().toString().equals("PullRequestCommentEvent")){
+      // handle comments here...
+    }
   }
 }

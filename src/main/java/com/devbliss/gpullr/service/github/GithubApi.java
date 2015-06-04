@@ -31,9 +31,6 @@ public interface GithubApi {
 
   GithubEventsResponse fetchAllEvents(Repo repo, Optional<String> etagHeader);
 
-  GitHubPullRequestCommentsResponse fetchPullRequestComments(PullRequest pullRequest,
-      Optional<String> etagHeader);
-
   List<User> fetchAllOrgaMembers() throws IOException;
 
   void assignUserToPullRequest(User user, PullRequest pull);

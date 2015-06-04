@@ -1,6 +1,6 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.PullRequestEvent;
+import com.devbliss.gpullr.domain.Event;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -13,10 +13,10 @@ import java.util.Optional;
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
-public class GithubEventsResponse extends AbstractGithubResponse<List<PullRequestEvent>> {
+public class GithubEventsResponse extends AbstractGithubResponse<List<Event>> {
 
   public GithubEventsResponse(
-      List<PullRequestEvent> pullRequestEvents,
+      List<Event> pullRequestEvents,
       Instant nextFetch,
       Optional<String> etagHeader) {
     super(pullRequestEvents, nextFetch, etagHeader);

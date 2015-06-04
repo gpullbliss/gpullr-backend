@@ -1,7 +1,9 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.domain.Event;
 import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.domain.PullRequestComment;
+import com.devbliss.gpullr.domain.PullRequestCommentEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
@@ -48,6 +50,8 @@ import org.springframework.stereotype.Component;
 public class GithubApiImpl implements GithubApi {
 
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
+  private static final String EVENT_TYPE_ISSUE_COMMENT = "IssueCommentEvent";
+  private static final String EVENT_TYPE_REVIEW_COMMENT = "PullRequestReviewCommentEvent";
 
   private static final String HEADER_LINK = "Link";
 
@@ -120,44 +124,12 @@ public class GithubApiImpl implements GithubApi {
     }
   }
 
-  @Override
-  public GitHubPullRequestCommentsResponse fetchPullRequestComments(PullRequest pullRequest,
-      Optional<String> etagHeader) {
-
-    GetPullRequestCommentsRequest req = new GetPullRequestCommentsRequest(etagHeader, 0, pullRequest);
-    GithubHttpResponse resp = githubClient.execute(req);
-
-    try {
-      Optional<List<PullRequestComment>> pullRequestComments = handleListResponse(resp,
-          this::parsePullRequestCommentsPayload);
-
-      List<PullRequestComment> comments = new ArrayList<>();
-      if(pullRequestComments.isPresent()) {
-        comments = pullRequestComments.get();
-      }
-
-      logger.debug("Finished PR comments fetch for {} with item count: {} and status code: {}",
-          pullRequest.branchName, comments.size(), resp.getStatusCode());
-
-      return new GitHubPullRequestCommentsResponse(comments, resp.getNextFetch(), resp.getEtag());
-    } catch (IOException e) {
-      throw new UnexpectedException(e);
-    }
-  }
-
-  private List<PullRequestComment> parsePullRequestCommentsPayload(List<JsonObject> jsonList) {
-    List<PullRequestComment> list = new ArrayList<>();
-
-    jsonList.forEach(el -> list.add(parseComment(el)));
-
-    return list;
-  }
-
-  private PullRequestComment parseComment(JsonObject object) {
+  private Optional<PullRequestCommentEvent> parseComment(JsonObject object) {
     PullRequestComment pullRequestComment = new PullRequestComment();
     pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString("created_at")));
-    pullRequestComment.setId(object.getInt("id"));
-    return pullRequestComment;
+    pullRequestComment.setId(object.getString("id"));
+
+    return Optional.of(new PullRequestCommentEvent(pullRequestComment));
   }
 
   @Override
@@ -173,9 +145,13 @@ public class GithubApiImpl implements GithubApi {
     try {
       GetGithubEventsRequest req = new GetGithubEventsRequest(repo, etagHeader, 0);
       GithubHttpResponse resp = githubClient.execute(req);
-      List<PullRequestEvent> events = new ArrayList<>();
+
       Optional<String> etag = resp.getEtag();
       Instant nextFetch = resp.getNextFetch();
+      List<Event> events = new ArrayList<>();
+
+      //events.add(new PullRequestCommentEvent(null));
+
       GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
 
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
@@ -262,7 +238,12 @@ public class GithubApiImpl implements GithubApi {
         userJson.getString(FIELD_KEY_PROFILE_URL));
   }
 
-  private Optional<PullRequestEvent> parseEvent(JsonObject eventJson, Repo repo) {
+  private Optional<? extends Event> parseEvent(JsonObject eventJson, Repo repo) {
+
+    if(isCommentEvent(eventJson)) {
+      return parseComment(eventJson);
+    }
+
     if (isPullRequestEvent(eventJson)) {
       return parsePullRequestEvent(eventJson, repo);
     }
@@ -323,6 +304,10 @@ public class GithubApiImpl implements GithubApi {
 
   private boolean isStringValue(JsonObject jsonObject, String fieldKey) {
     return jsonObject.containsKey(fieldKey) && jsonObject.get(fieldKey).getValueType() == ValueType.STRING;
+  }
+
+  private boolean isCommentEvent(JsonObject event) {
+    return EVENT_TYPE_ISSUE_COMMENT.equals(event.getString(FIELD_KEY_TYPE)) || EVENT_TYPE_REVIEW_COMMENT.equals(event.getString(FIELD_KEY_TYPE));
   }
 
   private boolean isPullRequestEvent(JsonObject event) {

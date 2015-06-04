@@ -7,19 +7,18 @@ package com.devbliss.gpullr.domain;
  *
  * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
-public class PullRequestEvent {
+public class PullRequestEvent extends Event {
+
+  public final Action action;
+  public final PullRequest pullRequest;
 
   public enum Action {
     ASSIGNED, UNASSIGNED, LABELED, UNLABELED, OPENED, CLOSED, REOPENED, SYNCHRONIZE;
-    
+
     public static Action parse(String lowerCaseName) {
       return valueOf(lowerCaseName.toUpperCase());
     }
   }
-
-  public final Action action;
-
-  public final PullRequest pullRequest;
 
   public PullRequestEvent(Action action, PullRequest pullRequest) {
     this.action = action;
