@@ -156,8 +156,6 @@ public class GithubApiImpl implements GithubApi {
       Instant nextFetch = resp.getNextFetch();
       List<Event> events = new ArrayList<>();
 
-      //events.add(new PullRequestCommentEvent(null));
-
       GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
 
       handleResponse(resp, jo -> parseEvent(jo, repo), req.requestForNextPage()).forEach(
@@ -362,21 +360,6 @@ public class GithubApiImpl implements GithubApi {
     } else {
       logger.warn(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
       return new ArrayList<>();
-    }
-  }
-
-  private <T> Optional<T> handleListResponse(GithubHttpResponse resp, Function<List<JsonObject>, T> mapper) throws IOException {
-
-    int statusCode = resp.getStatusCode();
-
-    if (statusCode == org.apache.http.HttpStatus.SC_OK) {
-
-      return Optional.of(mapper.apply(resp.getJsonObjects().get()));
-
-    } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
-      return Optional.empty();
-    } else {
-      throw new UnexpectedException(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
     }
   }
 

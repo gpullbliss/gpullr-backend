@@ -1,6 +1,7 @@
 package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.domain.Event;
+import com.devbliss.gpullr.domain.PullRequestCommentEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.RepoCreatedEvent;
@@ -107,11 +108,10 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   }
 
   private void handleEvent(Event event) {
-    if(event.getClass().getSimpleName().toString().equals("PullRequestEvent")) {
+    if(event.getClass().equals(PullRequestEvent.class)) {
       pullRequestEventHandler.handlePullRequestEvent((PullRequestEvent)event);
     }
-
-    if(event.getClass().getSimpleName().toString().equals("PullRequestCommentEvent")){
+    else if(event.getClass().equals(PullRequestCommentEvent.class)){
       // handle comments here...
     }
   }
