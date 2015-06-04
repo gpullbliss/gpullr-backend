@@ -2,8 +2,10 @@ package com.devbliss.gpullr.service.github;
 
 import com.devbliss.gpullr.domain.Event;
 import com.devbliss.gpullr.domain.PullRequest;
-import com.devbliss.gpullr.domain.PullRequestComment;
+
+import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.PullRequestCommentEvent;
+
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
@@ -125,7 +127,8 @@ public class GithubApiImpl implements GithubApi {
   }
 
   private Optional<PullRequestCommentEvent> parseComment(JsonObject object) {
-    PullRequestComment pullRequestComment = new PullRequestComment();
+    Comment pullRequestComment = new Comment();
+
     pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString("created_at")));
     pullRequestComment.setId(object.getString("id"));
 

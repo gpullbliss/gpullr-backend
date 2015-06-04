@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.devbliss.gpullr.Application;
+import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.PullRequest;
-import com.devbliss.gpullr.domain.PullRequestComment;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.domain.notifications.PullRequestClosedUserNotification;
@@ -13,7 +13,7 @@ import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotifica
 import com.devbliss.gpullr.domain.notifications.UserNotification;
 import com.devbliss.gpullr.domain.notifications.UserNotificationType;
 import com.devbliss.gpullr.exception.NotFoundException;
-import com.devbliss.gpullr.repository.PullRequestCommentRepository;
+import com.devbliss.gpullr.repository.CommentRepository;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RepoRepository;
 import com.devbliss.gpullr.repository.UserNotificationRepository;
@@ -57,10 +57,10 @@ public class UserNotificationServiceTest {
   private ApplicationContext applicationContext;
 
   @Autowired
-  private PullRequestCommentService pullRequestCommentService;
+  private CommentService pullRequestCommentService;
 
   @Autowired
-  private PullRequestCommentRepository pullRequestCommentRepository;
+  private CommentRepository pullRequestCommentRepository;
 
   private UserNotificationService notificationService;
 
@@ -197,8 +197,7 @@ public class UserNotificationServiceTest {
   public void calculateOneCommentNotificationForOneComment() {
 
     // at the beginning, there should be no notification:
-    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
-    assertEquals(0, notifications.size());
+    assertTrue(notificationService.allUnseenNotificationsForUser(receivingUser.id).isEmpty());
 
     // creating one pullrequest and a comment for it:
     PullRequest pullRequest = createAndSavePullRequest(
@@ -207,24 +206,28 @@ public class UserNotificationServiceTest {
         receivingUser,
         ZonedDateTime.now().minusHours(2),
         PullRequest.State.OPEN);
-    createAndSavePullRequestComment(123, pullRequest);
+    createAndSaveComment(123, pullRequest);
 
-    // after triggering notification calculation, there should be one comment notification:
+    // after triggering notification calculation, there should be one comment notification for the
+    // pullrequest author:
     notificationService.calculateCommentNotifications();
 
-    notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(1, notifications.size());
     assertTrue(notifications.get(0) instanceof PullRequestCommentedUserNotification);
     assertEquals(UserNotificationType.PULLREQUEST_COMMENTED, notifications.get(0).notificationType);
     PullRequestCommentedUserNotification notification = (PullRequestCommentedUserNotification) notifications.get(0);
     assertEquals(1, notification.count);
+
+    // but still none for the assignee:
+    notifications = notificationService.allUnseenNotificationsForUser(assignee.id);
+    assertEquals(0, notifications.size());
   }
 
   @Test
   public void calculateOneCommentNotificationForTwoCommentsOnSamePullRequest() {
     // at the beginning, there should be no notification:
-    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
-    assertEquals(0, notifications.size());
+    assertTrue(notificationService.allUnseenNotificationsForUser(receivingUser.id).isEmpty());
 
     // creating one pullrequest and two comments for it:
     PullRequest pullRequest = createAndSavePullRequest(
@@ -233,24 +236,27 @@ public class UserNotificationServiceTest {
         receivingUser,
         ZonedDateTime.now().minusHours(2),
         PullRequest.State.OPEN);
-    createAndSavePullRequestComment(123, pullRequest);
-    createAndSavePullRequestComment(124, pullRequest);
+    createAndSaveComment(123, pullRequest);
+    createAndSaveComment(124, pullRequest);
 
     // after triggering notification calculation, there should be one comment notification:
     notificationService.calculateCommentNotifications();
-    notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(1, notifications.size());
     assertTrue(notifications.get(0) instanceof PullRequestCommentedUserNotification);
     assertEquals(UserNotificationType.PULLREQUEST_COMMENTED, notifications.get(0).notificationType);
     PullRequestCommentedUserNotification notification = (PullRequestCommentedUserNotification) notifications.get(0);
     assertEquals(2, notification.count);
+
+    // but still none for the assignee:
+    notifications = notificationService.allUnseenNotificationsForUser(assignee.id);
+    assertEquals(0, notifications.size());
   }
 
   @Test
-  public void calculateTwoCommentNotificationForTwoCommentsOnSamePullRequestWhereOneIsSeen() {
+  public void calculateTwoCommentNotificationsForTwoCommentsOnSamePullRequestWhereOneIsSeen() {
     // at the beginning, there should be no notification:
-    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
-    assertEquals(0, notifications.size());
+    assertTrue(notificationService.allUnseenNotificationsForUser(receivingUser.id).isEmpty());
 
     // creating one pullrequest and two comments for it and trigger notification calculation:
     PullRequest pullRequest = createAndSavePullRequest(
@@ -259,16 +265,16 @@ public class UserNotificationServiceTest {
         receivingUser,
         ZonedDateTime.now().minusHours(2),
         PullRequest.State.OPEN);
-    createAndSavePullRequestComment(123, pullRequest);
-    createAndSavePullRequestComment(124, pullRequest);
+    createAndSaveComment(123, pullRequest);
+    createAndSaveComment(124, pullRequest);
     notificationService.calculateCommentNotifications();
 
     // mark notification as seen:
-    notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     notificationService.markAsSeen(notifications.get(0).id);
 
     // create another comment for the pull request:
-    createAndSavePullRequestComment(125, pullRequest);
+    createAndSaveComment(125, pullRequest);
 
     // after triggering the notification calculation again, there should be a new unseen
     // notification:
@@ -279,10 +285,54 @@ public class UserNotificationServiceTest {
     assertEquals(UserNotificationType.PULLREQUEST_COMMENTED, notifications.get(0).notificationType);
     PullRequestCommentedUserNotification notification = (PullRequestCommentedUserNotification) notifications.get(0);
     assertEquals(1, notification.count);
+
+    // but still none for the assignee:
+    notifications = notificationService.allUnseenNotificationsForUser(assignee.id);
+    assertEquals(0, notifications.size());
+  }
+  
+  @Test
+  public void calculateTwoCommentNotificationsForFiveCommentsOnTwoDifferentPullRequests() {
+    // at the beginning, there should be no notification for any user:
+    assertTrue(notificationService.allUnseenNotificationsForUser(receivingUser.id).isEmpty());
+    assertTrue(notificationService.allUnseenNotificationsForUser(assignee.id).isEmpty());
+
+    // create two pull requests with assignee user as assignee receiving user as author and vice versa:
+    PullRequest pr0 = createAndSavePullRequest(
+        234,
+        assignee,
+        receivingUser,
+        ZonedDateTime.now().minusHours(2),
+        PullRequest.State.OPEN);
+    
+    PullRequest pr1 = createAndSavePullRequest(
+        789,
+        receivingUser,
+        assignee,
+        ZonedDateTime.now().minusHours(2),
+        PullRequest.State.OPEN);
+    
+    // create two comments with one of the pull requests and three with the other:
+    createAndSaveComment(123, pr0);
+    createAndSaveComment(124, pr0);
+    
+    createAndSaveComment(125, pr1);
+    createAndSaveComment(126, pr1);
+    createAndSaveComment(127, pr1);
+    
+    // after triggering the notification calculation, there should be the respective notifications:
+    notificationService.calculateCommentNotifications();
+    List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
+    assertEquals(1, notifications.size());
+    assertEquals(2, ((PullRequestCommentedUserNotification) notifications.get(0)).count);
+    
+    notifications = notificationService.allUnseenNotificationsForUser(assignee.id);
+    assertEquals(1, notifications.size());
+    assertEquals(3, ((PullRequestCommentedUserNotification) notifications.get(0)).count);
   }
 
-  private PullRequestComment createAndSavePullRequestComment(int id, PullRequest pullRequest) {
-    PullRequestComment pullRequestComment = new PullRequestComment();
+  private Comment createAndSaveComment(int id, PullRequest pullRequest) {
+    Comment pullRequestComment = new Comment();
     pullRequestComment.setId(id);
     pullRequestComment.setCreatedAt(ZonedDateTime.now().minusHours(1));
     pullRequestComment.setPullRequest(pullRequest);

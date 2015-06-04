@@ -2,9 +2,9 @@ package com.devbliss.gpullr.domain;
 
 public class PullRequestCommentEvent extends Event {
 
-  public PullRequestComment comment;
+  public Comment comment;
 
-  public PullRequestCommentEvent(PullRequestComment comment) {
+  public PullRequestCommentEvent(Comment comment) {
     this.comment = comment;
   }
 

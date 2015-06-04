@@ -23,4 +23,5 @@ public interface UserNotificationRepository extends CrudRepository<UserNotificat
   Optional<UserNotification> findByPullRequestIdAndNotificationTypeAndSeenIsFalse(
       int pullRequestId,
       String notificationType);
+  
 }
