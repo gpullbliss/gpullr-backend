@@ -50,7 +50,7 @@ import org.springframework.stereotype.Component;
 public class GithubApiImpl implements GithubApi {
 
   private static final String FIELD_KEY_COMMENT = "comment";
-  private static final String FIELD_KEY_PULL_REQUEST = "pull_request";
+  private static final String FIELD_KEY_PULL_REQUEST = "issue";
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
   private static final String EVENT_TYPE_ISSUE_COMMENT = "IssueCommentEvent";
   private static final String EVENT_TYPE_REVIEW_COMMENT = "PullRequestReviewCommentEvent";
@@ -132,10 +132,17 @@ public class GithubApiImpl implements GithubApi {
   }
 
   private Optional<PullRequestCommentEvent> parseCommentEvent(JsonObject object) {
+    System.err.println("******************************* COMMENT EVENT");
+    System.err.println("******************************* COMMENT EVENT");
+    System.err.println("******************************* COMMENT EVENT:");
+    System.err.println(object);
     Comment pullRequestComment = new Comment();
     pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString(FIELD_KEY_CREATED_AT)));
-    pullRequestComment.setId(object.getJsonObject(FIELD_KEY_COMMENT).getInt(FIELD_KEY_ID));
-    int pullRequestId = object.getJsonObject(FIELD_KEY_PULL_REQUEST).getInt(FIELD_KEY_ID);
+    pullRequestComment.setId(object
+        .getJsonObject(FIELD_KEY_PAYLOAD)
+        .getJsonObject(FIELD_KEY_COMMENT)
+        .getInt(FIELD_KEY_ID));
+    int pullRequestId = object.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(FIELD_KEY_PULL_REQUEST).getInt(FIELD_KEY_ID);
     return Optional.of(new PullRequestCommentEvent(pullRequestComment, pullRequestId));
   }
 
