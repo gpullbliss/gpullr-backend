@@ -1,5 +1,6 @@
 ### Version 1.0.0-SNAPSHOT
 
+ - [refactor] PRT 109 - alignt README documentation to current state of the application
  - [feature] PRT 31 - enable/disable desktop notifications at user settings
  - [refactor] due to PRT 121 switch to new oauth application
  - [bug] old PRs not disappearing
@@ -78,4 +79,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Wed Jun 03 11:47:41 CEST 2015
+-- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Thu Jun 04 13:08:32 CEST 2015
