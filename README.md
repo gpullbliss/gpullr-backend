@@ -35,6 +35,12 @@ The application supports several profiles, which are supposed to ease the handli
 * prod
 
 ## Using the application
+### GitHub user (deprecated)
+describe the backend user that is used
+
+### devbliss organization (deprecated)
+all information is organization centred
+
 ### Login using curl
 **Login:** `curl -b cookies.txt -c cookies.txt -v -XPOST http://127.0.0.1:8888/users/login/95374`
 
