@@ -1,5 +1,8 @@
 ### Version 1.0.0-SNAPSHOT
 
+ - [feature] PRT 31 - enable/disable desktop notifications at user settings
+ - [refactor] due to PRT 121 switch to new oauth application
+ - [bug] old PRs not disappearing
  - [bug] activate repos as they become available again
  - [feature] api rate limit reached notifications
  - [feature] use a different github account for local dev development
@@ -75,4 +78,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Wed May 27 13:40:03 CEST 2015
+-- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Wed Jun 03 11:47:41 CEST 2015

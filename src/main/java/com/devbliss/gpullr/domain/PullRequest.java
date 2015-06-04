@@ -22,7 +22,17 @@ public class PullRequest {
   private static final String SEPARATOR = " / ";
 
   public enum State {
-    OPEN, CLOSED
+    OPEN, CLOSED;
+
+    /**
+     * Parses State from typical lower case string representation
+     * 
+     * @param stringRepresentation
+     * @return
+     */
+    public static State parse(String stringRepresentation) {
+      return valueOf(stringRepresentation.toUpperCase());
+    }
   }
 
   @Id

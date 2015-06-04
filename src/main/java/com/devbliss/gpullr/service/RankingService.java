@@ -9,6 +9,7 @@ import com.devbliss.gpullr.domain.RankingScope;
 import com.devbliss.gpullr.domain.User;
 import com.devbliss.gpullr.repository.PullRequestRepository;
 import com.devbliss.gpullr.repository.RankingListRepository;
+import com.devbliss.gpullr.repository.RankingRepository;
 import com.devbliss.gpullr.repository.UserRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -36,14 +37,18 @@ public class RankingService {
 
   private final UserRepository userRepository;
 
+  private final RankingRepository rankingRepository;
+
   @Autowired
   public RankingService(
       RankingListRepository rankingListRepository,
       PullRequestRepository pullRequestRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      RankingRepository rankingRepository) {
     this.rankingListRepository = rankingListRepository;
     this.pullRequestRepository = pullRequestRepository;
     this.userRepository = userRepository;
+    this.rankingRepository = rankingRepository;
   }
 
   public Optional<RankingList> findAllWithRankingScope(RankingScope rankingScope) {
@@ -76,9 +81,15 @@ public class RankingService {
   }
 
   private void deleteRankingListsOlderThan(ZonedDateTime calculationDate, RankingScope rankingScope) {
-    List<RankingList> rankingsToDelete = rankingListRepository.findByCalculationDateBeforeAndRankingScope(
-        calculationDate, rankingScope);
-    rankingListRepository.delete(rankingsToDelete);
+    List<RankingList> rankingListsToDelete = rankingListRepository
+      .findByCalculationDateBeforeAndRankingScope(calculationDate, rankingScope);
+    rankingListsToDelete.forEach(this::deleteRankingsOfList);
+    rankingListRepository.delete(rankingListsToDelete);
+  }
+
+  private void deleteRankingsOfList(RankingList rankingList) {
+    rankingList.clearRankings();
+    rankingListRepository.save(rankingList);
   }
 
   private List<Ranking> calculateRankingsForScope(RankingScope rankingScope) {

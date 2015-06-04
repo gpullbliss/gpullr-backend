@@ -194,7 +194,7 @@ public class PullRequestServiceTest {
     pullRequestService.insertOrUpdate(pullRequest);
 
     // make sure only the open PR is returned:
-    List<PullRequest> openPrs = pullRequestService.findAllOpen();
+    List<PullRequest> openPrs = pullRequestService.findAllOpen(true);
     assertEquals(1, openPrs.size());
     assertEquals(State.OPEN, openPrs.get(0).state);
     assertEquals(PR_ID, openPrs.get(0).id.intValue());
@@ -242,7 +242,7 @@ public class PullRequestServiceTest {
     pullRequestService.insertOrUpdate(closedPullRequest);
 
     // expecting to retrieve three pull requests:
-    List<PullRequest> pullRequests = pullRequestService.findAllOpen(repo2Title,
+    List<PullRequest> pullRequests = pullRequestService.findAllOpenFiltered(repo2Title,
         Integer.toString(repo1Id),
         repo3Title,
         Integer.toString(repo4Id));
@@ -266,7 +266,7 @@ public class PullRequestServiceTest {
     pullRequestService.insertOrUpdate(openPullRequest);
 
     // ask for all PRs with the id of the repo just created or a non-existing id:
-    pullRequestService.findAllOpen(Integer.toString(repoId), Integer.toString(repoId + 1));
+    pullRequestService.findAllOpenFiltered(Integer.toString(repoId), Integer.toString(repoId + 1));
   }
 
   @Test(expected = NotFoundException.class)
@@ -282,7 +282,7 @@ public class PullRequestServiceTest {
     pullRequestService.insertOrUpdate(openPullRequest);
 
     // ask for all PRs with the title of the repo just created or a non-existing title:
-    pullRequestService.findAllOpen(repoTitle, repoTitle + "_doesnotexist");
+    pullRequestService.findAllOpenFiltered(repoTitle, repoTitle + "_doesnotexist");
   }
 
   @Test
@@ -301,7 +301,7 @@ public class PullRequestServiceTest {
     testPr.repo = initRepo(BLACKLISTED_REPO_ID, "another repo");
     pullRequestService.insertOrUpdate(testPr);
 
-    List<PullRequest> allOpen = pullRequestService.findAllOpen();
+    List<PullRequest> allOpen = pullRequestService.findAllOpen(true);
 
     assertEquals(1, allOpen.size());
     assertEquals(PR_ID, (int) allOpen.get(0).id);
