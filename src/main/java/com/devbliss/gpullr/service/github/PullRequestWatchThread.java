@@ -1,6 +1,5 @@
 package com.devbliss.gpullr.service.github;
 
-import com.devbliss.gpullr.domain.PullRequest;
 import com.devbliss.gpullr.service.CommentService;
 import com.devbliss.gpullr.service.PullRequestService;
 import java.util.Date;
@@ -82,11 +81,5 @@ public class PullRequestWatchThread extends Thread {
     if (resp.payload.size() > 0) {
       pullRequestService.saveBuildstatus(pullRequestId, resp.payload.get(0));
     }
-  }
-
-  private void handleResponse(GitHubPullRequestCommentsResponse resp, PullRequest pullRequest) {
-    LOGGER.info("get {} comments for PR {} ...", resp.payload.size(), pullRequest.title);
-    resp.payload.stream().forEach(pullRequestComment -> pullRequestComment.setPullRequest(pullRequest));
-    pullRequestCommentService.save(resp.payload);
   }
 }
