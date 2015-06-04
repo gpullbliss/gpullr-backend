@@ -1,10 +1,12 @@
 package com.devbliss.gpullr.controller;
 
 import com.devbliss.gpullr.domain.Event;
+import com.devbliss.gpullr.domain.PullRequestCommentEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.Repo;
 import com.devbliss.gpullr.domain.RepoCreatedEvent;
 import com.devbliss.gpullr.service.RepoService;
+import com.devbliss.gpullr.service.github.CommentEventHandler;
 import com.devbliss.gpullr.service.github.GithubApi;
 import com.devbliss.gpullr.service.github.GithubEventsResponse;
 import com.devbliss.gpullr.service.github.PullRequestEventHandler;
@@ -41,17 +43,21 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   private final PullRequestEventHandler pullRequestEventHandler;
 
   private final ThreadPoolTaskScheduler executor;
+  
+  private final CommentEventHandler commentEventHandler;
 
   @Autowired
   public GithubEventFetcher(
       GithubApi githubApi,
       RepoService repoService,
       PullRequestEventHandler pullRequestEventHandler,
-      ThreadPoolTaskScheduler executor) {
+      ThreadPoolTaskScheduler executor, 
+      CommentEventHandler commentEventHandler) {
     this.githubApi = githubApi;
     this.repoService = repoService;
     this.pullRequestEventHandler = pullRequestEventHandler;
     this.executor = executor;
+    this.commentEventHandler = commentEventHandler;
   }
 
   /**
@@ -107,12 +113,12 @@ public class GithubEventFetcher implements ApplicationListener<RepoCreatedEvent>
   }
 
   private void handleEvent(Event event) {
-    if(event.getClass().getSimpleName().toString().equals("PullRequestEvent")) {
+    if(event.getClass().equals(PullRequestEvent.class)) {
       pullRequestEventHandler.handlePullRequestEvent((PullRequestEvent)event);
     }
 
-    if(event.getClass().getSimpleName().toString().equals("PullRequestCommentEvent")){
-      // handle comments here...
+    else if(event.getClass().equals(PullRequestCommentEvent.class)){
+      commentEventHandler.handleCommentEvent((PullRequestCommentEvent) event);
     }
   }
 }

@@ -10,6 +10,6 @@ public interface CommentRepository extends CrudRepository<Comment, Integer> {
 
   List<Comment> findAll();
 
-  @Query("select c from Comment c where c.notifications is empty")
-  List<Comment> findAllUnreferenced();
+  @Query("select c from Comment c where c.pullRequest.id = ? and c.notifications is empty")
+  List<Comment> findAllUnreferenced(int pullRequestId);
 }

@@ -1,11 +1,9 @@
 package com.devbliss.gpullr.service.github;
 
+import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.Event;
 import com.devbliss.gpullr.domain.PullRequest;
-
-import com.devbliss.gpullr.domain.Comment;
 import com.devbliss.gpullr.domain.PullRequestCommentEvent;
-
 import com.devbliss.gpullr.domain.PullRequestEvent;
 import com.devbliss.gpullr.domain.PullRequestEvent.Action;
 import com.devbliss.gpullr.domain.Repo;
@@ -51,6 +49,7 @@ import org.springframework.stereotype.Component;
     proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class GithubApiImpl implements GithubApi {
 
+  private static final String FIELD_KEY_PULL_REQUEST = "pull_request";
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
   private static final String EVENT_TYPE_ISSUE_COMMENT = "IssueCommentEvent";
   private static final String EVENT_TYPE_REVIEW_COMMENT = "PullRequestReviewCommentEvent";
@@ -88,6 +87,8 @@ public class GithubApiImpl implements GithubApi {
   private static final String FIELD_KEY_ASSIGNEE = "assignee";
 
   private static final String FIELD_KEY_CLOSED_AT = "closed_at";
+
+  private static final String FIELD_KEY_CREATED_AT = "created_at";
 
   private static final String FIELD_KEY_MERGED_AT = "merged_at";
 
@@ -129,13 +130,12 @@ public class GithubApiImpl implements GithubApi {
     }
   }
 
-  private Optional<PullRequestCommentEvent> parseComment(JsonObject object) {
+  private Optional<PullRequestCommentEvent> parseCommentEvent(JsonObject object) {
     Comment pullRequestComment = new Comment();
-
-    pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString("created_at")));
-    pullRequestComment.setId(object.getString("id"));
-
-    return Optional.of(new PullRequestCommentEvent(pullRequestComment));
+    pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString(FIELD_KEY_CREATED_AT)));
+    pullRequestComment.setId(object.getInt(FIELD_KEY_ID));
+    int pullRequestId = object.getJsonObject(FIELD_KEY_PULL_REQUEST).getInt(FIELD_KEY_ID);
+    return Optional.of(new PullRequestCommentEvent(pullRequestComment, pullRequestId));
   }
 
   @Override
@@ -156,7 +156,7 @@ public class GithubApiImpl implements GithubApi {
       Instant nextFetch = resp.getNextFetch();
       List<Event> events = new ArrayList<>();
 
-      //events.add(new PullRequestCommentEvent(null));
+      // events.add(new PullRequestCommentEvent(null));
 
       GithubEventsResponse result = new GithubEventsResponse(events, nextFetch, etag);
 
@@ -183,9 +183,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       Request req = client.entry()
-          .method(Request.PATCH).body().set(json)
-          .back().uri().path(uri)
-          .back();
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
 
       Response resp = req.fetch();
 
@@ -208,9 +208,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       Request req = client.entry()
-          .method(Request.PATCH).body().set(json)
-          .back().uri().path(uri)
-          .back();
+        .method(Request.PATCH).body().set(json)
+        .back().uri().path(uri)
+        .back();
 
       req.fetch();
 
@@ -246,11 +246,9 @@ public class GithubApiImpl implements GithubApi {
 
   private Optional<? extends Event> parseEvent(JsonObject eventJson, Repo repo) {
 
-    if(isCommentEvent(eventJson)) {
-      return parseComment(eventJson);
-    }
-
-    if (isPullRequestEvent(eventJson)) {
+    if (isCommentEvent(eventJson)) {
+      return parseCommentEvent(eventJson);
+    } else if (isPullRequestEvent(eventJson)) {
       return parsePullRequestEvent(eventJson, repo);
     }
     return Optional.empty();
@@ -259,7 +257,7 @@ public class GithubApiImpl implements GithubApi {
   private Optional<PullRequestEvent> parsePullRequestEvent(JsonObject eventJson, Repo repo) {
     JsonObject payloadJson = eventJson.getJsonObject(FIELD_KEY_PAYLOAD);
     Action action = Action.parse(payloadJson.getString(FIELD_KEY_ACTION));
-    PullRequest pullRequest = parsePullRequestPayload(payloadJson.getJsonObject("pull_request"));
+    PullRequest pullRequest = parsePullRequestPayload(payloadJson.getJsonObject(FIELD_KEY_PULL_REQUEST));
     pullRequest.repo = repo;
 
     return Optional.of(new PullRequestEvent(action, pullRequest));
@@ -331,7 +329,8 @@ public class GithubApiImpl implements GithubApi {
   }
 
   private boolean isCommentEvent(JsonObject event) {
-    return EVENT_TYPE_ISSUE_COMMENT.equals(event.getString(FIELD_KEY_TYPE)) || EVENT_TYPE_REVIEW_COMMENT.equals(event.getString(FIELD_KEY_TYPE));
+    return EVENT_TYPE_ISSUE_COMMENT.equals(event.getString(FIELD_KEY_TYPE))
+        || EVENT_TYPE_REVIEW_COMMENT.equals(event.getString(FIELD_KEY_TYPE));
   }
 
   private boolean isPullRequestEvent(JsonObject event) {
@@ -362,21 +361,6 @@ public class GithubApiImpl implements GithubApi {
     } else {
       logger.warn(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
       return new ArrayList<>();
-    }
-  }
-
-  private <T> Optional<T> handleListResponse(GithubHttpResponse resp, Function<List<JsonObject>, T> mapper) throws IOException {
-
-    int statusCode = resp.getStatusCode();
-
-    if (statusCode == org.apache.http.HttpStatus.SC_OK) {
-
-      return Optional.of(mapper.apply(resp.getJsonObjects().get()));
-
-    } else if (statusCode == org.apache.http.HttpStatus.SC_NOT_MODIFIED) {
-      return Optional.empty();
-    } else {
-      throw new UnexpectedException(String.format(ERR_MSG_RESPONSE, resp.uri, statusCode));
     }
   }
 
@@ -419,9 +403,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       return resp.getJsonObjects().get()
-          .stream()
-          .map(mapper)
-          .collect(Collectors.toList());
+        .stream()
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -433,12 +417,12 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-          .readArray()
-          .stream()
-          .filter(v -> v.getValueType() == ValueType.OBJECT)
-          .map(v -> (JsonObject) v)
-          .map(mapper)
-          .collect(Collectors.toList());
+        .readArray()
+        .stream()
+        .filter(v -> v.getValueType() == ValueType.OBJECT)
+        .map(v -> (JsonObject) v)
+        .map(mapper)
+        .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }

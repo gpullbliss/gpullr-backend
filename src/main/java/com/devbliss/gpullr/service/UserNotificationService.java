@@ -83,8 +83,8 @@ public class UserNotificationService {
     }
   }
 
-  public void calculateCommentNotifications() {
-    commentRepository.findAllUnreferenced().forEach(this::ensureNotification);
+  public void calculateCommentNotifications(PullRequest pullRequest) {
+    commentRepository.findAllUnreferenced(pullRequest.id).forEach(this::ensureNotification);
   }
 
   private void ensureNotification(Comment comment) {
@@ -107,7 +107,7 @@ public class UserNotificationService {
       notification.pullRequest = comment.getPullRequest();
       notification.count = 1;
     }
-    
+
     userNotificationRepository.save(notification);
     comment.notifications.add(notification);
     commentRepository.save(comment);

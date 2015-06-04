@@ -1,10 +1,9 @@
 package com.devbliss.gpullr.domain;
 
-import javax.persistence.CascadeType;
-
 import com.devbliss.gpullr.domain.notifications.PullRequestCommentedUserNotification;
 import java.time.ZonedDateTime;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -19,29 +18,19 @@ import javax.persistence.Table;
 public class Comment {
 
   @Id
-  private String id;
-
-  private String diffHunk;
+  private int id;
 
   private ZonedDateTime createdAt;
 
   @ManyToOne(optional = false)
   private PullRequest pullRequest;
 
-  @ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinTable(
       name = "NOTIFICATION_COMMENTS",
       joinColumns = @JoinColumn(name = "COMMENT_ID"),
       inverseJoinColumns = @JoinColumn(name = "NOTIFICATION_ID"))
   public List<PullRequestCommentedUserNotification> notifications;
-
-  public String getDiffHunk() {
-    return diffHunk;
-  }
-
-  public void setDiffHunk(String diffHunk) {
-    this.diffHunk = diffHunk;
-  }
 
   public PullRequest getPullRequest() {
     return pullRequest;
@@ -51,11 +40,11 @@ public class Comment {
     this.pullRequest = pullRequest;
   }
 
-  public String getId() {
+  public int getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(int id) {
     this.id = id;
   }
 

@@ -83,10 +83,4 @@ public class PullRequestWatchThread extends Thread {
       pullRequestService.saveBuildstatus(pullRequestId, resp.payload.get(0));
     }
   }
-
-  private void handleResponse(GitHubPullRequestCommentsResponse resp, PullRequest pullRequest) {
-    LOGGER.info("get {} comments for PR {} ...", resp.payload.size(), pullRequest.title);
-    resp.payload.stream().forEach(pullRequestComment -> pullRequestComment.setPullRequest(pullRequest));
-    pullRequestCommentService.save(resp.payload);
-  }
 }
