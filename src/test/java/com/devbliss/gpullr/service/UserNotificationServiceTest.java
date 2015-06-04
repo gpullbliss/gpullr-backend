@@ -247,7 +247,7 @@ public class UserNotificationServiceTest {
   }
 
   @Test
-  public void calculateTwoCommentNotificationForTwoCommentsOnSamePullRequestWhereOneIsSeen() {
+  public void calculateTwoCommentNotificationsForTwoCommentsOnSamePullRequestWhereOneIsSeen() {
     // at the beginning, there should be no notification:
     List<UserNotification> notifications = notificationService.allUnseenNotificationsForUser(receivingUser.id);
     assertEquals(0, notifications.size());
