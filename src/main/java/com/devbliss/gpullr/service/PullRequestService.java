@@ -65,10 +65,10 @@ public class PullRequestService {
 
   public List<PullRequest> findAll() {
     return pullRequestRepository
-      .findAll()
-      .stream()
-      .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
-      .collect(Collectors.toList());
+        .findAll()
+        .stream()
+        .sorted((p1, p2) -> p1.createdAt.compareTo(p2.createdAt))
+        .collect(Collectors.toList());
   }
 
   /**
@@ -92,9 +92,9 @@ public class PullRequestService {
         UserSettings userSettings = user.get().userSettings;
         if (hasBlacklistedRepos(user.get())) {
           prs = prs
-            .stream()
-            .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
-            .collect(Collectors.toList());
+              .stream()
+              .filter(pr -> !userSettings.repoBlackList.contains(pr.repo.id))
+              .collect(Collectors.toList());
         }
       }
     }
@@ -104,15 +104,15 @@ public class PullRequestService {
 
   public List<PullRequest> findAllOpenFiltered(String... repoIdsOrNames) {
     List<Repo> repos = Stream.of(repoIdsOrNames)
-      .map(ion -> findRepoByIdOrName(ion))
-      .collect(Collectors.toList());
+        .map(ion -> findRepoByIdOrName(ion))
+        .collect(Collectors.toList());
 
     List<PullRequest> openPullRequests = findAllOpen(true);
 
     return openPullRequests
-      .stream()
-      .filter(pr -> repos.contains(pr.repo))
-      .collect(Collectors.toList());
+        .stream()
+        .filter(pr -> repos.contains(pr.repo))
+        .collect(Collectors.toList());
   }
 
   private boolean hasBlacklistedRepos(User user) {
@@ -133,10 +133,10 @@ public class PullRequestService {
    */
   public List<PullRequest> findAllClosed() {
     List<PullRequest> pullRequests = pullRequestRepository
-      .findAllByState(PullRequest.State.CLOSED)
-      .stream()
-      .sorted((p1, p2) -> p1.closedAt.compareTo(p2.closedAt))
-      .collect(Collectors.toList());
+        .findAllByState(PullRequest.State.CLOSED)
+        .stream()
+        .sorted((p1, p2) -> p1.closedAt.compareTo(p2.closedAt))
+        .collect(Collectors.toList());
 
     return pullRequests;
   }
@@ -161,14 +161,19 @@ public class PullRequestService {
     return pullRequestRepository.findById(id);
   }
 
+  public Optional<PullRequest> findByUrl(String html_url) {
+    System.err.println("pullRequestRepository.findByUrl(" + html_url + ")");
+    return pullRequestRepository.findByUrl(html_url);
+  }
+
   public boolean exists(Integer id) {
     return pullRequestRepository.exists(id);
   }
 
   public void assignPullRequest(User user, Integer pullRequestId) {
     PullRequest pullRequest = pullRequestRepository
-      .findById(pullRequestId)
-      .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
+        .findById(pullRequestId)
+        .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
 
     if (isUserUnknown(user)) {
       throw new NotFoundException("Cannot assign unknown user " + user.username + " to a pullRequest.");
@@ -182,8 +187,8 @@ public class PullRequestService {
 
   public void unassignPullRequest(User user, Integer pullRequestId) {
     PullRequest pullRequest = pullRequestRepository
-      .findById(pullRequestId)
-      .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
+        .findById(pullRequestId)
+        .orElseThrow(() -> new NotFoundException(NO_SUCH_REPO_MESSAGE + pullRequestId));
 
     if (isUserUnknown(user)) {
       throw new NotFoundException("Cannot unassign unknown user " + user.username + " from a pullRequest.");
@@ -223,9 +228,9 @@ public class PullRequestService {
 
   public void saveBuildstatus(int pullrequestId, BuildStatus buildStatus) {
     PullRequest pullRequest = pullRequestRepository
-      .findById(pullrequestId)
-      .orElseThrow(
-          () -> new NotFoundException("Cannot save build status: no pull request found with id " + pullrequestId));
+        .findById(pullrequestId)
+        .orElseThrow(
+            () -> new NotFoundException("Cannot save build status: no pull request found with id " + pullrequestId));
     pullRequest.buildStatus = buildStatus;
     pullRequestRepository.save(pullRequest);
   }

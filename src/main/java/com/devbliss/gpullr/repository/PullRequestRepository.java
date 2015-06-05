@@ -23,5 +23,7 @@ public interface PullRequestRepository extends CrudRepository<PullRequest, Integ
 
   Optional<PullRequest> findById(Integer id);
 
+  Optional<PullRequest> findByUrl(String pullRequestUrl);
+
   List<PullRequest> findByAssigneeAndState(User assignee, State state);
 }

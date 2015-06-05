@@ -50,9 +50,15 @@ import org.springframework.stereotype.Component;
 public class GithubApiImpl implements GithubApi {
 
   private static final String FIELD_KEY_COMMENT = "comment";
-  private static final String FIELD_KEY_PULL_REQUEST = "issue";
+
+  private static final String FIELD_KEY_ISSUE = "issue";
+
+  private static final String FIELD_KEY_PULL_REQUEST = "pull_request";
+
   private static final String EVENT_TYPE_PULL_REQUEST = "PullRequestEvent";
+
   private static final String EVENT_TYPE_ISSUE_COMMENT = "IssueCommentEvent";
+
   private static final String EVENT_TYPE_REVIEW_COMMENT = "PullRequestReviewCommentEvent";
 
   private static final String HEADER_LINK = "Link";
@@ -131,19 +137,56 @@ public class GithubApiImpl implements GithubApi {
     }
   }
 
+  @Override
+  public GithubPullRequestResponse fetchAllPullRequests(Repo repository, Optional<String> etagHeader) {
+    throw new UnexpectedException("fetchAllPullRequests: METHOD NOT IMPLEMENTED YET");
+  }
+
   private Optional<PullRequestCommentEvent> parseCommentEvent(JsonObject object) {
-    System.err.println("******************************* COMMENT EVENT");
-    System.err.println("******************************* COMMENT EVENT");
-    System.err.println("******************************* COMMENT EVENT:");
+    System.err.println("******************************* COMMENT EVENT *******************************");
     System.err.println(object);
+    System.err.println("******************************* ************* *******************************");
+
     Comment pullRequestComment = new Comment();
     pullRequestComment.setCreatedAt(ZonedDateTime.parse(object.getString(FIELD_KEY_CREATED_AT)));
     pullRequestComment.setId(object
         .getJsonObject(FIELD_KEY_PAYLOAD)
         .getJsonObject(FIELD_KEY_COMMENT)
         .getInt(FIELD_KEY_ID));
-    int pullRequestId = object.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(FIELD_KEY_PULL_REQUEST).getInt(FIELD_KEY_ID);
-    return Optional.of(new PullRequestCommentEvent(pullRequestComment, pullRequestId));
+
+    PullRequestCommentEvent pullRequestCommentEvent;
+
+    if (EVENT_TYPE_ISSUE_COMMENT.equals(object.getString(FIELD_KEY_TYPE))) {
+
+      JsonObject pullRequestJsonObject = object
+          .getJsonObject(FIELD_KEY_PAYLOAD)
+          .getJsonObject(FIELD_KEY_ISSUE)
+          .getJsonObject(FIELD_KEY_PULL_REQUEST);
+
+      // this comment has nothing to do with any pull requests -> empty response
+      if (pullRequestJsonObject == null) {
+        System.err.println("****** " + EVENT_TYPE_ISSUE_COMMENT + "  -- not associated with any pull request");
+        return Optional.empty();
+      }
+
+      String pullRequestUrl = pullRequestJsonObject
+          .getString("html_url", "");
+      System.err.println("****** " + EVENT_TYPE_ISSUE_COMMENT + "  set URL = " + pullRequestUrl);
+
+      pullRequestCommentEvent = new PullRequestCommentEvent(pullRequestComment, pullRequestUrl);
+
+    } else if (EVENT_TYPE_REVIEW_COMMENT.equals(object.getString(FIELD_KEY_TYPE))) {
+      int pullRequestId = object.getJsonObject(FIELD_KEY_PAYLOAD).getJsonObject(FIELD_KEY_PULL_REQUEST).getInt(FIELD_KEY_ID);
+      System.err.println("****** " + EVENT_TYPE_REVIEW_COMMENT + "  set ID = " + pullRequestId);
+
+      pullRequestCommentEvent = new PullRequestCommentEvent(pullRequestComment, pullRequestId);
+
+    } else {
+      System.err.println("******************  NEITHER: IssueCommentEvent NOR PullRequestReviewCommentEvent  ******************");
+      return Optional.empty();
+    }
+
+    return Optional.of(pullRequestCommentEvent);
   }
 
   @Override
@@ -187,9 +230,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       Request req = client.entry()
-        .method(Request.PATCH).body().set(json)
-        .back().uri().path(uri)
-        .back();
+          .method(Request.PATCH).body().set(json)
+          .back().uri().path(uri)
+          .back();
 
       Response resp = req.fetch();
 
@@ -212,9 +255,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       Request req = client.entry()
-        .method(Request.PATCH).body().set(json)
-        .back().uri().path(uri)
-        .back();
+          .method(Request.PATCH).body().set(json)
+          .back().uri().path(uri)
+          .back();
 
       req.fetch();
 
@@ -407,9 +450,9 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       return resp.getJsonObjects().get()
-        .stream()
-        .map(mapper)
-        .collect(Collectors.toList());
+          .stream()
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (Exception e) {
       throw new UnexpectedException(e);
     }
@@ -421,12 +464,12 @@ public class GithubApiImpl implements GithubApi {
 
     try {
       return jrf.createReader(new ByteArrayInputStream(resp.binary()))
-        .readArray()
-        .stream()
-        .filter(v -> v.getValueType() == ValueType.OBJECT)
-        .map(v -> (JsonObject) v)
-        .map(mapper)
-        .collect(Collectors.toList());
+          .readArray()
+          .stream()
+          .filter(v -> v.getValueType() == ValueType.OBJECT)
+          .map(v -> (JsonObject) v)
+          .map(mapper)
+          .collect(Collectors.toList());
     } catch (JsonException e) {
       throw new UnexpectedException(e);
     }

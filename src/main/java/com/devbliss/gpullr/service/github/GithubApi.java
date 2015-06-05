@@ -26,6 +26,8 @@ public interface GithubApi {
    */
   GithubPullRequestResponse fetchPullRequest(PullRequest pullRequest, Optional<String> etagHeader);
 
+  GithubPullRequestResponse fetchAllPullRequests(Repo repository, Optional<String> etagHeader);
+
   GithubPullRequestBuildStatusResponse fetchBuildStatus(PullRequest pullRequest,
       Optional<String> etagHeader);
 
