@@ -1,35 +1,66 @@
-# gpullr-backend
-pull request administration tool - backend
+# gPullR backend
+The purpose of gPullR is to provide a handy tool for visualization and organization of pull requests and the process of code review. This project provides the backend and its underlying business logic. It stores data like all concerned users, repositories, pull requests and so on. The backend provides a RESTful interface for information exchange with RESTful clients like [gPullR frontend](https://github.com/devbliss/gpullr-frontend/).
 
-1. [Introduction] (#introduction)
--  [Development] (#development)
- -  [Gradle tasks] (#gradle-tasks)
- -  [Login using CURL] (#login-using-curl)
- -  [Updating schema.sql] (#updating-schema)
- -  [Jenkins] (#jenkins)
-- [Deployment] (#deployment)
- - [Running the application] (#running-the-application)
- - [Profiles] (#profiles)
-- [Technologies] (#technologies)
+![components](/docs/components.png)
 
-# Introduction
+-  [Getting started] (#getting-started)
+  -  [Technology stack] (#technology-stack)
+  -  [How to run it locally] (#how-to-run-it-locally)
+  -  [Deployment] (#deployment)
+  -  [Server provisioning] (#server-provisioning)
+  -  [Profiles] (#profiles)
+-  [Using the application] (#using-the-application)
+  -  [GitHub user] (#github-user-deprecated)
+  -  [devbliss organization] (#devbliss-organization-deprecated)
+  -  [Updating schema] (updating-schema)
+-  [Technologies] (#technologies)
 
-The purpose of gpullR is to provide a handy tool for visualization and organization of pull requests and the process of code review. This project provides the backend and its underlying business logic. It stores data like all concerned users, repositories, pull requests and so on. The backend provides a RESTful interface for information exchange with the frontend(s).
+## Getting started
+### Technology stack
+The following technologies need to be installed before you can start running the application:
 
-# Development
-## Gradle tasks
+  * [Java 8](https://java.com/download/)
+  * [Gradle](http://gradle.org/)
+
+### How to run it locally
+After you cloned the application `git clone https://github.com/devbliss/gpullr-backend.git && cd gpullr-backend` the application is ready.
+
 To run the application, type
 `./gradlew run`
+The application will bind to port 8888 and instantly requests information from the [GitHub API](https://developer.github.com/v3/).
 
 To build the application, type
 `./gradlew build`
+The `build.gradle` is configured to build a fatJar, when executing `./gradlew build`. This jar is all you need to deploy gPullR backend. You can run it, executing `java -jar gpullr-backend-{version}.jar -Dspring.profiles.active={profile} -Xms64m -Xmx256m`.
 
-## Login using curl
-**Login:** `curl -b cookies.txt -c cookies.txt -v -XPOST http://127.0.0.1:8888/users/login/95374`
+To test the application, type
+`./gradlew test`
 
-**check session:** `curl -b cookies.txt -c cookies.txt -v http://127.0.0.1:8888/users/me`
+### Deployment
+Deploying gPullR backend is achieved by a [jenkins job](http://jenkins.devbliss.com/view/gPullR/job/gPullR-backend-build/), which executes `./gradlew build` and copies the generated jar file to the [live system](http://gpullr.devbliss.com/).
 
-## Updating schema
+### Server provisioning
+The Server which hosts the whole application is provisioned with puppet, hosted by [bingo-puppet](https://github.com/devbliss/bingo-puppet/tree/master/modules/gpullr) on a machine provided by [Bingo](http://staging.bingo.devbliss.com/instances).
+
+### Profiles
+The application supports several profiles, which are supposed to ease the handling of different environments. Supported profiles are:
+
+* test
+* dev
+* prod
+
+## Using the application
+### GitHub user (deprecated)
+The application uses dedicated GitHub user ([gpullr-backend for the live system](https://github.com/gpullr-backend)[gpullr-dev for local development](https://github.com/gpullr-dev)) to request data from the GitHub Api. Those user needs access (read/write) to all repositories that should be managed with gPullR.
+
+**Deprecation notice**: Those users will be removed soon.
+
+### devbliss organization (deprecated)
+All data that is exchanged with GitHub is centred by the organization `devbliss`. So all repositories fetched and managed are part of that organization. Only users that are part of that organization are able to login in successfully to that application.
+
+**Deprecation notice**: Since the use of a organziation to filter data will remain, it will be possible to use this application without any configured application.
+
+### Updating schema
 The application stores its local data in a file-based H2 database, accessed via JPA (Hibernate) through Spring Data
 JPA (see technologies).
 
@@ -45,20 +76,6 @@ Make sure to rename `schema.sql` to any other name before temporarily switching 
 `SCRIPT NODATA NOPASSWORDS NOSETTINGS TO '/tmp/schema-export-h2.sql' CHARSET 'UTF-8';`
 
  and copy-paste the relevant parts to `schema.sql`. Don't forget to deactivate generate-ddl afterwards again!
-
-## Jenkins
-[Jenkins view] (http://jenkins.devbliss.com/view/gPullR)
-
-# Deployment
-## Running the application
-The `build.gradle` is configured to build a fatJar, when executing `gradle build` (or `./gradlew build`). This jar is all you need to deploy gpullR backend. You can run it, executing `java -jar gpullr-backend-{version}.jar -Dspring.profiles.active={profile} -Xms64m -Xmx256m`.
-
-## Profiles
-The application supports several profiles, which are supposed to ease the handling of different environments. Supported profiles are:
-
-* test
-* dev
-* prod
 
 # Technologies
 The project depends on the following key technologies:
