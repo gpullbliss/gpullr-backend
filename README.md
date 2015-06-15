@@ -23,7 +23,14 @@ The following technologies need to be installed before you can start running the
   * [Gradle](http://gradle.org/)
 
 ### How to run it locally
-After you cloned the application `git clone https://github.com/devbliss/gpullr-backend.git && cd gpullr-backend` the application is ready.
+Cloned the application `git clone https://github.com/devbliss/gpullr-backend.git && cd gpullr-backend`.
+
+Create the `secret.properties" file in src/main/resources. 
+This file is used for configuring the organization and the general access to GitHub. It needs to containt the following lines:
+* github.oauthtoken (the token of the user that has access to all necessary repositories
+* github.client-id (the GitHub client ID)
+* github.client-secret (the GitHub client secret)
+* github.organization (the organization you want to manage with gpullR)
 
 To run the application, type
 `./gradlew run`
