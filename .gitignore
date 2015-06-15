@@ -33,3 +33,4 @@ build/
 cookies.txt
 
 /gpullrDb.lock.db
+src/main/resources/secret.properties

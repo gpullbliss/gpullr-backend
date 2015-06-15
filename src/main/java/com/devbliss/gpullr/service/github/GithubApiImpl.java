@@ -31,6 +31,7 @@ import javax.json.JsonValue.ValueType;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
@@ -89,6 +90,9 @@ public class GithubApiImpl implements GithubApi {
   @Log
   private Logger logger;
 
+  @Value("${github.organization}")
+  private String organization;
+
   @Autowired
   private Github client;
 
@@ -101,7 +105,7 @@ public class GithubApiImpl implements GithubApi {
   @Override
   public List<Repo> fetchAllGithubRepos() throws UnexpectedException {
     try {
-      return loadAllPages("/orgs/devbliss/repos",
+      return loadAllPages("/orgs/" + organization + "/repos",
           jo -> new Repo(jo.getInt(FIELD_KEY_ID), jo.getString(FIELD_KEY_NAME), jo.getString(FIELD_KEY_DESCRIPTION)));
     } catch (IOException e) {
       throw new UnexpectedException(e);
@@ -149,7 +153,7 @@ public class GithubApiImpl implements GithubApi {
 
   @Override
   public List<User> fetchAllOrgaMembers() throws IOException {
-    return loadAllPages("/orgs/devbliss/members", this::getUserWithDetailsFromJson);
+    return loadAllPages("/orgs/" + organization + "/members", this::getUserWithDetailsFromJson);
   }
 
   @Override
@@ -399,7 +403,7 @@ public class GithubApiImpl implements GithubApi {
   }
 
   private String buildIssueUri(final String repoName, final int pullNumber) {
-    return "/repos/devbliss/" + repoName + "/issues/" + pullNumber;
+    return "/repos/" + organization + "/" + repoName + "/issues/" + pullNumber;
   }
 
 }
