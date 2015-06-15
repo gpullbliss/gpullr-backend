@@ -23,7 +23,7 @@ The following technologies need to be installed before you can start running the
   * [Gradle](http://gradle.org/)
 
 ### How to run it locally
-Cloned the application `git clone https://github.com/devbliss/gpullr-backend.git && cd gpullr-backend`.
+Clone the application `git clone https://github.com/devbliss/gpullr-backend.git && cd gpullr-backend`.
 
 Create the `secret.properties" file in src/main/resources. 
 This file is used for configuring the organization and the general access to GitHub. It needs to containt the following lines:
