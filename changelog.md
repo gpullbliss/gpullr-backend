@@ -1,5 +1,6 @@
 ### Version 1.0.0-SNAPSHOT
 
+ - [refactor] preparation to go open source"
  - [refactor] PRT 109 - aligned README documentation to current state of the application
  - [feature] PRT 31 - enable/disable desktop notifications at user settings
  - [refactor] due to PRT 121 switch to new oauth application
@@ -79,4 +80,4 @@
  - [feature] project setup
  - [initial] initial commit
 
--- Last change by: Marco Reinwarth <marco.reinwarth@devbliss.com> Thu Jun 04 13:08:32 CEST 2015
+-- Last change by: Daniel Walldorf <daniel.walldorf@devbliss.com> Mon Jun 15 12:21:24 CEST 2015
