@@ -1,6 +1,6 @@
 ### Version 1.0.0-SNAPSHOT
 
- - [refactor] preparation to go open source"
+ - [refactor] preparation to go open source
  - [refactor] PRT 109 - aligned README documentation to current state of the application
  - [feature] PRT 31 - enable/disable desktop notifications at user settings
  - [refactor] due to PRT 121 switch to new oauth application
