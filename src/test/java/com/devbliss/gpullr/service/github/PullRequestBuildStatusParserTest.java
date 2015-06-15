@@ -27,9 +27,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Tests parser by calling it with json payload from {@value #PAYLOAD_FILE_PATH}.
- * 
- * @author Henning Schütz <henning.schuetz@devbliss.com>
  *
+ * @author Henning Schütz <henning.schuetz@devbliss.com>
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PullRequestBuildStatusParserTest {
@@ -51,12 +50,12 @@ public class PullRequestBuildStatusParserTest {
 
     try (BufferedReader br = Files.newBufferedReader(Paths.get(PAYLOAD_FILE_PATH))) {
       jsonObjects = Json
-        .createReader(br)
-        .readArray()
-        .stream()
-        .filter(jv -> jv.getValueType() == ValueType.OBJECT)
-        .map(jv -> (JsonObject) jv)
-        .collect(Collectors.toList());
+          .createReader(br)
+          .readArray()
+          .stream()
+          .filter(jv -> jv.getValueType() == ValueType.OBJECT)
+          .map(jv -> (JsonObject) jv)
+          .collect(Collectors.toList());
       parser = new PullRequestBuildStatusParser();
     }
   }
@@ -79,12 +78,7 @@ public class PullRequestBuildStatusParserTest {
     assertEquals(
         ZonedDateTime.of(LocalDateTime.of(2015, 3, 30, 15, 35, 34), ZoneId.of("Z")),
         buildStatusResponse.payload.get(2).timestamp);
-    assertEquals(
-        "http://jenkins.devbliss.com/job/gPullR-backend-pullrequest/131/",
-        buildStatusResponse.payload.get(0).buildUri);
-    assertEquals(
-        "http://jenkins.devbliss.com/job/gPullR-backend-pullrequest/131/",
-        buildStatusResponse.payload.get(1).buildUri);
+
     assertNull(buildStatusResponse.payload.get(2).buildUri);
     assertEquals(ETAG, buildStatusResponse.etagHeader.get());
   }
